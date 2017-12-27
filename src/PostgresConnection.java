@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.sql.*;
 
-//////commentsssssss
 public class PostgresConnection {
     static JLabel result;
 
