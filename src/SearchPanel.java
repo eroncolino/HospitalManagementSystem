@@ -8,7 +8,6 @@ public class SearchPanel extends JPanel {
     public SearchPanel() {
 
         setLayout(new BorderLayout());
-        Dimension buttonSize = new Dimension(100, 100);
 
         JLabel header = new JLabel("Hospitals Management System");      ////// to be improved in font and size
         JButton extractButton = new JButton("Extract Data");
@@ -18,24 +17,33 @@ public class SearchPanel extends JPanel {
 
         //Create left panel
         JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(Color.green);
+        //leftPanel.setBackground(Color.green);
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+       // leftPanel.setBackground(Color.green);
+        JLabel chooseLabel = new JLabel("Choose an option: ");
+        chooseLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        //Set sizes of buttons
-        extractButton.setSize(buttonSize);
-        insertButton.setPreferredSize(buttonSize);
-        updateButton.setPreferredSize(buttonSize);
-        deleteButton.setSize(buttonSize);
+        //Set button sizes and alignment
+        extractButton.setMaximumSize(new Dimension(200, 30));
+        extractButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        insertButton.setMaximumSize(new Dimension(200, 30));
+        insertButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        updateButton.setMaximumSize(new Dimension(200, 30));
+        updateButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        deleteButton.setMaximumSize(new Dimension(200, 30));
+        deleteButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         //Add buttons to the left panel and create rigid areas
-       // leftPanel.add(Box.createRigidArea(new Dimension(50, 0)));
-       // leftPanel.add(Box.createRigidArea(new Dimension(0, 100)));
+        leftPanel.add(Box.createRigidArea(new Dimension(80, 0)));
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 150)));
+        leftPanel.add(chooseLabel);
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
         leftPanel.add(extractButton);
-        //leftPanel.add(Box.createRigidArea(new Dimension(0, 80)));
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
         leftPanel.add(insertButton);
-        //leftPanel.add(Box.createRigidArea(new Dimension(0, 80)));
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
         leftPanel.add(updateButton);
-        //leftPanel.add(Box.createRigidArea(new Dimension(0, 80)));
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
         leftPanel.add(deleteButton);
 
         //Create center panel
@@ -43,8 +51,9 @@ public class SearchPanel extends JPanel {
         centerPanel.add(header);
 
         //Add panels to the search panel
-        add(leftPanel, BorderLayout.CENTER);
-        add(centerPanel, BorderLayout.EAST);
+        setLayout(new GridLayout(1, 2));
+        add(leftPanel);
+        add(centerPanel);
 
         //Listeners
         extractButton.addActionListener(new extractListener());
