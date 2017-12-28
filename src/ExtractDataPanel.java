@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class ExtractDataPanel extends JPanel{
 
@@ -12,9 +13,15 @@ public class ExtractDataPanel extends JPanel{
 
         JComboBox tablesCombo = new JComboBox(tablesNames);
 
+        String[] emptyColumnHeadings = {"Column 1", "Column 2", "Column 3", "Column 4"};
+        DefaultTableModel model = new DefaultTableModel(15, 4);
+        model.setColumnIdentifiers(emptyColumnHeadings);
+        JTable viewTable = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(viewTable);
+
         add(selectLabel);
         add(tablesCombo);
-
+        add(scrollPane);
     }
 
 }

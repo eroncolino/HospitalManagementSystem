@@ -7,21 +7,18 @@ public class SearchPanel extends JPanel {
 
     public SearchPanel() {
 
-        setLayout(new BorderLayout());
+        //Create left panel and create the choose label
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        JLabel chooseLabel = new JLabel("Choose an option: ");
+        chooseLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        chooseLabel.setFont(new Font("Arial", Font.PLAIN, 25));
 
-        JLabel header = new JLabel("Hospitals Management System");      ////// to be improved in font and size
+        //Create buttons
         JButton extractButton = new JButton("Extract Data");
         JButton insertButton = new JButton("Insert Data");
         JButton updateButton = new JButton("Update Data");
         JButton deleteButton = new JButton("Delete Data");
-
-        //Create left panel
-        JPanel leftPanel = new JPanel();
-        //leftPanel.setBackground(Color.green);
-        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
-       // leftPanel.setBackground(Color.green);
-        JLabel chooseLabel = new JLabel("Choose an option: ");
-        chooseLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         //Set button sizes and alignment
         extractButton.setMaximumSize(new Dimension(200, 30));
@@ -46,21 +43,32 @@ public class SearchPanel extends JPanel {
         leftPanel.add(Box.createRigidArea(new Dimension(0, 50)));
         leftPanel.add(deleteButton);
 
-        //Create center panel
+        //Create center panel and the labels
         JPanel centerPanel = new JPanel();
-        centerPanel.add(header);
+
+        JLabel label1 = new JLabel("Hospitals");
+        label1.setFont(new Font("Arial", Font.PLAIN, 85));
+        JLabel label2 = new JLabel("Management");
+        label2.setFont(new Font("Arial", Font.PLAIN, 85));
+        JLabel label3 = new JLabel("System");
+        label3.setFont(new Font("Arial", Font.PLAIN, 85));
+        centerPanel.add(label1);
+        centerPanel.add(label2);
+        centerPanel.add(label3);
+
+        centerPanel.setBorder((BorderFactory.createEmptyBorder(190, 00, 0, 100)));
+
 
         //Add panels to the search panel
         setLayout(new GridLayout(1, 2));
         add(leftPanel);
         add(centerPanel);
 
-        //Listeners
+        //Add listeners
         extractButton.addActionListener(new extractListener());
         insertButton.addActionListener(new insertListener());
         updateButton.addActionListener(new updateListener());
         deleteButton.addActionListener(new deleteListener());
-
     }
 
     private class extractListener implements ActionListener {
