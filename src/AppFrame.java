@@ -66,10 +66,6 @@ public class AppFrame {
 
         frame.add(pane);
 
-        //display a table
-        //PostgresConnection.PostgresConnection();
-        //frame.add(PostgresConnection.result);   /////////to be corrected. it is just a test
-
         //Set defaults
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(1200, 800));
