@@ -50,25 +50,11 @@ public class AppFrame {
         frame = new JFrame("Hospital Application");
         frame.setJMenuBar(menuBar);
 
-        //Set the background
-        JLabel hospitalBackground = new JLabel(new ImageIcon("HospAppBackground.jpg"));
-        hospitalBackground.setSize(1200, 600);
-
-        //Create enter button
-        enterButton = new JButton("Enter");
-        enterButton.addActionListener(new enterListener());
-        enterButton.setSize(100, 50);
-        enterButton.setBounds(550, 500, 100, 50);
-
-        JLayeredPane pane = new JLayeredPane();
-        pane.add(hospitalBackground, new Integer(1));
-        pane.add(enterButton, new Integer(2));
-
-        frame.add(pane);
+        frame.add(new DashboardPanel());
 
         //Set defaults
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(1200, 800));
+        frame.setPreferredSize(new Dimension(1400, 1000));
         frame.setResizable(false);
         frame.pack();
         frame.setVisible(true);
@@ -76,13 +62,5 @@ public class AppFrame {
 
     }
 
-    private static class enterListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            frame.getContentPane().setVisible(false);
-            frame.setContentPane(new SearchPanel());
-            frame.getContentPane().setVisible(true);
-        }
-    }
 
 }

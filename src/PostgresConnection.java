@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.sql.*;
 
 public class PostgresConnection {
@@ -15,7 +14,7 @@ public class PostgresConnection {
             stmt = con.createStatement();
             rs = stmt.executeQuery("");
 
-            if (ExtractDataPanel.tablesCombo.getSelectedItem().toString() == "Address"){
+            if (DashboardPanel.tablesCombo.getSelectedItem().toString() == "Address"){
 
             }
 
