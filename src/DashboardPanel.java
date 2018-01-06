@@ -8,7 +8,8 @@ import java.awt.event.ActionListener;
 public class DashboardPanel extends JPanel{
     static JComboBox tablesCombo;
     JButton hospitalButton, doctorButton, nurseButton, patientButton, prescriptionButton, timetableButton, treatmentButton,
-            medicineButton, admissionButton, addressButton;
+            medicineButton, admissionButton, addressButton, goButton;
+    JRadioButton searchDataButton, manageDataButton;
 
     public DashboardPanel() {
 
@@ -28,6 +29,7 @@ public class DashboardPanel extends JPanel{
         //Create buttons
 
         hospitalButton = new JButton("Hospital");
+        hospitalButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         hospitalButton.setIcon(new ImageIcon("hospital.png"));
         hospitalButton.setHorizontalTextPosition(AbstractButton.CENTER);
         hospitalButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -41,6 +43,7 @@ public class DashboardPanel extends JPanel{
         add(hospitalButton, c);
 
         doctorButton = new JButton("Doctor");
+        doctorButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         doctorButton.setIcon(new ImageIcon("doctor.png"));
         doctorButton.setHorizontalTextPosition(AbstractButton.CENTER);
         doctorButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -53,6 +56,7 @@ public class DashboardPanel extends JPanel{
         add(doctorButton, c);
 
         nurseButton = new JButton("Nurse");
+        nurseButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         nurseButton.setIcon(new ImageIcon("nurse.png"));
         nurseButton.setHorizontalTextPosition(AbstractButton.CENTER);
         nurseButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -66,6 +70,7 @@ public class DashboardPanel extends JPanel{
 
 
         patientButton = new JButton("Patient");
+        patientButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         patientButton.setIcon(new ImageIcon("patient.png"));
         patientButton.setHorizontalTextPosition(AbstractButton.CENTER);
         patientButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -78,6 +83,7 @@ public class DashboardPanel extends JPanel{
         add(patientButton, c);
 
         prescriptionButton = new JButton("Prescription");
+        prescriptionButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         prescriptionButton.setIcon(new ImageIcon("prescription.png"));
         prescriptionButton.setHorizontalTextPosition(AbstractButton.CENTER);
         prescriptionButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -91,6 +97,7 @@ public class DashboardPanel extends JPanel{
 
 
         timetableButton = new JButton("Timetable");
+        timetableButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         timetableButton.setIcon(new ImageIcon("timetable.png"));
         timetableButton.setHorizontalTextPosition(AbstractButton.CENTER);
         timetableButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -104,6 +111,7 @@ public class DashboardPanel extends JPanel{
 
 
         treatmentButton = new JButton("Treatment");
+        treatmentButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         treatmentButton.setIcon(new ImageIcon("treatment.png"));
         treatmentButton.setHorizontalTextPosition(AbstractButton.CENTER);
         treatmentButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -117,6 +125,7 @@ public class DashboardPanel extends JPanel{
 
 
         medicineButton = new JButton("Medicine");
+        medicineButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         medicineButton.setIcon(new ImageIcon("medicine.png"));
         medicineButton.setHorizontalTextPosition(AbstractButton.CENTER);
         medicineButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -129,6 +138,7 @@ public class DashboardPanel extends JPanel{
         add(medicineButton, c);
 
         admissionButton = new JButton("Admission");
+        admissionButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         admissionButton.setIcon(new ImageIcon("admission.png"));
         admissionButton.setHorizontalTextPosition(AbstractButton.CENTER);
         admissionButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -141,6 +151,7 @@ public class DashboardPanel extends JPanel{
         add(admissionButton, c);
 
         addressButton = new JButton("Address");
+        addressButton.setFont(new Font("Verdana", Font.PLAIN, 20));
         addressButton.setIcon(new ImageIcon("address.png"));
         addressButton.setHorizontalTextPosition(AbstractButton.CENTER);
         addressButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -151,6 +162,42 @@ public class DashboardPanel extends JPanel{
         c.gridx = 4;
         c.gridy = 1;
         add(addressButton, c);
+
+
+        //Create JRadioButtons and goButton and relative panels
+        ImageIcon searchImage = new ImageIcon(new ImageIcon("glass.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
+        searchDataButton = new JRadioButton("Search Data", true);
+        searchDataButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+
+        ImageIcon manageImage = new ImageIcon(new ImageIcon("manage.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
+        manageDataButton = new JRadioButton("Manage Data");
+        manageDataButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+
+        goButton = new JButton("Go");
+        goButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new BorderLayout());
+        JPanel centerPanel = new JPanel();
+        centerPanel.add(searchDataButton, BorderLayout.WEST);
+        centerPanel.add(Box.createRigidArea(new Dimension(100, 0)));
+        centerPanel.add(manageDataButton, BorderLayout.EAST);
+        southPanel.add(centerPanel, BorderLayout.CENTER);
+        southPanel.add(goButton, BorderLayout.SOUTH);
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 1;
+        c.gridy = 2;
+        c.gridwidth = 3;
+        add(southPanel, c);
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(searchDataButton);
+        group.add(manageDataButton);
+
+        FunctionListener functionListener = new FunctionListener();
+        searchDataButton.addActionListener(functionListener);
+        manageDataButton.addActionListener(functionListener);
 
     }
 
@@ -218,6 +265,13 @@ public class DashboardPanel extends JPanel{
     }
 
     private class addressButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+        }
+    }
+
+    private class FunctionListener implements  ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
 
