@@ -27,7 +27,7 @@ public class StripedRowTableCellRenderer extends DefaultTableCellRenderer {
             }
             else
             {
-                c.setBackground(Color.LIGHT_GRAY);
+                c.setBackground(new Color(222, 223, 224));
             }
         }
 

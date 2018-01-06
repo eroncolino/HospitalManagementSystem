@@ -8,8 +8,7 @@ import java.awt.event.ActionListener;
 public class DashboardPanel extends JPanel{
     static JComboBox tablesCombo;
     JButton hospitalButton, doctorButton, nurseButton, patientButton, prescriptionButton, timetableButton, treatmentButton,
-            medicineButton, admissionButton, addressButton, goButton;
-    JRadioButton searchDataButton, manageDataButton;
+            medicineButton, admissionButton, closeButton;
 
     public DashboardPanel() {
 
@@ -68,7 +67,6 @@ public class DashboardPanel extends JPanel{
         c.gridy = 0;
         add(nurseButton, c);
 
-
         patientButton = new JButton("Patient");
         patientButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         patientButton.setIcon(new ImageIcon("patient.png"));
@@ -95,7 +93,6 @@ public class DashboardPanel extends JPanel{
         c.gridy = 0;
         add(prescriptionButton, c);
 
-
         timetableButton = new JButton("Timetable");
         timetableButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         timetableButton.setIcon(new ImageIcon("timetable.png"));
@@ -109,7 +106,6 @@ public class DashboardPanel extends JPanel{
         c.gridy = 1;
         add(timetableButton, c);
 
-
         treatmentButton = new JButton("Treatment");
         treatmentButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         treatmentButton.setIcon(new ImageIcon("treatment.png"));
@@ -122,7 +118,6 @@ public class DashboardPanel extends JPanel{
         c.gridx = 1;
         c.gridy = 1;
         add(treatmentButton, c);
-
 
         medicineButton = new JButton("Medicine");
         medicineButton.setFont(new Font("Verdana", Font.PLAIN, 18));
@@ -150,18 +145,18 @@ public class DashboardPanel extends JPanel{
         c.gridy = 1;
         add(admissionButton, c);
 
-        addressButton = new JButton("Address");
-        addressButton.setFont(new Font("Verdana", Font.PLAIN, 18));
-        addressButton.setIcon(new ImageIcon("address.png"));
-        addressButton.setHorizontalTextPosition(AbstractButton.CENTER);
-        addressButton.setVerticalTextPosition(AbstractButton.BOTTOM);
-        addressButton.addActionListener(new addressButtonListener());
+        closeButton = new JButton("Close");
+        closeButton.setFont(new Font("Verdana", Font.PLAIN, 18));
+        closeButton.setIcon(new ImageIcon("close.png"));
+        closeButton.setHorizontalTextPosition(AbstractButton.CENTER);
+        closeButton.setVerticalTextPosition(AbstractButton.BOTTOM);
+        closeButton.addActionListener(new addressButtonListener());
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipadx = 100;
         c.ipady = 80;
         c.gridx = 4;
         c.gridy = 1;
-        add(addressButton, c);
+        add(closeButton, c);
 //
 //
 //        //Create JRadioButtons and goButton and relative panels
@@ -285,9 +280,7 @@ public class DashboardPanel extends JPanel{
     private class addressButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            AppFrame.frame.getContentPane().setVisible(false);
-            AppFrame.frame.setContentPane(new AddressPanel());
-            AppFrame.frame.getContentPane().setVisible(true);
+            System.exit(0);
         }
     }
 }
