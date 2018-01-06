@@ -54,7 +54,7 @@ public class AppFrame {
 
         //Set defaults
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(1400, 1000));
+        frame.setPreferredSize(new Dimension(1350, 1000));
         frame.setResizable(false);
         frame.pack();
         frame.setVisible(true);

@@ -29,7 +29,7 @@ public class DashboardPanel extends JPanel{
         //Create buttons
 
         hospitalButton = new JButton("Hospital");
-        hospitalButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        hospitalButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         hospitalButton.setIcon(new ImageIcon("hospital.png"));
         hospitalButton.setHorizontalTextPosition(AbstractButton.CENTER);
         hospitalButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -43,7 +43,7 @@ public class DashboardPanel extends JPanel{
         add(hospitalButton, c);
 
         doctorButton = new JButton("Doctor");
-        doctorButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        doctorButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         doctorButton.setIcon(new ImageIcon("doctor.png"));
         doctorButton.setHorizontalTextPosition(AbstractButton.CENTER);
         doctorButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -56,7 +56,7 @@ public class DashboardPanel extends JPanel{
         add(doctorButton, c);
 
         nurseButton = new JButton("Nurse");
-        nurseButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        nurseButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         nurseButton.setIcon(new ImageIcon("nurse.png"));
         nurseButton.setHorizontalTextPosition(AbstractButton.CENTER);
         nurseButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -70,7 +70,7 @@ public class DashboardPanel extends JPanel{
 
 
         patientButton = new JButton("Patient");
-        patientButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        patientButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         patientButton.setIcon(new ImageIcon("patient.png"));
         patientButton.setHorizontalTextPosition(AbstractButton.CENTER);
         patientButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -83,7 +83,7 @@ public class DashboardPanel extends JPanel{
         add(patientButton, c);
 
         prescriptionButton = new JButton("Prescription");
-        prescriptionButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        prescriptionButton.setFont(new Font("Verdana", Font.PLAIN, 17));
         prescriptionButton.setIcon(new ImageIcon("prescription.png"));
         prescriptionButton.setHorizontalTextPosition(AbstractButton.CENTER);
         prescriptionButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -97,7 +97,7 @@ public class DashboardPanel extends JPanel{
 
 
         timetableButton = new JButton("Timetable");
-        timetableButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        timetableButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         timetableButton.setIcon(new ImageIcon("timetable.png"));
         timetableButton.setHorizontalTextPosition(AbstractButton.CENTER);
         timetableButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -111,7 +111,7 @@ public class DashboardPanel extends JPanel{
 
 
         treatmentButton = new JButton("Treatment");
-        treatmentButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        treatmentButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         treatmentButton.setIcon(new ImageIcon("treatment.png"));
         treatmentButton.setHorizontalTextPosition(AbstractButton.CENTER);
         treatmentButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -125,7 +125,7 @@ public class DashboardPanel extends JPanel{
 
 
         medicineButton = new JButton("Medicine");
-        medicineButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        medicineButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         medicineButton.setIcon(new ImageIcon("medicine.png"));
         medicineButton.setHorizontalTextPosition(AbstractButton.CENTER);
         medicineButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -138,7 +138,7 @@ public class DashboardPanel extends JPanel{
         add(medicineButton, c);
 
         admissionButton = new JButton("Admission");
-        admissionButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        admissionButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         admissionButton.setIcon(new ImageIcon("admission.png"));
         admissionButton.setHorizontalTextPosition(AbstractButton.CENTER);
         admissionButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -151,7 +151,7 @@ public class DashboardPanel extends JPanel{
         add(admissionButton, c);
 
         addressButton = new JButton("Address");
-        addressButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+        addressButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         addressButton.setIcon(new ImageIcon("address.png"));
         addressButton.setHorizontalTextPosition(AbstractButton.CENTER);
         addressButton.setVerticalTextPosition(AbstractButton.BOTTOM);
@@ -162,178 +162,132 @@ public class DashboardPanel extends JPanel{
         c.gridx = 4;
         c.gridy = 1;
         add(addressButton, c);
-
-
-        //Create JRadioButtons and goButton and relative panels
-        ImageIcon searchImage = new ImageIcon(new ImageIcon("glass.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
-        searchDataButton = new JRadioButton("Search Data", true);
-        searchDataButton.setFont(new Font("Verdana", Font.PLAIN, 20));
-
-        ImageIcon manageImage = new ImageIcon(new ImageIcon("manage.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
-        manageDataButton = new JRadioButton("Manage Data");
-        manageDataButton.setFont(new Font("Verdana", Font.PLAIN, 20));
-
-        goButton = new JButton("Go");
-        goButton.setFont(new Font("Verdana", Font.PLAIN, 20));
-
-        JPanel southPanel = new JPanel();
-        southPanel.setLayout(new BorderLayout());
-        JPanel centerPanel = new JPanel();
-        centerPanel.add(searchDataButton, BorderLayout.WEST);
-        centerPanel.add(Box.createRigidArea(new Dimension(100, 0)));
-        centerPanel.add(manageDataButton, BorderLayout.EAST);
-        southPanel.add(centerPanel, BorderLayout.CENTER);
-        southPanel.add(goButton, BorderLayout.SOUTH);
-
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 1;
-        c.gridy = 2;
-        c.gridwidth = 3;
-        add(southPanel, c);
-
-        ButtonGroup group = new ButtonGroup();
-        group.add(searchDataButton);
-        group.add(manageDataButton);
-
-        FunctionListener functionListener = new FunctionListener();
-        searchDataButton.addActionListener(functionListener);
-        manageDataButton.addActionListener(functionListener);
+//
+//
+//        //Create JRadioButtons and goButton and relative panels
+//        ImageIcon searchImage = new ImageIcon(new ImageIcon("glass.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
+//        searchDataButton = new JRadioButton("Search Data", true);
+//        searchDataButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+//
+//        ImageIcon manageImage = new ImageIcon(new ImageIcon("manage.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
+//        manageDataButton = new JRadioButton("Manage Data");
+//        manageDataButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+//
+//        goButton = new JButton("Go");
+//        goButton.setFont(new Font("Verdana", Font.PLAIN, 20));
+//
+//        JPanel southPanel = new JPanel();
+//        southPanel.setLayout(new BorderLayout());
+//        JPanel centerPanel = new JPanel();
+//        centerPanel.add(searchDataButton, BorderLayout.WEST);
+//        centerPanel.add(Box.createRigidArea(new Dimension(100, 0)));
+//        centerPanel.add(manageDataButton, BorderLayout.EAST);
+//        southPanel.add(centerPanel, BorderLayout.CENTER);
+//        southPanel.add(goButton, BorderLayout.SOUTH);
+//
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//        c.gridx = 1;
+//        c.gridy = 2;
+//        c.gridwidth = 3;
+//        add(southPanel, c);
+//
+//        ButtonGroup group = new ButtonGroup();
+//        group.add(searchDataButton);
+//        group.add(manageDataButton);
+//
+//        FunctionListener functionListener = new FunctionListener();
+//        searchDataButton.addActionListener(functionListener);
+//        manageDataButton.addActionListener(functionListener);
 
     }
 
     private class hospitalButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new HospitalPanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class doctorButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new DottorPanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class nurseButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new NursePanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class patientButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new PatientPanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class prescriptionButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new PrescripionPanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class timetableButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new TimetablePanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class treatmentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new TreatmentPanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class medicineButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new MedicinePanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class admissionButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            AppFrame.frame.getContentPane().setVisible(false);
+            AppFrame.frame.setContentPane(new AdmissionPanel());
+            AppFrame.frame.getContentPane().setVisible(true);
         }
     }
 
     private class addressButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
-        }
-    }
-
-    private class FunctionListener implements  ActionListener{
-        @Override
-        public void actionPerformed(ActionEvent e) {
-
-        }
-    }
-
-        /*//Create button to go back to previous pane
-        backButton = new JButton("Back");
-        backButton.addActionListener(new backButtonListener());
-
-
-        //Create the select label
-        selectLabel = new JLabel("Select table: ");
-
-        //Create the combo box from which one chooses the table name
-
-         String[] tablesNames = {"Select a table", "Address", "Bedroom", "Doctor", "Hospital", "Hospital Admission",
-                "Hospital Doctor", "Medicine", "Nurse", "Outpatient's Department", "Patient", "Private Doctor",
-                "Private Office", "Prescription", "Timetable", "Treatment", "Ward"};
-
-        tablesCombo = new JComboBox(tablesNames);
-
-
-
-        //Creeate the empty table
-
-        String[] emptyColumnHeadings = {"Column 1", "Column 2", "Column 3", "Column 4"};
-        DefaultTableModel model = new DefaultTableModel(15, 4);
-        model.setColumnIdentifiers(emptyColumnHeadings);
-        JTable viewTable = new JTable(model);
-        JScrollPane scrollPane = new JScrollPane(viewTable);
-
-
-        //Create the renderer which makes alternated colors
-
-        viewTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-
-            @Override
-            public Component getTableCellRendererComponent(JTable table,
-                                                           Object value, boolean isSelected, boolean hasFocus,
-                                                           int row, int column) {
-                Component c = super.getTableCellRendererComponent(table,
-                        value, isSelected, hasFocus, row, column);
-                Color lightGray = new Color(224, 224, 209);
-                c.setBackground(row%2==0 ? Color.white : lightGray);
-                return c;
-            }
-        });
-
-
-        add(backButton);
-        add(selectLabel);
-        add(tablesCombo);
-        add(scrollPane);
-    }
-
-    private class backButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
             AppFrame.frame.getContentPane().setVisible(false);
-         //   AppFrame.frame.setContentPane(new SearchPanel());
+            AppFrame.frame.setContentPane(new AddressPanel());
             AppFrame.frame.getContentPane().setVisible(true);
         }
-    }*/
+    }
 }
