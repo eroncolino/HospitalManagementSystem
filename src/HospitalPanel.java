@@ -4,6 +4,7 @@ import javax.swing.border.Border;
 
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 import java.awt.*;
 
@@ -54,6 +55,8 @@ public class HospitalPanel extends JPanel {
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         String[] hospitalColumns = { "ID", "Name", "Street", "Postal code", "City", "Province", "State" };
         columnsList = new JComboBox(hospitalColumns);
+        columnsList.setPreferredSize(new Dimension(200, 20));
+        columnsList.setMaximumSize(new Dimension(200, 20));
         criteria.add(searchLabel);
         criteria.add(Box.createRigidArea(new Dimension(30, 0)));
         criteria.add(columnsList);
@@ -66,6 +69,8 @@ public class HospitalPanel extends JPanel {
         stringLabel = new JLabel("Enter string: ");
         stringLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         textField = new JTextField();
+        textField.setPreferredSize(new Dimension(200, 20));
+        textField.setMaximumSize(new Dimension(200, 20));
         parameterPanel.add(stringLabel);
         parameterPanel.add(Box.createRigidArea(new Dimension(20, 0)));
         parameterPanel.add(textField);
@@ -83,13 +88,17 @@ public class HospitalPanel extends JPanel {
 
         // we need to read data in order to fill in the table
 
-        Object[][] mydata = getHospitalsData();
-        tab = new JTable(mydata, hospitalColumns);
-        tab.setModel(new CustomTableModel(mydata, hospitalColumns));
+        Object[][] myData = getHospitalsData();
+        tab = new JTable(myData, hospitalColumns);
+        tab.setModel(new CustomTableModel(myData, hospitalColumns));
         tab.setDefaultRenderer(Object.class, new StripedRowTableCellRenderer());
         JScrollPane pane = new JScrollPane(tab);
+        pane.setPreferredSize(new Dimension(900,500));
         tablePanel.add(pane);
         mainRow.add(tablePanel);
+
+        TableColumnModel columnModel = tab.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(20);
 
         // Buttons
 
@@ -120,6 +129,7 @@ public class HospitalPanel extends JPanel {
         insertButton.addActionListener(new insertListener());
 
         deleteButton = new JButton("Delete");
+        deleteButton.setEnabled(false);
         deleteButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         deleteButton.setMaximumSize(d);
         deleteButton.setIcon(new ImageIcon("delete.png"));
@@ -134,7 +144,7 @@ public class HospitalPanel extends JPanel {
         goBackButton.addActionListener(new goBackListener());
 
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(Box.createRigidArea(new Dimension(250, 0)));
+        buttonPanel.add(Box.createRigidArea(new Dimension(200, 0)));
         buttonPanel.add(findButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(updateButton);
@@ -213,15 +223,17 @@ public class HospitalPanel extends JPanel {
             // Container
             JPanel addPanel = new JPanel();
             addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
+            addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
 
             // First row: Hospital Id
             JPanel firstRow = new JPanel();
             firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
 
-            JLabel id = new JLabel("Hospital Code");
+            JLabel id = new JLabel("Hospital ID");
+            id.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField idField = new JTextField();
             firstRow.add(id);
-            firstRow.add(Box.createRigidArea(new Dimension(20, 0)));
+            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
             firstRow.add(idField);
 
             addPanel.add(firstRow);
@@ -231,9 +243,10 @@ public class HospitalPanel extends JPanel {
             secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
 
             JLabel name = new JLabel("Hospital Name");
+            name.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField nameField = new JTextField();
             secondRow.add(name);
-            secondRow.add(Box.createRigidArea(new Dimension(15, 0)));
+            secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
             secondRow.add(nameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -244,9 +257,10 @@ public class HospitalPanel extends JPanel {
             thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
 
             JLabel street = new JLabel("Street");
+            street.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField streetField = new JTextField();
             thirdRow.add(street);
-            thirdRow.add(Box.createRigidArea(new Dimension(63, 0)));
+            thirdRow.add(Box.createRigidArea(new Dimension(107, 0)));
             thirdRow.add(streetField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -256,11 +270,12 @@ public class HospitalPanel extends JPanel {
             JPanel fourthRow = new JPanel();
             fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
 
-            JLabel postalcode = new JLabel("Postal code");
-            JTextField postalcodeField = new JTextField();
-            fourthRow.add(postalcode);
-            fourthRow.add(Box.createRigidArea(new Dimension(30, 0)));
-            fourthRow.add(postalcodeField);
+            JLabel postalCode = new JLabel("Postal code");
+            postalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField postalCodeField = new JTextField();
+            fourthRow.add(postalCode);
+            fourthRow.add(Box.createRigidArea(new Dimension(60, 0)));
+            fourthRow.add(postalCodeField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fourthRow);
@@ -270,9 +285,10 @@ public class HospitalPanel extends JPanel {
             fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
 
             JLabel city = new JLabel("City");
+            city.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField cityField = new JTextField();
             fifthRow.add(city);
-            fifthRow.add(Box.createRigidArea(new Dimension(75, 0)));
+            fifthRow.add(Box.createRigidArea(new Dimension(125, 0)));
             fifthRow.add(cityField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -283,9 +299,10 @@ public class HospitalPanel extends JPanel {
             sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
 
             JLabel province = new JLabel("Province");
+            province.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField provinceField = new JTextField();
             sixthRow.add(province);
-            sixthRow.add(Box.createRigidArea(new Dimension(45, 0)));
+            sixthRow.add(Box.createRigidArea(new Dimension(85, 0)));
             sixthRow.add(provinceField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -296,9 +313,10 @@ public class HospitalPanel extends JPanel {
             seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
 
             JLabel state = new JLabel("State");
+            state.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField stateField = new JTextField();
             seventhRow.add(state);
-            seventhRow.add(Box.createRigidArea(new Dimension(67, 0)));
+            seventhRow.add(Box.createRigidArea(new Dimension(115, 0)));
             seventhRow.add(stateField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -307,7 +325,7 @@ public class HospitalPanel extends JPanel {
 
             // add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Add a hospital", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    addPanel, "Add hospital", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             //now we check the result
 
@@ -323,7 +341,7 @@ public class HospitalPanel extends JPanel {
 
                     PreparedStatement stat = conn.prepareStatement(findAddress);
                     stat.setString(1, streetField.getText());
-                    stat.setString(2, postalcodeField.getText());
+                    stat.setString(2, postalCodeField.getText());
                     stat.setString(3, cityField.getText());
                     stat.setString(4, provinceField.getText());
                     stat.setString(5, stateField.getText());
@@ -345,14 +363,38 @@ public class HospitalPanel extends JPanel {
                         //Checks
 
                         if(streetField.getText().length() > 50) {
-                            JOptionPane.showMessageDialog(container, "Street should be less than 50 characters");
+                            JOptionPane.showMessageDialog(container, "Error: Street should be less than 50 characters. \n" +
+                                    "No hospital will be added");
                             return;
                         }
 
-                        //...
+                       if(postalCodeField.getText().length() != 5){
+                            JOptionPane.showMessageDialog(container, "Error: Postal code should have 5 characters.\n " +
+                                    "No hospital will be added.");
+                            return;
+                       }
+
+                        if(cityField.getText().length() > 30){
+                            JOptionPane.showMessageDialog(container, "Error: City should be less than 5 characters.\n " +
+                                    "No hospital will be added.");
+                            return;
+                        }
+
+                        if(provinceField.getText().length() != 2){
+                            JOptionPane.showMessageDialog(container, "Error: Province should be 2 characters.\n " +
+                                    "No hospital will be added.");
+                            return;
+                        }
+
+                        if(stateField.getText().length() > 30){
+                            JOptionPane.showMessageDialog(container, "Error: State should be less than 30 characters.\n " +
+                                    "No hospital will be added.");
+                            return;
+                        }
+
 
                         addAddressStat.setString(1, streetField.getText());
-                        addAddressStat.setString(2, postalcodeField.getText());
+                        addAddressStat.setString(2, postalCodeField.getText());
                         addAddressStat.setString(3, cityField.getText());
                         addAddressStat.setString(4, provinceField.getText());
                         addAddressStat.setString(5, stateField.getText());
@@ -362,26 +404,28 @@ public class HospitalPanel extends JPanel {
 
                         if (key.next())
                             addressId = key.getInt(1);
-
                     }
 
                     //Now we have the address, so we add the hospital
 
                     int hospitalId = 0;
+
                     //Hospital checks
                     try {
-
                         hospitalId = Integer.parseInt(idField.getText());
 
                     } catch(NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Hospital id must be an integer");
+                        JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer. \n" +
+                                "No hospital will be added");
                         return;
                     }
 
                     if(nameField.getText().length() > 60) {
-                        JOptionPane.showMessageDialog(container, "Hospital Name should be less than 60 characters");
+                        JOptionPane.showMessageDialog(container, "Hospital name should be less than 60 characters. \n" +
+                                "No hospital will be added");
                         return;
                     }
+
 
                     //We add it
                     String addHospital = " INSERT INTO hospital (hospitalid, hospitalname, hospitaladdress) VALUES (?,?,?)";
@@ -409,11 +453,8 @@ public class HospitalPanel extends JPanel {
                 } catch (SQLException s) {
                     s.printStackTrace();
                 }
-
             }
-
         }
-
     }
 
     private class deleteListener implements ActionListener {
