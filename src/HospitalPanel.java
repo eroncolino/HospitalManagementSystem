@@ -107,7 +107,7 @@ public class HospitalPanel extends JPanel {
         mainRow.add(Box.createRigidArea(new Dimension(50,0)));
         mainRow.add(buttonPanel);
 
-        //AT the end
+        //At the end
         container.add(Box.createRigidArea(new Dimension(0,100)));
         container.add(mainRow);
 
