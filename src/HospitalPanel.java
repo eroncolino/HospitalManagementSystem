@@ -285,7 +285,7 @@ public class HospitalPanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.");
                         return;
                     }
-                }//ciao
+                }
                 if (selectedColumn == "Name") {
                     if (stringToBeMatched.length() < 60) {
                         myData = getHospitalDataFromString(stringToBeMatched);
