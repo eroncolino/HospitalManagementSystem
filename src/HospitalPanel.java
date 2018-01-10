@@ -33,6 +33,7 @@ public class HospitalPanel extends JPanel {
     private JTable tab;
     private JButton findButton, insertButton, deleteButton, updateButton, goBackButton;
     private JPanel container;
+    private String[] hospitalColumns;
 
     public HospitalPanel() {
 
@@ -54,7 +55,7 @@ public class HospitalPanel extends JPanel {
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        String[] hospitalColumns = { "ID", "Name", "Street", "ZIP code", "City", "Province", "State" };
+        hospitalColumns = new String[]{"Show all", "ID", "Name", "Street", "ZIP code", "City", "Province", "State"};
         columnsList = new JComboBox(hospitalColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -171,7 +172,7 @@ public class HospitalPanel extends JPanel {
         add(container);
     }
 
-
+    //Get all the data from the hospital table
     public Object[][] getHospitalsData() {
 
         ArrayList<Object[]> data = new ArrayList();
@@ -210,6 +211,7 @@ public class HospitalPanel extends JPanel {
         return dataReturn;
     }
 
+    //Get all data when ID is inserted as query string
     public Object[][] getHospitalDataFromID (int idNumber) {
         ArrayList<Object[]> data  = new ArrayList();
         String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE hospitalid = ?";
@@ -223,7 +225,7 @@ public class HospitalPanel extends JPanel {
             ResultSet rs = stmt.executeQuery();
 
             if (!rs.next())
-             JOptionPane.showMessageDialog(container, "No match was found for the given string");
+             JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
                 do {
@@ -259,12 +261,24 @@ public class HospitalPanel extends JPanel {
             String selectedColumn = (String) columnsList.getSelectedItem();
             String stringToBeMatched = textField.getText();
             int hospitalIDCheck = 0;
+            Object[][] myData = new Object[0][];
+            Object[][] allData;
 
             if (stringToBeMatched.length() != 0){
                 if(selectedColumn == "ID") {
                     try {
                         hospitalIDCheck = Integer.parseInt(textField.getText());
-                        getHospitalDataFromID(hospitalIDCheck);
+                        myData = getHospitalDataFromID(hospitalIDCheck);
+
+                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                        if (myData.length != 0 )
+                            repaintTable(myData);
+
+                        else {
+                            allData = getHospitalsData();
+                            repaintTable(allData);
+                        }
+
 
                     } catch (NumberFormatException n) {
                         JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.");
@@ -274,6 +288,7 @@ public class HospitalPanel extends JPanel {
             }
             else
                 JOptionPane.showMessageDialog(container, "Error: enter the string to be found.");
+
         }
     }
 
@@ -479,7 +494,6 @@ public class HospitalPanel extends JPanel {
                             return;
                         }
 
-
                         addAddressStat.setString(1, streetField.getText());
                         addAddressStat.setString(2, postalCodeField.getText());
                         addAddressStat.setString(3, cityField.getText());
@@ -563,5 +577,19 @@ public class HospitalPanel extends JPanel {
             AppFrame.frame.setContentPane(new DashboardPanel());
             AppFrame.frame.getContentPane().setVisible(true);
         }
+    }
+
+    public void repaintTable(Object[][] dataToBeInserted){
+        //Show the found rows
+        tab.setModel(new CustomTableModel(dataToBeInserted, hospitalColumns));
+
+        //Set columns width
+        TableColumnModel columnModel = tab.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(1).setPreferredWidth(150);
+        columnModel.getColumn(2).setPreferredWidth(150);
+        columnModel.getColumn(3).setPreferredWidth(15);
+        columnModel.getColumn(5).setPreferredWidth(15);
+        columnModel.getColumn(6).setPreferredWidth(20);
     }
 }
