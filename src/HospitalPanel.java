@@ -247,7 +247,7 @@ public class HospitalPanel extends JPanel {
     //Get all data when ID is inserted as query string
     public Object[][] getHospitalDataFromString (String column, String stringToBeMatched) {
         ArrayList<Object[]> data  = new ArrayList();
-        String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE (" + column + ") = ?";
+        String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE UPPER(" + column + ") = UPPER(?)";
         Connection conn;
 
         try {
@@ -420,6 +420,8 @@ public class HospitalPanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Error: State name must be less than 30 characters.");
                     }
                 }
+
+                textField.setText("");
             }
             else
                 JOptionPane.showMessageDialog(container, "Error: enter the string to be found.");
