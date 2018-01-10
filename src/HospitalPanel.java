@@ -245,16 +245,15 @@ public class HospitalPanel extends JPanel {
     }
 
     //Get all data when ID is inserted as query string
-    public Object[][] getHospitalDataFromString (String columns, String stringToBeMatched) {
+    public Object[][] getHospitalDataFromString (String column, String stringToBeMatched) {
         ArrayList<Object[]> data  = new ArrayList();
-        String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE UPPER(?) = UPPER(?)";
+        String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE (" + column + ") = ?";
         Connection conn;
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
             PreparedStatement stmt = conn.prepareStatement(findIdQuery);
-            stmt.setString(1, columns);
-            stmt.setString(2, stringToBeMatched);
+            stmt.setString(1, stringToBeMatched);
 
             ResultSet rs = stmt.executeQuery();
 
@@ -324,10 +323,10 @@ public class HospitalPanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.");
                         return;
                     }
-                }//ciao
+                }
                 if (selectedColumn == "Name") {
                     if (stringToBeMatched.length() < 60) {
-                        myData = getHospitalDataFromString("Name", stringToBeMatched);
+                        myData = getHospitalDataFromString("hospital.hospitalname", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -343,7 +342,7 @@ public class HospitalPanel extends JPanel {
                 }
                 if (selectedColumn == "Street") {
                     if (stringToBeMatched.length() < 50) {
-                        myData = getHospitalDataFromString("Street", stringToBeMatched);
+                        myData = getHospitalDataFromString("street",stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -357,9 +356,9 @@ public class HospitalPanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Error: Street name must be less than 50 characters.");
                     }
                 }
-                if (selectedColumn == "Postal Code") {
+                if (selectedColumn == "ZIP Code") {
                     if (stringToBeMatched.length() == 5) {
-                        myData = getHospitalDataFromString("Postal Code", stringToBeMatched);
+                        myData = getHospitalDataFromString("postalcode", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -370,12 +369,12 @@ public class HospitalPanel extends JPanel {
                         }
                     }
                     else{
-                        JOptionPane.showMessageDialog(container, "Error: Postal Code must be 5 characters.");
+                        JOptionPane.showMessageDialog(container, "Error: ZIP Code must be 5 characters.");
                     }
                 }
                 if (selectedColumn == "City") {
                     if (stringToBeMatched.length() < 30) {
-                        myData = getHospitalDataFromString("City", stringToBeMatched);
+                        myData = getHospitalDataFromString("city", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -391,7 +390,7 @@ public class HospitalPanel extends JPanel {
                 }
                 if (selectedColumn == "Province") {
                     if (stringToBeMatched.length() == 2) {
-                        myData = getHospitalDataFromString("Province", stringToBeMatched);
+                        myData = getHospitalDataFromString("province", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -407,7 +406,7 @@ public class HospitalPanel extends JPanel {
                 }
                 if (selectedColumn == "State") {
                     if (stringToBeMatched.length() < 30) {
-                        myData = getHospitalDataFromString("State", stringToBeMatched);
+                        myData = getHospitalDataFromString("state", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
