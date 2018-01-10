@@ -11,7 +11,6 @@ public class AppFrame {
         JMenu menu;
         JMenuItem about, exit;
         ImageIcon menuImage, aboutImage, exitImage;
-        JButton enterButton;
 
         // Create the menuBar
         menuBar = new JMenuBar();
@@ -23,7 +22,6 @@ public class AppFrame {
         menuBar.add(menu);
 
         // Create the about subMenu and the exit subMenu
-        about = new JMenuItem("About");
         aboutImage = new ImageIcon(
                 new ImageIcon("about.png").getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
         about = new JMenuItem("About", aboutImage);
@@ -34,7 +32,6 @@ public class AppFrame {
             }
         });
 
-        exit = new JMenuItem("Exit");
         exitImage = new ImageIcon(new ImageIcon("exit.png").getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
         exit = new JMenuItem("Exit", exitImage);
         exit.addActionListener(new ActionListener() {

@@ -111,7 +111,7 @@ public class HospitalPanel extends JPanel {
         findButton.addActionListener(new findListener());
 
         updateButton = new JButton("Update");
-        updateButton.setEnabled(false);
+        updateButton.setEnabled(true);
         updateButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         updateButton.setMaximumSize(d);
         updateButton.setIcon(new ImageIcon("update.png"));
@@ -298,10 +298,6 @@ public class HospitalPanel extends JPanel {
             Object[][] allData;
 
             if (stringToBeMatched.length() != 0) {
-                if (selectedColumn == "Show all"){
-                    repaintTable(getAllHospitalsData());
-                    textField.setText("");
-                }
 
                 if (selectedColumn == "ID") {
                     try {
@@ -318,8 +314,7 @@ public class HospitalPanel extends JPanel {
                         }
 
 
-                    }
-                    catch (NumberFormatException n) {
+                    } catch (NumberFormatException n) {
                         JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.");
                         return;
                     }
@@ -335,14 +330,13 @@ public class HospitalPanel extends JPanel {
                             allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
-                    }
-                    else{
+                    } else {
                         JOptionPane.showMessageDialog(container, "Error: Hospital name must be less than 60 characters.");
                     }
                 }
                 if (selectedColumn == "Street") {
                     if (stringToBeMatched.length() < 50) {
-                        myData = getHospitalDataFromString("street",stringToBeMatched);
+                        myData = getHospitalDataFromString("street", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -351,8 +345,7 @@ public class HospitalPanel extends JPanel {
                             allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
-                    }
-                    else{
+                    } else {
                         JOptionPane.showMessageDialog(container, "Error: Street name must be less than 50 characters.");
                     }
                 }
@@ -367,8 +360,7 @@ public class HospitalPanel extends JPanel {
                             allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
-                    }
-                    else{
+                    } else {
                         JOptionPane.showMessageDialog(container, "Error: ZIP Code must be 5 characters.");
                     }
                 }
@@ -383,8 +375,7 @@ public class HospitalPanel extends JPanel {
                             allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
-                    }
-                    else{
+                    } else {
                         JOptionPane.showMessageDialog(container, "Error: City name must be less than 30 characters.");
                     }
                 }
@@ -399,8 +390,7 @@ public class HospitalPanel extends JPanel {
                             allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
-                    }
-                    else{
+                    } else {
                         JOptionPane.showMessageDialog(container, "Error: Province name must be 2 characters.");
                     }
                 }
@@ -415,23 +405,293 @@ public class HospitalPanel extends JPanel {
                             allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
-                    }
-                    else{
+                    } else {
                         JOptionPane.showMessageDialog(container, "Error: State name must be less than 30 characters.");
                     }
                 }
 
                 textField.setText("");
+            } else {
+
+                if (selectedColumn == "Show all") {
+                    repaintTable(getAllHospitalsData());
+                    textField.setText("");
+                } else
+                    JOptionPane.showMessageDialog(container, "Error: Enter the string to be found.");
             }
-            else
-                JOptionPane.showMessageDialog(container, "Error: enter the string to be found.");
         }
     }
 
     private class updateListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Currently selected: " + tab.getSelectedRow());
+            int[] indexes = tab.getSelectedRows();
+            int index, idKey;
+
+            if(indexes.length == 1){
+                index = tab.getSelectedRow();
+                idKey = (int) tab.getModel().getValueAt(index, 0);
+
+
+                // Container
+                JPanel addPanel = new JPanel();
+                addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
+                addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
+
+                // First row: Hospital Id
+                JPanel firstRow = new JPanel();
+                firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
+
+                JLabel id = new JLabel("Hospital ID");
+                id.setFont(new Font("Verdana", Font.PLAIN, 18));
+                JTextField idField = new JTextField(idKey);
+                firstRow.add(id);
+                firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
+                firstRow.add(idField);
+
+                addPanel.add(firstRow);
+
+                // Second row: Hospital Name
+                JPanel secondRow = new JPanel();
+                secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
+
+                JLabel name = new JLabel("Hospital Name");
+                name.setFont(new Font("Verdana", Font.PLAIN, 18));
+                JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
+                secondRow.add(name);
+                secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
+                secondRow.add(nameField);
+
+                addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+                addPanel.add(secondRow);
+
+                // Third row: Street
+                JPanel thirdRow = new JPanel();
+                thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
+
+                JLabel street = new JLabel("Street");
+                street.setFont(new Font("Verdana", Font.PLAIN, 18));
+                JTextField streetField = new JTextField(tab.getModel().getValueAt(index, 2).toString());;
+                thirdRow.add(street);
+                thirdRow.add(Box.createRigidArea(new Dimension(107, 0)));
+                thirdRow.add(streetField);
+
+                addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+                addPanel.add(thirdRow);
+
+                // Fourth row: PostalCode
+                JPanel fourthRow = new JPanel();
+                fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
+
+                JLabel postalCode = new JLabel("Postal code");
+                postalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
+                JTextField postalCodeField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
+                fourthRow.add(postalCode);
+                fourthRow.add(Box.createRigidArea(new Dimension(60, 0)));
+                fourthRow.add(postalCodeField);
+
+                addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+                addPanel.add(fourthRow);
+
+                // Fifth row: City
+                JPanel fifthRow = new JPanel();
+                fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
+
+                JLabel city = new JLabel("City");
+                city.setFont(new Font("Verdana", Font.PLAIN, 18));
+                JTextField cityField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
+                fifthRow.add(city);
+                fifthRow.add(Box.createRigidArea(new Dimension(125, 0)));
+                fifthRow.add(cityField);
+
+                addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+                addPanel.add(fifthRow);
+
+                // Sixth row: Province
+                JPanel sixthRow = new JPanel();
+                sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
+
+                JLabel province = new JLabel("Province");
+                province.setFont(new Font("Verdana", Font.PLAIN, 18));
+                JTextField provinceField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
+                sixthRow.add(province);
+                sixthRow.add(Box.createRigidArea(new Dimension(85, 0)));
+                sixthRow.add(provinceField);
+
+                addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+                addPanel.add(sixthRow);
+
+                // Seventh row: Province
+                JPanel seventhRow = new JPanel();
+                seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
+
+                JLabel state = new JLabel("State");
+                state.setFont(new Font("Verdana", Font.PLAIN, 18));
+                JTextField stateField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
+                seventhRow.add(state);
+                seventhRow.add(Box.createRigidArea(new Dimension(115, 0)));
+                seventhRow.add(stateField);
+
+                addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+                addPanel.add(seventhRow);
+                addPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+                // add all to JOptionPane
+                int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
+                        addPanel, "Update hospital", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                //now we check the result
+
+                if(result == JOptionPane.YES_OPTION) {
+                    //it is a yes so we want to add it
+                    //first we need to check if the address already exists, if not we have to add it
+                    //before we add the hospital
+
+                    String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
+                    Connection conn;
+                    try {
+                        conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+
+                        PreparedStatement stat = conn.prepareStatement(findAddress);
+                        stat.setString(1, streetField.getText());
+                        stat.setString(2, postalCodeField.getText());
+                        stat.setString(3, cityField.getText());
+                        stat.setString(4, provinceField.getText());
+                        stat.setString(5, stateField.getText());
+
+                        ResultSet rs = stat.executeQuery();
+
+                        int addressId = 0;
+
+                        //Either we have it or we should first add it
+                        if(rs.next()) {
+                            addressId = rs.getInt("addressid");
+                        } else {
+
+                            String addAddress = "INSERT INTO address (street, postalcode, city,province,state) VALUES(?,?,?,?,?)";
+
+                            PreparedStatement addAddressStat = conn.prepareStatement(addAddress, Statement.RETURN_GENERATED_KEYS);
+
+
+                            //Checks
+
+                            if(streetField.getText().length() == 0) {
+                                JOptionPane.showMessageDialog(container, "Error: Street field cannot be empty.\n" +
+                                        "No hospital will be added");
+                                return;
+                            }
+
+                            if(streetField.getText().length() > 50) {
+                                JOptionPane.showMessageDialog(container, "Error: Street should be less than 50 characters. \n" +
+                                        "No hospital will be added");
+                                return;
+                            }
+
+                            if(postalCodeField.getText().length() != 5){
+                                JOptionPane.showMessageDialog(container, "Error: Postal code should have 5 characters.\n " +
+                                        "No hospital will be added.");
+                                return;
+                            }
+
+                            if(cityField.getText().length() == 0){
+                                JOptionPane.showMessageDialog(container, "Error: City field cannot be empty.\n " +
+                                        "No hospital will be added.");
+                                return;
+                            }
+
+                            if(cityField.getText().length() > 30){
+                                JOptionPane.showMessageDialog(container, "Error: City should be less than 30 characters.\n " +
+                                        "No hospital will be added.");
+                                return;
+                            }
+
+                            if(provinceField.getText().length() != 2){
+                                JOptionPane.showMessageDialog(container, "Error: Province should be 2 characters.\n " +
+                                        "No hospital will be added.");
+                                return;
+                            }
+
+                            if(stateField.getText().length() == 0){
+                                JOptionPane.showMessageDialog(container, "Error: State field cannot be empty.\n " +
+                                        "No hospital will be added.");
+                                return;
+                            }
+
+                            if(stateField.getText().length() > 30){
+                                JOptionPane.showMessageDialog(container, "Error: State should be less than 30 characters.\n " +
+                                        "No hospital will be added.");
+                                return;
+                            }
+
+                            addAddressStat.setString(1, streetField.getText());
+                            addAddressStat.setString(2, postalCodeField.getText());
+                            addAddressStat.setString(3, cityField.getText());
+                            addAddressStat.setString(4, provinceField.getText());
+                            addAddressStat.setString(5, stateField.getText());
+
+                            addAddressStat.executeUpdate();
+                            ResultSet key = addAddressStat.getGeneratedKeys();
+
+                            if (key.next())
+                                addressId = key.getInt(1);
+                        }
+
+                        //Now we have the address, so we add the hospital
+
+                        int hospitalId = 0;
+
+                        //Hospital checks
+                        try {
+                            hospitalId = Integer.parseInt(idField.getText());
+
+                        } catch(NumberFormatException n) {
+                            JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer. \n" +
+                                    "No hospital will be added");
+                            return;
+                        }
+
+                        if(nameField.getText().length() == 0) {
+                            JOptionPane.showMessageDialog(container, "Hospital name field cannot be empty. \n" +
+                                    "No hospital will be added");
+                            return;
+                        }
+
+                        if(nameField.getText().length() > 60) {
+                            JOptionPane.showMessageDialog(container, "Hospital name should be less than 60 characters. \n" +
+                                    "No hospital will be added");
+                            return;
+                        }
+
+
+                        //We add it
+                        String addHospital = " INSERT INTO hospital (hospitalid, hospitalname, hospitaladdress) VALUES (?,?,?)";
+
+                        PreparedStatement addHospitalStat = conn.prepareStatement(addHospital);
+
+                        addHospitalStat.setInt(1, hospitalId);
+                        addHospitalStat.setString(2, nameField.getText());
+                        addHospitalStat.setInt(3, addressId);
+
+                        int res = addHospitalStat.executeUpdate();
+
+                        //Confirm that hospital record has been added successfully
+                        if (res > 0){
+                            JOptionPane.showMessageDialog(container, "Hospital added successfully");
+                        }
+
+                        //Repaint the table
+
+                        AppFrame.frame.getContentPane().setVisible(false);
+                        AppFrame.frame.setContentPane(new HospitalPanel());
+                        AppFrame.frame.getContentPane().setVisible(true);
+
+                    } catch (SQLException s) {
+                        s.printStackTrace();
+                    }
+                }
+            }
+            else
+                JOptionPane.showMessageDialog(container, "Error: You can select only one row at a time.");
         }
     }
 
@@ -557,7 +817,7 @@ public class HospitalPanel extends JPanel {
                 String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
                 Connection conn;
                 try {
-                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "forzamilan");
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = conn.prepareStatement(findAddress);
                     stat.setString(1, streetField.getText());
