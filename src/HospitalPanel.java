@@ -264,14 +264,14 @@ public class HospitalPanel extends JPanel {
             Object[][] myData = new Object[0][];
             Object[][] allData;
 
-            if (stringToBeMatched.length() != 0){
-                if(selectedColumn == "ID") {
+            if (stringToBeMatched.length() != 0) {
+                if (selectedColumn == "ID") {
                     try {
                         hospitalIDCheck = Integer.parseInt(textField.getText());
                         myData = getHospitalDataFromID(hospitalIDCheck);
 
                         //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
-                        if (myData.length != 0 )
+                        if (myData.length != 0)
                             repaintTable(myData);
 
                         else {
@@ -280,9 +280,112 @@ public class HospitalPanel extends JPanel {
                         }
 
 
-                    } catch (NumberFormatException n) {
+                    }
+                    catch (NumberFormatException n) {
                         JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.");
                         return;
+                    }
+                }
+                if (selectedColumn == "Name") {
+                    if (stringToBeMatched.length() < 60) {
+                        myData = getHospitalDataFromString(stringToBeMatched);
+
+                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getHospitalsData();
+                            repaintTable(allData);
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(container, "Error: Hospital name must be less than 60 characters.");
+                    }
+                }
+                if (selectedColumn == "Street") {
+                    if (stringToBeMatched.length() < 50) {
+                        myData = getHospitalDataFromString("Street", stringToBeMatched);
+
+                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getHospitalsData();
+                            repaintTable(allData);
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(container, "Error: Street name must be less than 50 characters.");
+                    }
+                }
+                if (selectedColumn == "Postal Code") {
+                    if (stringToBeMatched.length() == 5) {
+                        myData = getHospitalDataFromString("Postal Code", stringToBeMatched);
+
+                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getHospitalsData();
+                            repaintTable(allData);
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(container, "Error: Postal Code must be 5 characters.");
+                    }
+                }
+                if (selectedColumn == "City") {
+                    if (stringToBeMatched.length() < 30) {
+                        myData = getHospitalDataFromString("City", stringToBeMatched);
+
+                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getHospitalsData();
+                            repaintTable(allData);
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(container, "Error: City name must be less than 30 characters.");
+                    }
+                }
+                if (selectedColumn == "Province") {
+                    if (stringToBeMatched.length() == 2) {
+                        myData = getHospitalDataFromString("Province", stringToBeMatched);
+
+                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getHospitalsData();
+                            repaintTable(allData);
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(container, "Error: Province name must be 2 characters.");
+                    }
+                }
+                if (selectedColumn == "State") {
+                    if (stringToBeMatched.length() < 30) {
+                        myData = getHospitalDataFromString("State", stringToBeMatched);
+
+                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getHospitalsData();
+                            repaintTable(allData);
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(container, "Error: State name must be less than 30 characters.");
                     }
                 }
             }
@@ -421,7 +524,7 @@ public class HospitalPanel extends JPanel {
                 String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
                 Connection conn;
                 try {
-                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "forzamilan");
 
                     PreparedStatement stat = conn.prepareStatement(findAddress);
                     stat.setString(1, streetField.getText());
