@@ -1,28 +1,16 @@
 import javax.swing.*;
-
 import javax.swing.border.Border;
-
 import javax.swing.border.TitledBorder;
-import javax.swing.plaf.nimbus.State;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-
 import java.awt.*;
-
 import java.awt.event.ActionEvent;
-
 import java.awt.event.ActionListener;
-
 import java.sql.Connection;
-
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 import java.sql.SQLException;
-
 import java.sql.Statement;
-
 import java.util.ArrayList;
 
 public class HospitalPanel extends JPanel {
@@ -33,7 +21,7 @@ public class HospitalPanel extends JPanel {
     private JTable tab;
     private JButton findButton, insertButton, deleteButton, updateButton, goBackButton;
     private JPanel container;
-    private String[] hospitalColumns;
+    private String[] boxColumns, hospitalColumns;
 
     public HospitalPanel() {
 
@@ -55,8 +43,9 @@ public class HospitalPanel extends JPanel {
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        hospitalColumns = new String[]{"Show all", "ID", "Name", "Street", "ZIP code", "City", "Province", "State"};
-        columnsList = new JComboBox(hospitalColumns);
+        boxColumns = new String[]{"Show all", "ID", "Name", "Street", "ZIP code", "City", "Province", "State"};
+        hospitalColumns = new String[] {"ID", "Name", "Street", "ZIP code", "City", "Province", "State"};
+        columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
         criteria.add(searchLabel);
@@ -90,7 +79,7 @@ public class HospitalPanel extends JPanel {
 
         // we need to read data in order to fill in the table
 
-        Object[][] myData = getHospitalsData();
+        Object[][] myData = getAllHospitalsData();
         tab = new JTable(myData, hospitalColumns);
         tab.setModel(new CustomTableModel(myData, hospitalColumns));
         tab.setDefaultRenderer(Object.class, new StripedRowTableCellRenderer());
@@ -173,7 +162,7 @@ public class HospitalPanel extends JPanel {
     }
 
     //Get all the data from the hospital table
-    public Object[][] getHospitalsData() {
+    public Object[][] getAllHospitalsData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid";
@@ -211,8 +200,8 @@ public class HospitalPanel extends JPanel {
         return dataReturn;
     }
 
-    //Get all data when ID is inserted as query string
-    public Object[][] getHospitalDataFromID (int idNumber) {
+    //Get all data when an integer is inserted as query string
+    public Object[][] getHospitalDataFromInteger (int number) {
         ArrayList<Object[]> data  = new ArrayList();
         String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE hospitalid = ?";
         Connection conn;
@@ -220,12 +209,57 @@ public class HospitalPanel extends JPanel {
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
             PreparedStatement stmt = conn.prepareStatement(findIdQuery);
-            stmt.setInt(1, idNumber);
+            stmt.setInt(1, number);
 
             ResultSet rs = stmt.executeQuery();
 
             if (!rs.next())
              JOptionPane.showMessageDialog(container, "No match was found for the given string.");
+
+            else {
+                do {
+                    Object[] row = {rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
+                            rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
+                            rs.getString("state")};
+                    data.add(row);
+                } while (rs.next());
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        Object[][] dataReturn = new Object[data.size()][7];
+
+        for (int i = 0; i < data.size(); i++) {
+            dataReturn[i][0] = data.get(i)[0];
+            dataReturn[i][1] = data.get(i)[1];
+            dataReturn[i][2] = data.get(i)[2];
+            dataReturn[i][3] = data.get(i)[3];
+            dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
+        }
+        return dataReturn;
+    }
+
+    //Get all data when ID is inserted as query string
+    public Object[][] getHospitalDataFromString (String columns, String stringToBeMatched) {
+        ArrayList<Object[]> data  = new ArrayList();
+        String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE UPPER(?) = UPPER(?)";
+        Connection conn;
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+            PreparedStatement stmt = conn.prepareStatement(findIdQuery);
+            stmt.setString(1, columns);
+            stmt.setString(2, stringToBeMatched);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next())
+                JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
                 do {
@@ -265,17 +299,22 @@ public class HospitalPanel extends JPanel {
             Object[][] allData;
 
             if (stringToBeMatched.length() != 0) {
+                if (selectedColumn == "Show all"){
+                    repaintTable(getAllHospitalsData());
+                    textField.setText("");
+                }
+
                 if (selectedColumn == "ID") {
                     try {
                         hospitalIDCheck = Integer.parseInt(textField.getText());
-                        myData = getHospitalDataFromID(hospitalIDCheck);
+                        myData = getHospitalDataFromInteger(hospitalIDCheck);
 
                         //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
                             repaintTable(myData);
 
                         else {
-                            allData = getHospitalsData();
+                            allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
 
@@ -285,17 +324,16 @@ public class HospitalPanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.");
                         return;
                     }
-                }
+                }//ciao
                 if (selectedColumn == "Name") {
                     if (stringToBeMatched.length() < 60) {
-                        myData = getHospitalDataFromString(stringToBeMatched);
+                        myData = getHospitalDataFromString("Name", stringToBeMatched);
 
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
                             repaintTable(myData);
 
                         else {
-                            allData = getHospitalsData();
+                            allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
                     }
@@ -307,12 +345,11 @@ public class HospitalPanel extends JPanel {
                     if (stringToBeMatched.length() < 50) {
                         myData = getHospitalDataFromString("Street", stringToBeMatched);
 
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
                             repaintTable(myData);
 
                         else {
-                            allData = getHospitalsData();
+                            allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
                     }
@@ -324,12 +361,11 @@ public class HospitalPanel extends JPanel {
                     if (stringToBeMatched.length() == 5) {
                         myData = getHospitalDataFromString("Postal Code", stringToBeMatched);
 
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
                             repaintTable(myData);
 
                         else {
-                            allData = getHospitalsData();
+                            allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
                     }
@@ -341,12 +377,11 @@ public class HospitalPanel extends JPanel {
                     if (stringToBeMatched.length() < 30) {
                         myData = getHospitalDataFromString("City", stringToBeMatched);
 
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
                             repaintTable(myData);
 
                         else {
-                            allData = getHospitalsData();
+                            allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
                     }
@@ -358,12 +393,11 @@ public class HospitalPanel extends JPanel {
                     if (stringToBeMatched.length() == 2) {
                         myData = getHospitalDataFromString("Province", stringToBeMatched);
 
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
                             repaintTable(myData);
 
                         else {
-                            allData = getHospitalsData();
+                            allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
                     }
@@ -375,12 +409,11 @@ public class HospitalPanel extends JPanel {
                     if (stringToBeMatched.length() < 30) {
                         myData = getHospitalDataFromString("State", stringToBeMatched);
 
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
                             repaintTable(myData);
 
                         else {
-                            allData = getHospitalsData();
+                            allData = getAllHospitalsData();
                             repaintTable(allData);
                         }
                     }
@@ -391,7 +424,6 @@ public class HospitalPanel extends JPanel {
             }
             else
                 JOptionPane.showMessageDialog(container, "Error: enter the string to be found.");
-
         }
     }
 
