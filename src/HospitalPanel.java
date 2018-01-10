@@ -3,6 +3,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 import javax.swing.border.TitledBorder;
+import javax.swing.plaf.nimbus.State;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -53,7 +54,7 @@ public class HospitalPanel extends JPanel {
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        String[] hospitalColumns = { "ID", "Name", "Street", "Postal code", "City", "Province", "State" };
+        String[] hospitalColumns = { "ID", "Name", "Street", "ZIP code", "City", "Province", "State" };
         columnsList = new JComboBox(hospitalColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -99,6 +100,11 @@ public class HospitalPanel extends JPanel {
 
         TableColumnModel columnModel = tab.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(1).setPreferredWidth(150);
+        columnModel.getColumn(2).setPreferredWidth(150);
+        columnModel.getColumn(3).setPreferredWidth(15);
+        columnModel.getColumn(5).setPreferredWidth(15);
+        columnModel.getColumn(6).setPreferredWidth(20);
 
         // Buttons
 
@@ -115,6 +121,7 @@ public class HospitalPanel extends JPanel {
         findButton.addActionListener(new findListener());
 
         updateButton = new JButton("Update");
+        updateButton.setEnabled(false);
         updateButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         updateButton.setMaximumSize(d);
         updateButton.setIcon(new ImageIcon("update.png"));
@@ -164,11 +171,12 @@ public class HospitalPanel extends JPanel {
         add(container);
     }
 
+
     public Object[][] getHospitalsData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid";
-        Connection conn = null;
+        Connection conn;
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
@@ -197,7 +205,50 @@ public class HospitalPanel extends JPanel {
             dataReturn[i][4] = data.get(i)[4];
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
-            System.out.print(dataReturn[i][0] + " " + dataReturn[i][1] + " " + dataReturn[i][2]);
+            //System.out.print(dataReturn[i][0] + " " + dataReturn[i][1] + " " + dataReturn[i][2]);
+        }
+        return dataReturn;
+    }
+
+    public Object[][] getHospitalDataFromID (int idNumber) {
+        ArrayList<Object[]> data  = new ArrayList();
+        String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE hospitalid = ?";
+        Connection conn;
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+            PreparedStatement stmt = conn.prepareStatement(findIdQuery);
+            stmt.setInt(1, idNumber);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next())
+             JOptionPane.showMessageDialog(container, "No match was found for the given string");
+
+            else {
+                do {
+                    Object[] row = {rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
+                            rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
+                            rs.getString("state")};
+                    data.add(row);
+                } while (rs.next());
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        Object[][] dataReturn = new Object[data.size()][7];
+
+        for (int i = 0; i < data.size(); i++) {
+            dataReturn[i][0] = data.get(i)[0];
+            dataReturn[i][1] = data.get(i)[1];
+            dataReturn[i][2] = data.get(i)[2];
+            dataReturn[i][3] = data.get(i)[3];
+            dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
         }
         return dataReturn;
     }
@@ -205,6 +256,24 @@ public class HospitalPanel extends JPanel {
     private class findListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            String selectedColumn = (String) columnsList.getSelectedItem();
+            String stringToBeMatched = textField.getText();
+            int hospitalIDCheck = 0;
+
+            if (stringToBeMatched.length() != 0){
+                if(selectedColumn == "ID") {
+                    try {
+                        hospitalIDCheck = Integer.parseInt(textField.getText());
+                        getHospitalDataFromID(hospitalIDCheck);
+
+                    } catch (NumberFormatException n) {
+                        JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.");
+                        return;
+                    }
+                }
+            }
+            else
+                JOptionPane.showMessageDialog(container, "Error: enter the string to be found.");
         }
     }
 
@@ -362,6 +431,12 @@ public class HospitalPanel extends JPanel {
 
                         //Checks
 
+                        if(streetField.getText().length() == 0) {
+                            JOptionPane.showMessageDialog(container, "Error: Street field cannot be empty.\n" +
+                                    "No hospital will be added");
+                            return;
+                        }
+
                         if(streetField.getText().length() > 50) {
                             JOptionPane.showMessageDialog(container, "Error: Street should be less than 50 characters. \n" +
                                     "No hospital will be added");
@@ -374,14 +449,26 @@ public class HospitalPanel extends JPanel {
                             return;
                        }
 
-                        if(cityField.getText().length() > 30){
-                            JOptionPane.showMessageDialog(container, "Error: City should be less than 5 characters.\n " +
+                        if(cityField.getText().length() == 0){
+                            JOptionPane.showMessageDialog(container, "Error: City field cannot be empty.\n " +
+                                    "No hospital will be added.");
+                            return;
+                        }
+
+                       if(cityField.getText().length() > 30){
+                            JOptionPane.showMessageDialog(container, "Error: City should be less than 30 characters.\n " +
                                     "No hospital will be added.");
                             return;
                         }
 
                         if(provinceField.getText().length() != 2){
                             JOptionPane.showMessageDialog(container, "Error: Province should be 2 characters.\n " +
+                                    "No hospital will be added.");
+                            return;
+                        }
+
+                        if(stateField.getText().length() == 0){
+                            JOptionPane.showMessageDialog(container, "Error: State field cannot be empty.\n " +
                                     "No hospital will be added.");
                             return;
                         }
@@ -420,6 +507,12 @@ public class HospitalPanel extends JPanel {
                         return;
                     }
 
+                    if(nameField.getText().length() == 0) {
+                        JOptionPane.showMessageDialog(container, "Hospital name field cannot be empty. \n" +
+                                "No hospital will be added");
+                        return;
+                    }
+
                     if(nameField.getText().length() > 60) {
                         JOptionPane.showMessageDialog(container, "Hospital name should be less than 60 characters. \n" +
                                 "No hospital will be added");
@@ -443,7 +536,6 @@ public class HospitalPanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Hospital added successfully");
                     }
 
-
                     //Repaint the table
 
                     AppFrame.frame.getContentPane().setVisible(false);
@@ -457,6 +549,7 @@ public class HospitalPanel extends JPanel {
         }
     }
 
+    // to be erased since not used for hospital
     private class deleteListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
