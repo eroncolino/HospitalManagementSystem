@@ -548,16 +548,15 @@ public class HospitalPanel extends JPanel {
 
                     //Hospital checks
 
-                    int hospitalId = 0;
+                 //  int hospitalId = 0;
 
-                    try {
-                        hospitalId = Integer.parseInt(idField.getText());
+                   // try {
+                    //    hospitalId = Integer.parseInt(idField.getText());
 
-                    } catch(NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer. \n" +
-                                "No hospital will be added.");
-                        return;
-                    }
+                    //} catch(NumberFormatException n) {
+                    //    JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer. \n" + "No hospital will be added.")
+                        // return;
+                    //}
 
                     if(nameField.getText().length() == 0) {
                         JOptionPane.showMessageDialog(container, "Hospital name field cannot be empty. \n" +
@@ -663,7 +662,7 @@ public class HospitalPanel extends JPanel {
 
                         PreparedStatement addHospitalStat = conn.prepareStatement(addHospital);
 
-                        addHospitalStat.setInt(1, hospitalId);
+                        //addHospitalStat.setInt(1, hospitalId);
                         addHospitalStat.setString(2, nameField.getText());
                         addHospitalStat.setInt(3, addressId);
 
