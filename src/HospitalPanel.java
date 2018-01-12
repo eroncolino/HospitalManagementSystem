@@ -168,7 +168,6 @@ public class HospitalPanel extends JPanel {
         add(container);
 
         tab.setRowSelectionAllowed(true);
-        tab.clearSelection();
         ListSelectionModel rowSelectionModel = tab.getSelectionModel();
         rowSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
