@@ -185,6 +185,7 @@ public class HospitalPanel extends JPanel {
     }
 
     //Get all the data from the hospital table
+
     public Object[][] getAllHospitalsData() {
 
         ArrayList<Object[]> data = new ArrayList();
@@ -646,6 +647,8 @@ public class HospitalPanel extends JPanel {
                         updateAddressStmt.setString(3, cityField.getText());
                         updateAddressStmt.setString(4, provinceField.getText());
                         updateAddressStmt.setString(5, provinceField.getText());
+
+                        updateAddressStmt.executeUpdate();
 
                     } else {
 
