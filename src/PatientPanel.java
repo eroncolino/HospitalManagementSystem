@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -10,7 +11,7 @@ import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class PatientPanel extends JPanel {
+public class PatientPanel extends JPanel {/*
     private JLabel searchLabel, stringLabel;
     private JComboBox columnsList;
     private JTextField textField;
@@ -76,7 +77,9 @@ public class PatientPanel extends JPanel {
         // we need to read data in order to fill in the table
 
         Object[][] myData = getAllPatientData();
-        tab = new JTable(/*myData, patientColumns*/) {
+        tab = new JTable(*/
+/*myData, patientColumns*//*
+) {
             public void changeSelection(int rowIndex, int columnIndex,
                                         boolean toggle, boolean extend) {
                 super.changeSelection(rowIndex, columnIndex, true, false);
@@ -980,4 +983,5 @@ public class PatientPanel extends JPanel {
         columnModel.getColumn(3).setPreferredWidth(15);
         columnModel.getColumn(5).setPreferredWidth(15);
     }
-}
+*/}
+
