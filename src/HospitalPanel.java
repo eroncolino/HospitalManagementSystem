@@ -139,7 +139,6 @@ public class HospitalPanel extends JPanel {
         deleteButton.setMaximumSize(d);
         deleteButton.setIcon(new ImageIcon("delete.png"));
         deleteButton.setHorizontalTextPosition(AbstractButton.RIGHT);
-        deleteButton.addActionListener(new deleteListener());
 
         goBackButton = new JButton("Go back");
         goBackButton.setFont(new Font("Verdana", Font.PLAIN, 18));
@@ -829,6 +828,14 @@ public class HospitalPanel extends JPanel {
                 //first we need to check if the address already exists, if not we have to add it
                 //before we add the hospital
 
+                boolean hospitalAlreadyExists = checkHospitalExists(Integer.parseInt(idField.getText()));
+
+                if (hospitalAlreadyExists) {
+                    JOptionPane.showMessageDialog(container, "This hospital ID already exists. Insert another hospital ID or modify the existing one.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
                 Connection conn;
                 try {
@@ -970,13 +977,6 @@ public class HospitalPanel extends JPanel {
         }
     }
 
-    // To be erased since not used for hospital
-    private class deleteListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-        }
-    }
-
     private class goBackListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -986,7 +986,7 @@ public class HospitalPanel extends JPanel {
         }
     }
 
-    public void repaintTable(Object[][] dataToBeInserted) {
+    private void repaintTable(Object[][] dataToBeInserted) {
         //Show the found rows
         tab.setModel(new CustomTableModel(dataToBeInserted, hospitalColumns));
 
@@ -998,5 +998,29 @@ public class HospitalPanel extends JPanel {
         columnModel.getColumn(3).setPreferredWidth(15);
         columnModel.getColumn(5).setPreferredWidth(15);
         columnModel.getColumn(6).setPreferredWidth(20);
+    }
+
+    private boolean checkHospitalExists (int id) {
+        boolean hospitalExists = false;
+
+        String query = "SELECT * FROM hospital WHERE hospitalid = ?";
+
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+            PreparedStatement s = conn.prepareStatement(query);
+
+            s.setInt(1, id);
+
+            ResultSet res = s.executeQuery();
+
+            if (res.next())
+                hospitalExists = true;
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return hospitalExists;
     }
 }
