@@ -850,20 +850,20 @@ public class HospitalPanel extends JPanel {
                         hospitalId = Integer.parseInt(idField.getText());
 
                     } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.\n" +
-                                "No hospital will be added.");
+                        JOptionPane.showMessageDialog(container, "Hospital ID must be an integer.\n" +
+                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     if (nameField.getText().length() == 0) {
                         JOptionPane.showMessageDialog(container, "Hospital name field cannot be empty.\n" +
-                                "No hospital will be added.");
+                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     if (nameField.getText().length() > 60) {
                         JOptionPane.showMessageDialog(container, "Hospital name should be less than 60 characters.\n" +
-                                "No hospital will be added.");
+                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

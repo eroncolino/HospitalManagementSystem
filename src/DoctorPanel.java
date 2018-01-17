@@ -211,8 +211,6 @@ public class DoctorPanel extends JPanel {
                 dataReturn[i][2] = data.get(i)[2];
                 dataReturn[i][3] = data.get(i)[3];
                 dataReturn[i][4] = data.get(i)[4];
-
-                //System.out.print(dataReturn[i][0] + " " + dataReturn[i][1] + " " + dataReturn[i][2]);
             }
             return dataReturn;
         }
@@ -245,7 +243,7 @@ public class DoctorPanel extends JPanel {
                 e.printStackTrace();
             }
 
-            Object[][] dataReturn = new Object[data.size()][7];
+            Object[][] dataReturn = new Object[data.size()][5];
 
             for (int i = 0; i < data.size(); i++) {
                 dataReturn[i][0] = data.get(i)[0];
@@ -253,14 +251,11 @@ public class DoctorPanel extends JPanel {
                 dataReturn[i][2] = data.get(i)[2];
                 dataReturn[i][3] = data.get(i)[3];
                 dataReturn[i][4] = data.get(i)[4];
-                dataReturn[i][5] = data.get(i)[5];
-                dataReturn[i][6] = data.get(i)[6];
-                System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
             }
             return dataReturn;
         }
 
-        //Get all data when ID is inserted as query string
+        //Get all data when a string is inserted as query string
         public Object[][] getDoctorDataFromString(String column, String stringToBeMatched) {
             ArrayList<Object[]> data = new ArrayList();
             String findIdQuery = "SELECT * FROM doctor WHERE UPPER(" + column + ") = UPPER(?)";
@@ -288,7 +283,7 @@ public class DoctorPanel extends JPanel {
                 e.printStackTrace();
             }
 
-            Object[][] dataReturn = new Object[data.size()][7];
+            Object[][] dataReturn = new Object[data.size()][5];
 
             for (int i = 0; i < data.size(); i++) {
                 dataReturn[i][0] = data.get(i)[0];
@@ -296,9 +291,6 @@ public class DoctorPanel extends JPanel {
                 dataReturn[i][2] = data.get(i)[2];
                 dataReturn[i][3] = data.get(i)[3];
                 dataReturn[i][4] = data.get(i)[4];
-                
-                
-                System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
             }
             return dataReturn;
         }
@@ -308,8 +300,8 @@ public class DoctorPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 String selectedColumn = (String) columnsList.getSelectedItem();
                 String stringToBeMatched = textField.getText();
-                int doctorIDCheck = 0;
-                Object[][] myData = new Object[0][];
+                int doctorIDCheck;
+                Object[][] myData;
                 Object[][] allData;
 
                 if (stringToBeMatched.length() != 0) {

@@ -1,3 +1,5 @@
+import jdk.nashorn.internal.scripts.JO;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -5,8 +7,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,6 +23,7 @@ public class TimetablePanel extends JPanel {
     private JPanel container;
     private String[] boxColumns, timetableColumns;
     private ArrayList<Integer> allOfficesIdList;
+    private ArrayList<Integer> allTimetablesIdList;
     private SimpleDateFormat simpleDateFormat;
     private String[] daysOfTheWeek = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
 
@@ -99,13 +101,13 @@ public class TimetablePanel extends JPanel {
         columnModel.getColumn(0).setPreferredWidth(20);
         columnModel.getColumn(1).setPreferredWidth(90);
         columnModel.getColumn(2).setPreferredWidth(90);
-        columnModel.getColumn(3).setPreferredWidth(145);
+        columnModel.getColumn(3).setPreferredWidth(140);
         columnModel.getColumn(4).setPreferredWidth(20);
         columnModel.getColumn(5).setPreferredWidth(50);
         columnModel.getColumn(6).setPreferredWidth(20);
         columnModel.getColumn(7).setPreferredWidth(5);
         columnModel.getColumn(8).setPreferredWidth(20);
-        columnModel.getColumn(9).setPreferredWidth(30);
+        columnModel.getColumn(9).setPreferredWidth(35);
         columnModel.getColumn(10).setPreferredWidth(30);
 
         // Buttons
@@ -181,10 +183,13 @@ public class TimetablePanel extends JPanel {
             public void valueChanged(ListSelectionEvent e) {
                 int[] indexes = tab.getSelectedRows();
 
-                if (indexes.length == 0)
+                if (indexes.length == 0) {
                     updateButton.setEnabled(false);
-                else
+                    deleteButton.setEnabled(false);
+                } else {
                     updateButton.setEnabled(true);
+                    deleteButton.setEnabled(true);
+                }
             }
         });
     }
@@ -195,11 +200,12 @@ public class TimetablePanel extends JPanel {
 
         ArrayList<Object[]> data = new ArrayList();
         allOfficesIdList = new ArrayList();
+        allTimetablesIdList = new ArrayList();
 
-        String query = "SELECT d.doctorid, d.doctorname, d.doctorsurname, a.street AS officestreet, a.postalcode, a.city, a.province, a.state, t.officeid, t.dayoftheweek, t.beginningtime, t.endtime\n" +
-                "FROM timetable t INNER JOIN doctor d ON t.doctorid = d.doctorid\n" +
-                "INNER JOIN private_office o ON t.officeid = o.officeid\n" +
-                "INNER JOIN address a ON o.officeaddress = a.addressid";
+        String query = "SELECT d.doctorid, d.doctorname, d.doctorsurname, a.street AS officestreet, a.postalcode, a.city, a.province, a.state, t.timetableid, t.officeid, t.dayoftheweek, t.beginningtime, t.endtime " +
+                "FROM timetable t INNER JOIN doctor d ON t.doctorid = d.doctorid " +
+                "INNER JOIN private_office o ON t.officeid = o.officeid " +
+                "INNER JOIN address a ON o.officeaddress = a.addressid ";
 
         Connection conn;
 
@@ -216,10 +222,10 @@ public class TimetablePanel extends JPanel {
                         rs.getString("state"), rs.getString("dayoftheweek"),
                         simpleDateFormat.format(rs.getTime("beginningtime")), simpleDateFormat.format(rs.getTime("endtime"))};
 
-                int officesId = rs.getInt("officeid");
-
                 data.add(row);
-                allOfficesIdList.add(officesId);
+
+                allOfficesIdList.add(rs.getInt("officeid"));
+                allTimetablesIdList.add(rs.getInt("timetableid"));
 
             }
 
@@ -245,10 +251,13 @@ public class TimetablePanel extends JPanel {
         return dataReturn;
     }
 
-    //Get all data when an integer is inserted as query string  /////////////////////////////
+    //Get all data when an integer is inserted as query string
     public Object[][] getTimetableDataFromDoctorId(int doctorId) {
         ArrayList<Object[]> data = new ArrayList();
-        String findIdQuery = "SELECT d.doctorid, d.doctorname, d.doctorsurname, a.street AS officestreet, a.postalcode, a.city, a.province, a.state, t.dayoftheweek, t.beginningtime, t.endtime\n" +
+        allOfficesIdList = new ArrayList();
+        allTimetablesIdList = new ArrayList();
+
+        String findIdQuery = "SELECT d.doctorid, d.doctorname, d.doctorsurname, a.street AS officestreet, a.postalcode, a.city, a.province, a.state, t.timetableid, t.officeid, t.dayoftheweek, t.beginningtime, t.endtime\n" +
                 "FROM timetable t INNER JOIN doctor d ON t.doctorid = d.doctorid\n" +
                 "INNER JOIN private_office o ON t.officeid = o.officeid\n" +
                 "INNER JOIN address a ON o.officeaddress = a.addressid WHERE d.doctorid = ?";
@@ -269,8 +278,12 @@ public class TimetablePanel extends JPanel {
                     Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                             rs.getString("officestreet"), rs.getString("postalcode"), rs.getString("city"),
                             rs.getString("province"), rs.getString("state"), rs.getString("dayoftheweek"),
-                            rs.getString("beginningtime"), rs.getString("endtime")};
+                            simpleDateFormat.format(rs.getTime("beginningtime")), simpleDateFormat.format(rs.getTime("endtime"))};
                     data.add(row);
+
+                    allOfficesIdList.add(rs.getInt("officeid"));
+                    allTimetablesIdList.add(rs.getInt("timetableid"));
+
                 } while (rs.next());
             }
 
@@ -278,7 +291,7 @@ public class TimetablePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][10];
+        Object[][] dataReturn = new Object[data.size()][11];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -297,10 +310,13 @@ public class TimetablePanel extends JPanel {
         return dataReturn;
     }
 
-    //Get all data when ID is inserted as query string  /////////////////////////////////
+    //Get all data when a string is inserted as query string
     public Object[][] getTimetableDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
-        String findIdQuery = "SELECT d.doctorid, d.doctorname, d.doctorsurname, a.street AS officestreet, a.postalcode, a.city, a.province, a.state, t.dayoftheweek, t.beginningtime, t.endtime\n" +
+        allOfficesIdList = new ArrayList();
+        allTimetablesIdList = new ArrayList();
+
+        String findIdQuery = "SELECT d.doctorid, d.doctorname, d.doctorsurname, a.street AS officestreet, a.postalcode, a.city, a.province, a.state, t.timetableid, t.officeid, t.dayoftheweek, t.beginningtime, t.endtime\n" +
                 "FROM timetable t INNER JOIN doctor d ON t.doctorid = d.doctorid\n" +
                 "INNER JOIN private_office o ON t.officeid = o.officeid\n" +
                 "INNER JOIN address a ON o.officeaddress = a.addressid WHERE UPPER (" + column + ") = UPPER (?)";
@@ -321,8 +337,11 @@ public class TimetablePanel extends JPanel {
                     Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                             rs.getString("officestreet"), rs.getString("postalcode"), rs.getString("city"),
                             rs.getString("province"), rs.getString("state"), rs.getString("dayoftheweek"),
-                            rs.getString("beginningtime"), rs.getString("endtime")};
+                            simpleDateFormat.format(rs.getTime("beginningtime")), simpleDateFormat.format(rs.getTime("endtime"))};
                     data.add(row);
+
+                    allOfficesIdList.add(rs.getInt("officeid"));
+                    allTimetablesIdList.add(rs.getInt("timetableid"));
                 } while (rs.next());
             }
 
@@ -330,7 +349,7 @@ public class TimetablePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][10];
+        Object[][] dataReturn = new Object[data.size()][11];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -343,11 +362,74 @@ public class TimetablePanel extends JPanel {
             dataReturn[i][7] = data.get(i)[7];
             dataReturn[i][8] = data.get(i)[8];
             dataReturn[i][9] = data.get(i)[9];
+            dataReturn[i][10] = data.get(i)[10];
         }
         return dataReturn;
     }
 
-    public Object[][] getTimetableDataFromDate (String column, String date)
+    //Get all data when a date is inserted as query string
+    public Object[][] getTimetableDataFromDate(String column, String timeString) {
+        ArrayList<Object[]> data = new ArrayList();
+        allOfficesIdList = new ArrayList();
+        allTimetablesIdList = new ArrayList();
+
+        String findDateQuery = "SELECT d.doctorid, d.doctorname, d.doctorsurname, a.street AS officestreet, a.postalcode, a.city, a.province, a.state, t.timetableid, t.officeid, t.dayoftheweek, t.beginningtime, t.endtime\n" +
+                "FROM timetable t INNER JOIN doctor d ON t.doctorid = d.doctorid\n" +
+                "INNER JOIN private_office o ON t.officeid = o.officeid\n" +
+                "INNER JOIN address a ON o.officeaddress = a.addressid WHERE (" + column + ") = ?";
+
+        Connection conn;
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+            PreparedStatement stmt = conn.prepareStatement(findDateQuery);
+
+            long ms = simpleDateFormat.parse(timeString).getTime();
+            Time t = new Time(ms);
+            stmt.setTime(1, t);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next())
+                JOptionPane.showMessageDialog(container, "No match was found for the given string.");
+
+            else {
+                do {
+                    Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
+                            rs.getString("officestreet"), rs.getString("postalcode"), rs.getString("city"),
+                            rs.getString("province"), rs.getString("state"), rs.getString("dayoftheweek"),
+                            simpleDateFormat.format(rs.getTime("beginningtime")), simpleDateFormat.format(rs.getTime("endtime"))};
+                    data.add(row);
+
+                    allOfficesIdList.add(rs.getInt("officeid"));
+                    allTimetablesIdList.add(rs.getInt("timetableid"));
+
+                } while (rs.next());
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Object[][] dataReturn = new Object[data.size()][11];
+
+        for (int i = 0; i < data.size(); i++) {
+            dataReturn[i][0] = data.get(i)[0];
+            dataReturn[i][1] = data.get(i)[1];
+            dataReturn[i][2] = data.get(i)[2];
+            dataReturn[i][3] = data.get(i)[3];
+            dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
+            dataReturn[i][9] = data.get(i)[9];
+            dataReturn[i][10] = data.get(i)[10];
+        }
+        return dataReturn;
+    }
 
     private class findListener implements ActionListener {
         @Override
@@ -355,7 +437,7 @@ public class TimetablePanel extends JPanel {
             String selectedColumn = (String) columnsList.getSelectedItem();
             String stringToBeMatched = textField.getText();
             int doctorIDCheck;
-            Object[][] myData = new Object[0][];
+            Object[][] myData;
             Object[][] allData;
 
             if (stringToBeMatched.length() != 0) {
@@ -375,7 +457,7 @@ public class TimetablePanel extends JPanel {
                         }
 
                     } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Doctor id must be an integer.","Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Doctor id must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                 }
@@ -391,7 +473,7 @@ public class TimetablePanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Doctor name must be less than 60 characters.","Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Doctor name must be less than 60 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
@@ -407,13 +489,13 @@ public class TimetablePanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Doctor name must be less than 60 characters.","Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Doctor name must be less than 60 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
                 if (selectedColumn == "Office Street") {
                     if (stringToBeMatched.length() < 50) {
-                        myData = getTimetableDataFromString("officestreet", stringToBeMatched);
+                        myData = getTimetableDataFromString("street", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -423,7 +505,7 @@ public class TimetablePanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Street name must be less than 50 characters.","Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Street name must be less than 50 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
@@ -439,7 +521,7 @@ public class TimetablePanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "ZIP Code must be 5 characters.","Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "ZIP Code must be 5 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
@@ -455,7 +537,7 @@ public class TimetablePanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "City name must be less than 30 characters.","Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "City name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
@@ -471,7 +553,7 @@ public class TimetablePanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Province name must be 2 characters.","Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Province name must be 2 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
@@ -487,17 +569,17 @@ public class TimetablePanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "State name must be less than 30 characters.","Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "State name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
                 if (selectedColumn == "Day") {
-                    if (!stringToBeMatched.toUpperCase().equals(daysOfTheWeek[0]) && !stringToBeMatched.toUpperCase().equals(daysOfTheWeek[1])
-                            && !stringToBeMatched.toUpperCase().equals(daysOfTheWeek[2]) && !stringToBeMatched.toUpperCase().equals(daysOfTheWeek[3])
-                            && !stringToBeMatched.toUpperCase().equals(daysOfTheWeek[4]) && !stringToBeMatched.toUpperCase().equals(daysOfTheWeek[5])
-                            && !stringToBeMatched.toUpperCase().equals(daysOfTheWeek[6])) {
+                    if (stringToBeMatched.toUpperCase().equals(daysOfTheWeek[0]) && stringToBeMatched.toUpperCase().equals(daysOfTheWeek[1])
+                            && stringToBeMatched.toUpperCase().equals(daysOfTheWeek[2]) && stringToBeMatched.toUpperCase().equals(daysOfTheWeek[3])
+                            && stringToBeMatched.toUpperCase().equals(daysOfTheWeek[4]) && stringToBeMatched.toUpperCase().equals(daysOfTheWeek[5])
+                            && stringToBeMatched.toUpperCase().equals(daysOfTheWeek[6])) {
 
-                        myData = getTimetableDataFromString("day", stringToBeMatched);
+                        myData = getTimetableDataFromString("dayoftheweek", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -507,8 +589,8 @@ public class TimetablePanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                            JOptionPane.showMessageDialog(container, "Day field must be one of the following: \"Mo\", \"Tu\", \"We\", \"Th\", \"Fr\", \"Sa\", \"Su\". " +
-                                    "\nThe timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Day field must be one of the following: \"Mo\", \"Tu\", \"We\", \"Th\", \"Fr\", \"Sa\", \"Su\". " +
+                                "\nThe timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
 
@@ -517,7 +599,7 @@ public class TimetablePanel extends JPanel {
                     try {
                         simpleDateFormat.parse(stringToBeMatched);
 
-                        myData =getTimetableDataFromString("beginningtime", stringToBeMatched);
+                        myData = getTimetableDataFromDate("beginningtime", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -537,7 +619,7 @@ public class TimetablePanel extends JPanel {
                     try {
                         simpleDateFormat.parse(stringToBeMatched);
 
-                        myData =getTimetableDataFromString("endtime", stringToBeMatched);
+                        myData = getTimetableDataFromDate("endtime", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -714,7 +796,6 @@ public class TimetablePanel extends JPanel {
             JLabel beginTime = new JLabel("Begin Time");
             beginTime.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField beginTimeField = new JTextField(tab.getModel().getValueAt(index, 9).toString());
-            System.out.println(beginTimeField.getText());
             tenthRow.add(beginTime);
             tenthRow.add(Box.createRigidArea(new Dimension(75, 0)));
             tenthRow.add(beginTimeField);
@@ -749,50 +830,42 @@ public class TimetablePanel extends JPanel {
                 //Checks
 
                 if (streetField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Street field cannot be empty.\n" +
-                            "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "Street field cannot be empty.", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if (streetField.getText().length() > 50) {
-                    JOptionPane.showMessageDialog(container, "Street should be less than 50 characters. \n" +
-                            "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "Street should be less than 50 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if (postalCodeField.getText().length() != 5) {
-                    JOptionPane.showMessageDialog(container, "Postal code should have 5 characters.\n " +
-                            "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "Postal code should have 5 characters", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if (cityField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "City field cannot be empty.\n " +
-                            "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "City field cannot be empty.", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if (cityField.getText().length() > 30) {
-                    JOptionPane.showMessageDialog(container, "City field should be less than 30 characters.\n " +
-                            "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "City field should be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if (provinceField.getText().length() != 2) {
-                    JOptionPane.showMessageDialog(container, "Province should be 2 characters.\n " +
-                            "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "Province should be 2 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if (stateField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "State field cannot be empty.\n " +
-                            "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "State field cannot be empty.", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if (stateField.getText().length() > 30) {
-                    JOptionPane.showMessageDialog(container, "State field should be less than 30 characters.\n " +
-                            "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "State field should be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
@@ -800,8 +873,7 @@ public class TimetablePanel extends JPanel {
                         && !dayField.getText().toUpperCase().equals(daysOfTheWeek[2]) && !dayField.getText().toUpperCase().equals(daysOfTheWeek[3])
                         && !dayField.getText().toUpperCase().equals(daysOfTheWeek[4]) && !dayField.getText().toUpperCase().equals(daysOfTheWeek[5])
                         && !dayField.getText().toUpperCase().equals(daysOfTheWeek[6])) {
-                    JOptionPane.showMessageDialog(container, "Day field must be one of the following: \"Mo\", \"Tu\", \"We\", \"Th\", \"Fr\", \"Sa\", \"Su\". " +
-                            "\nThe timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "Day field must be one of the following: \"Mo\", \"Tu\", \"We\", \"Th\", \"Fr\", \"Sa\", \"Su\". ", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
@@ -825,11 +897,11 @@ public class TimetablePanel extends JPanel {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = conn.prepareStatement(findAddress);
-                    stat.setString(1, tab.getModel().getValueAt(index, 2).toString());
-                    stat.setString(2, tab.getModel().getValueAt(index, 3).toString());
-                    stat.setString(3, tab.getModel().getValueAt(index, 4).toString());
-                    stat.setString(4, tab.getModel().getValueAt(index, 5).toString());
-                    stat.setString(5, tab.getModel().getValueAt(index, 6).toString());
+                    stat.setString(1, tab.getModel().getValueAt(index, 3).toString());
+                    stat.setString(2, tab.getModel().getValueAt(index, 4).toString());
+                    stat.setString(3, tab.getModel().getValueAt(index, 5).toString());
+                    stat.setString(4, tab.getModel().getValueAt(index, 6).toString());
+                    stat.setString(5, tab.getModel().getValueAt(index, 7).toString());
 
                     ResultSet rs = stat.executeQuery();
 
@@ -837,16 +909,16 @@ public class TimetablePanel extends JPanel {
 
                     //Either we already have the address and we update it immediately or we add it
                     if (rs.next()) {
-                            addressId = rs.getInt("addressid");
-                            String updateAddress = "UPDATE address SET street = ?, postalcode = ?, city = ?, province = ?, state = ? WHERE addressid = " + addressId;
+                        addressId = rs.getInt("addressid");
+                        String updateAddress = "UPDATE address SET street = ?, postalcode = ?, city = ?, province = ?, state = ? WHERE addressid = " + addressId;
 
-                            PreparedStatement updateAddressStmt = conn.prepareStatement(updateAddress);
+                        PreparedStatement updateAddressStmt = conn.prepareStatement(updateAddress);
 
-                            updateAddressStmt.setString(1, streetField.getText());
-                            updateAddressStmt.setString(2, postalCodeField.getText());
-                            updateAddressStmt.setString(3, cityField.getText());
-                            updateAddressStmt.setString(4, provinceField.getText());
-                            updateAddressStmt.setString(5, provinceField.getText());
+                        updateAddressStmt.setString(1, streetField.getText());
+                        updateAddressStmt.setString(2, postalCodeField.getText());
+                        updateAddressStmt.setString(3, cityField.getText());
+                        updateAddressStmt.setString(4, provinceField.getText());
+                        updateAddressStmt.setString(5, stateField.getText());
 
                         updateAddressStmt.executeUpdate();
 
@@ -879,11 +951,15 @@ public class TimetablePanel extends JPanel {
 
                     //Either we already have the office and we update it immediately or we add a new one
                     if (rs2.next()) {
-
-                        String updateOffice = "UPDATE private_office SET officeaddress = ? WHERE officeid = " + allOfficesIdList.get(index);
-                        Statement updateOfficeStmt = conn.createStatement();
-                        updateOfficeStmt.executeQuery(updateOffice);
                         officeId = allOfficesIdList.get(index);
+
+                        String updateOffice = "UPDATE private_office SET officeaddress = ? WHERE officeid = ?";
+
+                        PreparedStatement updateOfficeStmt = conn.prepareStatement(updateOffice);
+                        updateOfficeStmt.setInt(1, addressId);
+                        updateOfficeStmt.setInt(2, officeId);
+
+                        updateOfficeStmt.executeUpdate();
 
                     } else {
 
@@ -900,33 +976,26 @@ public class TimetablePanel extends JPanel {
                             officeId = key.getInt(1);
                     }
 
-                    int timetableId = 0;
-
-                    String findTimetableID = "SELECT timetableid FROM timetable t INNER JOIN doctor d ON t.doctorid = d.doctorid " +
-                            "INNER JOIN private_office o ON t.officeid = o.officeid INNER JOIN address a ON o.officeaddress = a.addressid " +
-                            "WHERE o.officeid = ? AND d.doctorid = ? AND t.dayoftheweek = ? AND t.beginningtime = '" + tab.getModel().getValueAt(index, 9) +
-                            "' AND t.endtime = '" + tab.getModel().getValueAt(index, 10) + "'";
-
-                    PreparedStatement findTimetableStmt = conn.prepareStatement(findTimetableID);
-
-                    findTimetableStmt.setInt(1, allOfficesIdList.get(index));
-                    findTimetableStmt.setInt(2, (Integer) tab.getModel().getValueAt(index, 0));
-                    findTimetableStmt.setString(3, String.valueOf(tab.getModel().getValueAt(index, 8)));
-
-                    ResultSet findTimeTableIdRs = findTimetableStmt.executeQuery();
-
-                    if (findTimeTableIdRs.next())
-                        timetableId = findTimeTableIdRs.getInt(1);
+                    long ms1 = 0, ms2 = 0;
+                    try {
+                        ms1 = simpleDateFormat.parse(beginTimeField.getText()).getTime();
+                        ms2 = simpleDateFormat.parse(endTimeField.getText()).getTime();
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
+                    Time t1 = new Time(ms1);
+                    Time t2 = new Time(ms2);
 
 
-                    String updateTimetable = "UPDATE timetable SET officeid = ?, doctorid = ?, dayoftheweek = ?, beginningtime = '" + tab.getModel().getValueAt(index, 9) +
-                            "', endtime = '" + tab.getModel().getValueAt(index, 10) + "' WHERE timetableid = " + timetableId;
+                    String updateQuery = "UPDATE timetable SET officeid = ?, doctorid = ?, dayoftheweek = ?, beginningtime = ?, endtime = ? WHERE timetableid = " + allTimetablesIdList.get(index);
 
-                    PreparedStatement updateTimetableStmt = conn.prepareStatement(updateTimetable);
+                    PreparedStatement updateTimetableStmt = conn.prepareStatement(updateQuery);
 
                     updateTimetableStmt.setInt(1, officeId);
                     updateTimetableStmt.setInt(2, Integer.parseInt(doctorIdField.getText()));
                     updateTimetableStmt.setString(3, dayField.getText());
+                    updateTimetableStmt.setTime(4, t1);
+                    updateTimetableStmt.setTime(5, t2);
 
                     int res = updateTimetableStmt.executeUpdate();
 
@@ -949,7 +1018,6 @@ public class TimetablePanel extends JPanel {
     }
 
     private class insertListener implements ActionListener {
-
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -958,85 +1026,89 @@ public class TimetablePanel extends JPanel {
             addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
             addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
 
-            // First row: Hospital Id
+            // First row: Doctor ID
             JPanel firstRow = new JPanel();
             firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
 
-            JLabel id = new JLabel("Hospital ID");
-            id.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField idField = new JTextField();
-            firstRow.add(id);
-            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
-            firstRow.add(idField);
+            JLabel doctorId = new JLabel("Doctor ID");
+            doctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField doctorIdField = new JTextField();
+            doctorIdField.setEditable(false);
+            firstRow.add(doctorId);
+            firstRow.add(Box.createRigidArea(new Dimension(90, 0)));
+            firstRow.add(doctorIdField);
 
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(firstRow);
 
-            // Second row: Hospital Name
+            // Second row: Doctor Name
             JPanel secondRow = new JPanel();
             secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
 
-            JLabel name = new JLabel("Hospital Name");
-            name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField();
-            secondRow.add(name);
-            secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
-            secondRow.add(nameField);
+            JLabel doctorName = new JLabel("Doctor Name");
+            doctorName.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField doctorNameField = new JTextField();
+            doctorNameField.setEditable(false);
+            secondRow.add(doctorName);
+            secondRow.add(Box.createRigidArea(new Dimension(60, 0)));
+            secondRow.add(doctorNameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(secondRow);
 
-            // Third row: Street
+            // Third row: Doctor Surname
             JPanel thirdRow = new JPanel();
             thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
 
-            JLabel street = new JLabel("Street");
-            street.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField streetField = new JTextField();
-            thirdRow.add(street);
-            thirdRow.add(Box.createRigidArea(new Dimension(107, 0)));
-            thirdRow.add(streetField);
+            JLabel doctorSurname = new JLabel("Doctor Surname");
+            doctorSurname.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField doctorSurnameField = new JTextField();
+            doctorSurnameField.setEditable(false);
+            thirdRow.add(doctorSurname);
+            thirdRow.add(Box.createRigidArea(new Dimension(30, 0)));
+            thirdRow.add(doctorSurnameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(thirdRow);
 
-            // Fourth row: PostalCode
+            // Fourth row: Office Street
             JPanel fourthRow = new JPanel();
             fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
 
-            JLabel postalCode = new JLabel("Postal code");
-            postalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField postalCodeField = new JTextField();
-            fourthRow.add(postalCode);
-            fourthRow.add(Box.createRigidArea(new Dimension(60, 0)));
-            fourthRow.add(postalCodeField);
+            JLabel street = new JLabel("Office Street");
+            street.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField streetField = new JTextField();
+            fourthRow.add(street);
+            fourthRow.add(Box.createRigidArea(new Dimension(65, 0)));
+            fourthRow.add(streetField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fourthRow);
 
-            // Fifth row: City
+            // Fifth row: PostalCode
             JPanel fifthRow = new JPanel();
             fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
 
-            JLabel city = new JLabel("City");
-            city.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField cityField = new JTextField();
-            fifthRow.add(city);
-            fifthRow.add(Box.createRigidArea(new Dimension(125, 0)));
-            fifthRow.add(cityField);
+            JLabel postalCode = new JLabel("Postal code");
+            postalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField postalCodeField = new JTextField();
+            fifthRow.add(postalCode);
+            fifthRow.add(Box.createRigidArea(new Dimension(75, 0)));
+            fifthRow.add(postalCodeField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fifthRow);
 
-            // Sixth row: Province
+            // Sixth row: City
             JPanel sixthRow = new JPanel();
             sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
 
-            JLabel province = new JLabel("Province");
-            province.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField provinceField = new JTextField();
-            sixthRow.add(province);
-            sixthRow.add(Box.createRigidArea(new Dimension(85, 0)));
-            sixthRow.add(provinceField);
+            JLabel city = new JLabel("City");
+            city.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField cityField = new JTextField();
+            sixthRow.add(city);
+            sixthRow.add(Box.createRigidArea(new Dimension(141, 0)));
+            sixthRow.add(cityField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(sixthRow);
@@ -1045,164 +1117,316 @@ public class TimetablePanel extends JPanel {
             JPanel seventhRow = new JPanel();
             seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
 
-            JLabel state = new JLabel("State");
-            state.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField stateField = new JTextField();
-            seventhRow.add(state);
-            seventhRow.add(Box.createRigidArea(new Dimension(115, 0)));
-            seventhRow.add(stateField);
+            JLabel province = new JLabel("Province");
+            province.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField provinceField = new JTextField();
+            seventhRow.add(province);
+            seventhRow.add(Box.createRigidArea(new Dimension(100, 0)));
+            seventhRow.add(provinceField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(seventhRow);
+
+            // Eighth row: Province
+            JPanel eighthRow = new JPanel();
+            eighthRow.setLayout(new BoxLayout(eighthRow, BoxLayout.X_AXIS));
+
+            JLabel state = new JLabel("State");
+            state.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField stateField = new JTextField();
+            eighthRow.add(state);
+            eighthRow.add(Box.createRigidArea(new Dimension(130, 0)));
+            eighthRow.add(stateField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(eighthRow);
+
+            //Ninth row: Day of the week
+
+            JPanel ninthRow = new JPanel();
+            ninthRow.setLayout(new BoxLayout(ninthRow, BoxLayout.X_AXIS));
+
+            JLabel day = new JLabel("Day of the week");
+            day.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField dayField = new JTextField();
+            ninthRow.add(day);
+            ninthRow.add(Box.createRigidArea(new Dimension(30, 0)));
+            ninthRow.add(dayField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(ninthRow);
+
+            // Tenth row: Begin Time
+
+            JPanel tenthRow = new JPanel();
+            tenthRow.setLayout(new BoxLayout(tenthRow, BoxLayout.X_AXIS));
+
+            JLabel beginTime = new JLabel("Begin Time");
+            beginTime.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField beginTimeField = new JTextField();
+            tenthRow.add(beginTime);
+            tenthRow.add(Box.createRigidArea(new Dimension(76, 0)));
+            tenthRow.add(beginTimeField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(tenthRow);
+
+            //Eleventh row: End Time
+
+            JPanel eleventhRow = new JPanel();
+            eleventhRow.setLayout(new BoxLayout(eleventhRow, BoxLayout.X_AXIS));
+
+            JLabel endTime = new JLabel("End Time");
+            endTime.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField endTimeField = new JTextField();
+            eleventhRow.add(endTime);
+            eleventhRow.add(Box.createRigidArea(new Dimension(95, 0)));
+            eleventhRow.add(endTimeField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(eleventhRow);
             addPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-            //add all to JOptionPane
-            int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Add hospital", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            //Create JOptionPane to first check if the doctor exists. If it doesn't, the user is suggested to add the doctor first and then his timetable
+            JPanel beforePanel = new JPanel();
+            beforePanel.setLayout(new BoxLayout(beforePanel, BoxLayout.X_AXIS));
 
-            //now we check the result
+            JLabel beforeDoctor = new JLabel("Enter the doctor ID");
+            beforeDoctor.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField beforeDoctorField = new JTextField();
+            beforePanel.add(beforeDoctor);
+            beforePanel.add(Box.createRigidArea(new Dimension(10, 0)));
+            beforePanel.add(beforeDoctorField);
 
-            if (result == JOptionPane.YES_OPTION) {
-                //it is a yes so we want to add it
-                //first we need to check if the address already exists, if not we have to add it
-                //before we add the hospital
+            beforePanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-                String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
+            int doctorExists = JOptionPane.showConfirmDialog(container, beforePanel, "Enter doctor ID", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            if (doctorExists == JOptionPane.YES_OPTION) {
+
                 Connection conn;
                 try {
+                    int checkDoctorId = Integer.parseInt(beforeDoctorField.getText());
+
+                    String checkDoctorExists = "SELECT * FROM doctor WHERE doctorid = " + checkDoctorId;
+
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    Statement s = conn.createStatement();
 
-                    PreparedStatement stat = conn.prepareStatement(findAddress);
-                    stat.setString(1, streetField.getText());
-                    stat.setString(2, postalCodeField.getText());
-                    stat.setString(3, cityField.getText());
-                    stat.setString(4, provinceField.getText());
-                    stat.setString(5, stateField.getText());
+                    ResultSet res = s.executeQuery(checkDoctorExists);
 
-                    ResultSet rs = stat.executeQuery();
-
-                    int hospitalId = 0;
-
-                    //Hospital checks
-                    try {
-                        hospitalId = Integer.parseInt(idField.getText());
-
-                    } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.\n" +
-                                "No hospital will be added.");
-                        return;
-                    }
-
-                    if (nameField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Hospital name field cannot be empty.\n" +
-                                "No hospital will be added.");
-                        return;
-                    }
-
-                    if (nameField.getText().length() > 60) {
-                        JOptionPane.showMessageDialog(container, "Hospital name should be less than 60 characters.\n" +
-                                "No hospital will be added.");
-                        return;
-                    }
-
-                    //Address checks
-                    if (streetField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Street field cannot be empty.\n" +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (streetField.getText().length() > 50) {
-                        JOptionPane.showMessageDialog(container, "Street should be less than 50 characters. \n" +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (postalCodeField.getText().length() != 5) {
-                        JOptionPane.showMessageDialog(container, "Postal code should have 5 characters.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (cityField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "City field cannot be empty.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (cityField.getText().length() > 30) {
-                        JOptionPane.showMessageDialog(container, "City should be less than 30 characters.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (provinceField.getText().length() != 2) {
-                        JOptionPane.showMessageDialog(container, "Province should be 2 characters.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (stateField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "State field cannot be empty.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (stateField.getText().length() > 30) {
-                        JOptionPane.showMessageDialog(container, "State should be less than 30 characters.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    int addressId = 0;
-
-                    //Either we have the address or we should first add it
-                    if (rs.next()) {
-                        addressId = rs.getInt("addressid");
+                    if (!res.next()) {
+                        JOptionPane.showMessageDialog(container, "No doctor found with that ID. Please check if the doctor ID is correct or" +
+                                "add a new doctor in the doctor section.", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
 
-                        String addAddress = "INSERT INTO address (street, postalcode, city,province,state) VALUES(?,?,?,?,?)";
+                        doctorIdField.setText(String.valueOf(checkDoctorId));
+                        doctorNameField.setText(res.getString("doctorname"));
+                        doctorSurnameField.setText(res.getString("doctorsurname"));
 
-                        PreparedStatement addAddressStat = conn.prepareStatement(addAddress, Statement.RETURN_GENERATED_KEYS);
+                        int result = JOptionPane.showConfirmDialog(container, addPanel, "Add timetable", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                        if (result == JOptionPane.YES_OPTION) {
+
+                            //Checks
+
+                            if (streetField.getText().length() == 0) {
+                                JOptionPane.showMessageDialog(container, "Street field cannot be empty.\n" +
+                                        "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (streetField.getText().length() > 50) {
+                                JOptionPane.showMessageDialog(container, "Street should be less than 50 characters. \n" +
+                                        "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (postalCodeField.getText().length() != 5) {
+                                JOptionPane.showMessageDialog(container, "Postal code should have 5 characters.\n " +
+                                        "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (cityField.getText().length() == 0) {
+                                JOptionPane.showMessageDialog(container, "City field cannot be empty.\n " +
+                                        "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (cityField.getText().length() > 30) {
+                                JOptionPane.showMessageDialog(container, "City field should be less than 30 characters.\n " +
+                                        "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (provinceField.getText().length() != 2) {
+                                JOptionPane.showMessageDialog(container, "Province should be 2 characters.\n " +
+                                        "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (stateField.getText().length() == 0) {
+                                JOptionPane.showMessageDialog(container, "State field cannot be empty.\n " +
+                                        "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (stateField.getText().length() > 30) {
+                                JOptionPane.showMessageDialog(container, "State field should be less than 30 characters.\n " +
+                                        "The timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (!dayField.getText().toUpperCase().equals(daysOfTheWeek[0]) && !dayField.getText().toUpperCase().equals(daysOfTheWeek[1])
+                                    && !dayField.getText().toUpperCase().equals(daysOfTheWeek[2]) && !dayField.getText().toUpperCase().equals(daysOfTheWeek[3])
+                                    && !dayField.getText().toUpperCase().equals(daysOfTheWeek[4]) && !dayField.getText().toUpperCase().equals(daysOfTheWeek[5])
+                                    && !dayField.getText().toUpperCase().equals(daysOfTheWeek[6])) {
+                                JOptionPane.showMessageDialog(container, "Day field must be one of the following: \"Mo\", \"Tu\", \"We\", \"Th\", \"Fr\", \"Sa\", \"Su\". " +
+                                        "\nThe timetable will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            try {
+                                simpleDateFormat.parse(beginTimeField.getText());
+                            } catch (ParseException e1) {
+                                JOptionPane.showMessageDialog(container, "Wrong begin time format. Insert time in the following format: 'HH:mm'.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            try {
+                                simpleDateFormat.parse(endTimeField.getText());
+                            } catch (ParseException e1) {
+                                JOptionPane.showMessageDialog(container, "Wrong end time format. Insert time in the following format: 'HH:mm'.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            long ms1 = 0, ms2 = 0;
+                            try {
+                                ms1 = simpleDateFormat.parse(beginTimeField.getText()).getTime();
+                                ms2 = simpleDateFormat.parse(endTimeField.getText()).getTime();
+                            } catch (ParseException e1) {
+                                e1.printStackTrace();
+                            }
+                            Time t1 = new Time(ms1);
+                            Time t2 = new Time(ms2);
+
+                            if (t1.after(t2))
+                                JOptionPane.showMessageDialog(container, "Begin time cannot be later than end time.", "Warning", JOptionPane.WARNING_MESSAGE);
+
+                            boolean alreadyExists = checkTimetableAlreadyExists(checkDoctorId, dayField.getText(), beginTimeField.getText(), endTimeField.getText());
+
+                            if (alreadyExists) {
+                                JOptionPane.showMessageDialog(container, "This timetable already exists for the specified doctor.", "Error", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
+
+                            try {
+                                conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                                PreparedStatement stat = conn.prepareStatement(findAddress);
+                                stat.setString(1, streetField.getText());
+                                stat.setString(2, postalCodeField.getText());
+                                stat.setString(3, cityField.getText());
+                                stat.setString(4, provinceField.getText());
+                                stat.setString(5, stateField.getText());
+
+                                ResultSet rs = stat.executeQuery();
+
+                                int addressId = 0;
+
+                                //Either we already have the address and we save the id, or we add it
+                                if (rs.next()) {
+                                    addressId = rs.getInt("addressid");
+
+                                } else {
+
+                                    String addAddress = "INSERT INTO address (street, postalcode, city, province, state) VALUES(?,?,?,?,?)";
+
+                                    PreparedStatement insertAddressStmt = conn.prepareStatement(addAddress, Statement.RETURN_GENERATED_KEYS);
+
+                                    insertAddressStmt.setString(1, streetField.getText());
+                                    insertAddressStmt.setString(2, postalCodeField.getText());
+                                    insertAddressStmt.setString(3, cityField.getText());
+                                    insertAddressStmt.setString(4, provinceField.getText());
+                                    insertAddressStmt.setString(5, stateField.getText());
+
+                                    insertAddressStmt.executeUpdate();
+                                    ResultSet key = insertAddressStmt.getGeneratedKeys();
+
+                                    if (key.next())
+                                        addressId = key.getInt(1);
+                                }
+
+                                //Now we have the address, so we check if an office at that address already exists, otherwise we create a new office
+
+                                String findOffice = "SELECT * FROM private_office  WHERE officeaddress = ?";
+
+                                PreparedStatement findOfficeStmt = conn.prepareStatement(findOffice);
+                                findOfficeStmt.setInt(1, addressId);
+
+                                ResultSet rs2 = findOfficeStmt.executeQuery();
+
+                                int officeId = 0;
+
+                                //Either we already have the office and we save the its id, or we add a new one
+                                if (rs2.next()) {
+
+                                    officeId = rs.getInt("officeaddress");
+
+                                } else {
+
+                                    String addOffice = "INSERT INTO private_office (officeaddress) VALUES(?)";
+
+                                    PreparedStatement insertOfficeStmt = conn.prepareStatement(addOffice, Statement.RETURN_GENERATED_KEYS);
+
+                                    insertOfficeStmt.setInt(1, addressId);
+
+                                    insertOfficeStmt.executeUpdate();
+                                    ResultSet key = insertOfficeStmt.getGeneratedKeys();
+
+                                    if (key.next())
+                                        officeId = key.getInt(1);
+                                }
 
 
-                        addAddressStat.setString(1, streetField.getText());
-                        addAddressStat.setString(2, postalCodeField.getText());
-                        addAddressStat.setString(3, cityField.getText());
-                        addAddressStat.setString(4, provinceField.getText());
-                        addAddressStat.setString(5, stateField.getText());
+                                String insertTimetableID = "INSERT INTO TIMETABLE (officeid, doctorid, dayoftheweek, beginningtime, endtime) " +
+                                        "VALUES (?, ?, ?, ?, ?)";
 
-                        addAddressStat.executeUpdate();
-                        ResultSet key = addAddressStat.getGeneratedKeys();
+                                PreparedStatement insertTimetableStmt = conn.prepareStatement(insertTimetableID);
 
-                        if (key.next())
-                            addressId = key.getInt(1);
+                                insertTimetableStmt.setInt(1, officeId);
+                                insertTimetableStmt.setInt(2, Integer.parseInt(doctorIdField.getText()));
+                                insertTimetableStmt.setString(3, dayField.getText());
+                                insertTimetableStmt.setTime(4, t1);
+                                insertTimetableStmt.setTime(5, t2);
+
+                                int res2 = insertTimetableStmt.executeUpdate();
+
+                                //Confirm that timetable record has been added successfully
+                                if (res2 > 0) {
+                                    JOptionPane.showMessageDialog(container, "Timetable inserted successfully");
+                                }
+
+                                //Repaint the table
+
+                                AppFrame.frame.getContentPane().setVisible(false);
+                                AppFrame.frame.setContentPane(new TimetablePanel());
+                                AppFrame.frame.getContentPane().setVisible(true);
+
+                            } catch (SQLException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
                     }
 
-                    //Now we have the address, so we add the hospital
+                } catch (NumberFormatException n) {
+                    JOptionPane.showMessageDialog(container, "Doctor ID must be an integer.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
 
-                    String addHospital = " INSERT INTO hospital (hospitalid, hospitalname, hospitaladdress) VALUES (?,?,?)";
-
-                    PreparedStatement addHospitalStat = conn.prepareStatement(addHospital);
-
-                    addHospitalStat.setInt(1, hospitalId);
-                    addHospitalStat.setString(2, nameField.getText());
-                    addHospitalStat.setInt(3, addressId);
-
-                    int res = addHospitalStat.executeUpdate();
-
-                    //Confirm that hospital record has been added successfully
-                    if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Hospital added successfully");
-                    }
-
-                    //Repaint the table
-                    AppFrame.frame.getContentPane().setVisible(false);
-                    AppFrame.frame.setContentPane(new HospitalPanel());
-                    AppFrame.frame.getContentPane().setVisible(true);
-
-                } catch (SQLException s) {
-                    s.printStackTrace();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
                 }
             }
         }
@@ -1212,6 +1436,30 @@ public class TimetablePanel extends JPanel {
     private class deleteListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            int index = tab.getSelectedRow();
+            int timetableId = allTimetablesIdList.get(index);
+
+            int result = JOptionPane.showConfirmDialog(container, "Are you sure you want to permanently delete the selected timetable?", "Warning", JOptionPane.WARNING_MESSAGE);
+
+            if (result == JOptionPane.YES_OPTION) {
+                String deleteTimetable = "DELETE FROM timetable WHERE timetableid = ?";
+
+                try {
+                    Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    PreparedStatement s = conn.prepareStatement(deleteTimetable);
+                    s.setInt(1, timetableId);
+
+                    int res = s.executeUpdate();
+
+                    //Confirm that hospital record has been added successfully
+                    if (res > 0) {
+                        JOptionPane.showMessageDialog(container, "Timetable deleted successfully.");
+                    }
+
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
     }
 
@@ -1224,7 +1472,7 @@ public class TimetablePanel extends JPanel {
         }
     }
 
-    public void repaintTable(Object[][] dataToBeInserted) {
+    private void repaintTable(Object[][] dataToBeInserted) {
         //Show the found rows
         tab.setModel(new CustomTableModel(dataToBeInserted, timetableColumns));
 
@@ -1233,14 +1481,55 @@ public class TimetablePanel extends JPanel {
         columnModel.getColumn(0).setPreferredWidth(20);
         columnModel.getColumn(1).setPreferredWidth(90);
         columnModel.getColumn(2).setPreferredWidth(90);
-        columnModel.getColumn(3).setPreferredWidth(145);
+        columnModel.getColumn(3).setPreferredWidth(140);
         columnModel.getColumn(4).setPreferredWidth(20);
         columnModel.getColumn(5).setPreferredWidth(50);
         columnModel.getColumn(6).setPreferredWidth(20);
         columnModel.getColumn(7).setPreferredWidth(5);
         columnModel.getColumn(8).setPreferredWidth(20);
-        columnModel.getColumn(9).setPreferredWidth(30);
+        columnModel.getColumn(9).setPreferredWidth(35);
         columnModel.getColumn(10).setPreferredWidth(30);
     }
 
+    private boolean checkTimetableAlreadyExists(int id, String day, String begin, String end) {
+
+        boolean alreadyExists = false;
+
+        String query = "SELECT FROM timetable t INNER JOIN doctor d ON t.doctorid = d.doctorid " +
+                "INNER JOIN private_office o ON t.officeid = o.officeid " +
+                "INNER JOIN address a ON o.officeaddress = a.addressid " +
+                "WHERE d.doctorid = ? AND t.day = ? AND t.beginningtime = ? AND t.endtime = ?";
+
+        Connection conn;
+
+        long ms1 = 0, ms2 = 0;
+        try {
+            ms1 = simpleDateFormat.parse(begin).getTime();
+            ms2 = simpleDateFormat.parse(end).getTime();
+        } catch (ParseException e1) {
+            e1.printStackTrace();
+        }
+        Time t1 = new Time(ms1);
+        Time t2 = new Time(ms2);
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+            PreparedStatement s = conn.prepareStatement(query);
+
+            s.setInt(1, id);
+            s.setString(2, day);
+            s.setTime(3, t1);
+            s.setTime(4, t2);
+
+            int res = s.executeUpdate();
+
+            if (res > 0)
+                return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return alreadyExists;
+    }
 }
