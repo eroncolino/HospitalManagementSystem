@@ -267,7 +267,7 @@ public class HospitalPanel extends JPanel {
         return dataReturn;
     }
 
-    //Get all data when ID is inserted as query string
+    //Get all data when a string is inserted as query string
     public Object[][] getHospitalDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE UPPER(" + column + ") = UPPER(?)";

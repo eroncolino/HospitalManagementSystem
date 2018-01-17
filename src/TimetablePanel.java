@@ -1216,8 +1216,15 @@ public class TimetablePanel extends JPanel {
                     ResultSet res = s.executeQuery(checkDoctorExists);
 
                     if (!res.next()) {
-                        JOptionPane.showMessageDialog(container, "No doctor found with that ID. Please check if the doctor ID is correct or" +
-                                "add a new doctor in the doctor section.", "Error", JOptionPane.ERROR_MESSAGE);
+                        int addDoctor = JOptionPane.showConfirmDialog(container, "No doctor found for the given ID. Please check if the doctor ID is correct or" +
+                                "add a new doctor in the doctor section.\n" +
+                                "Do you want to add a new doctor now?", "No doctor found!", JOptionPane.INFORMATION_MESSAGE);
+
+                        if (addDoctor == JOptionPane.YES_OPTION) {
+                            AppFrame.frame.getContentPane().setVisible(false);
+                            AppFrame.frame.setContentPane(new DoctorPanel());
+                            AppFrame.frame.getContentPane().setVisible(true);
+                        }
                     } else {
 
                         doctorIdField.setText(String.valueOf(checkDoctorId));
