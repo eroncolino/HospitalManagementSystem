@@ -151,9 +151,9 @@ public class HospitalPanel extends JPanel {
         buttonPanel.add(Box.createRigidArea(new Dimension(200, 0)));
         buttonPanel.add(findButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(updateButton);
-        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(insertButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        buttonPanel.add(updateButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(deleteButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -540,7 +540,7 @@ public class HospitalPanel extends JPanel {
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(sixthRow);
 
-            // Seventh row: Province
+            // Seventh row: State
             JPanel seventhRow = new JPanel();
             seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
 
@@ -802,7 +802,7 @@ public class HospitalPanel extends JPanel {
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(sixthRow);
 
-            // Seventh row: Province
+            // Seventh row: State
             JPanel seventhRow = new JPanel();
             seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
 

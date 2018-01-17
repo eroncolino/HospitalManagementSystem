@@ -1439,7 +1439,6 @@ public class TimetablePanel extends JPanel {
         }
     }
 
-
     private class deleteListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -1458,7 +1457,7 @@ public class TimetablePanel extends JPanel {
 
                     int res = s.executeUpdate();
 
-                    //Confirm that hospital record has been added successfully
+                    //Confirm that timetable record has been added successfully
                     if (res > 0) {
                         JOptionPane.showMessageDialog(container, "Timetable deleted successfully.");
                     }

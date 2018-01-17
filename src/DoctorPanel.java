@@ -148,9 +148,9 @@ public class DoctorPanel extends JPanel {
         buttonPanel.add(Box.createRigidArea(new Dimension(200, 0)));
         buttonPanel.add(findButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(updateButton);
-        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(insertButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        buttonPanel.add(updateButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(deleteButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -727,8 +727,7 @@ public class DoctorPanel extends JPanel {
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
-
-                    int doctorId = 0;
+                    int doctorId;
 
                     //Doctor checks
                     try {
@@ -776,7 +775,7 @@ public class DoctorPanel extends JPanel {
                         return;
                     }
 
-                    //add the doctor
+                    //Add the doctor
 
                     String addDoctor = " INSERT INTO Doctor (doctorid, doctorname, doctorsurname, specialization, practising) VALUES (?,?,?,?,?)";
 
