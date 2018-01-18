@@ -19,6 +19,7 @@ public class PatientPanel extends JPanel {
     private JButton findButton, insertButton, deleteButton, updateButton, goBackButton;
     private JPanel container;
     private String[] boxColumns, patientColumns;
+    private ArrayList<String> allPatientFisCodeList;
 
     public PatientPanel() {
 
@@ -40,7 +41,7 @@ public class PatientPanel extends JPanel {
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        boxColumns = new String[]{"Show all", "Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family Doctor ID", "Family Doctor Name", "Family Doctor Surname"};
+        boxColumns = new String[]{"Show all", "Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family Doctor ID"};
         patientColumns = new String[]{"Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family DoctorID", "Family Doctor Name", "Family Doctor Surname"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
@@ -91,12 +92,14 @@ public class PatientPanel extends JPanel {
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(150);
-        columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(15);
-        columnModel.getColumn(4).setPreferredWidth(15);
-        columnModel.getColumn(5).setPreferredWidth(15);
+        columnModel.getColumn(0).setPreferredWidth(95);
+        columnModel.getColumn(1).setPreferredWidth(70);
+        columnModel.getColumn(2).setPreferredWidth(70);
+        columnModel.getColumn(3).setPreferredWidth(50);
+        columnModel.getColumn(4).setPreferredWidth(10);
+        columnModel.getColumn(5).setPreferredWidth(20);
+        columnModel.getColumn(6).setPreferredWidth(70);
+        columnModel.getColumn(7).setPreferredWidth(70);
 
 
         // Buttons
@@ -129,7 +132,7 @@ public class PatientPanel extends JPanel {
         insertButton.addActionListener(new PatientPanel.insertListener());
 
         deleteButton = new JButton("Delete");
-        deleteButton.setEnabled(false);
+        //deleteButton.setEnabled(false);
         deleteButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         deleteButton.setMaximumSize(d);
         deleteButton.setIcon(new ImageIcon("delete.png"));
@@ -185,9 +188,10 @@ public class PatientPanel extends JPanel {
     public Object[][] getAllPatientsData() {
 
         ArrayList<Object[]> data = new ArrayList();
-        String query = "SELECT p.patientfiscalcode, p.patientname, p.patientsurname, p.birthdate, p.gender, p.familydoctorid, d.doctorname, d.doctorsurname " +
-                       "FROM patient p INNER JOIN doctor d ON patient.familydoctorid = doctor.doctorid";
+        String query = "SELECT * " +
+                "FROM patient INNER JOIN doctor ON patient.familydoctorid = doctor.doctorid";
         Connection conn;
+        allPatientFisCodeList = new ArrayList();
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
@@ -196,16 +200,18 @@ public class PatientPanel extends JPanel {
 
             while (rs.next()) {
                 Object[] row = {rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
-                        rs.getString("birthdate"), rs.getString("gender"), rs.getString("familydoctorid")};
+                        rs.getString("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
 
                 data.add(row);
+                allPatientFisCodeList.add(rs.getString("patientfiscalcode"));
+
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][6];
+        Object[][] dataReturn = new Object[data.size()][8];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -214,8 +220,9 @@ public class PatientPanel extends JPanel {
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
             dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
 
-            System.out.print(dataReturn[i][0] + " " + dataReturn[i][1] + " " + dataReturn[i][2]);
         }
         return dataReturn;
     }
@@ -239,7 +246,7 @@ public class PatientPanel extends JPanel {
             else {
                 do {
                     Object[] row = {rs.getInt("patientfisclacode"), rs.getString("patientname"), rs.getString("patientsurname"),
-                            rs.getString("birthdate"), rs.getString("gender"), rs.getString("familydoctorid")};
+                            rs.getString("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
                     data.add(row);
                 } while (rs.next());
             }
@@ -248,7 +255,7 @@ public class PatientPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][7];
+        Object[][] dataReturn = new Object[data.size()][8];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -257,7 +264,10 @@ public class PatientPanel extends JPanel {
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
             dataReturn[i][5] = data.get(i)[5];
-            System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
+
+            //System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
         }
         return dataReturn;
     }
@@ -280,8 +290,8 @@ public class PatientPanel extends JPanel {
 
             else {
                 do {
-                    Object[] row = {rs.getInt("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
-                            rs.getDate("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid")};
+                    Object[] row = {rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
+                            rs.getDate("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
                     data.add(row);
                 } while (rs.next());
             }
@@ -290,7 +300,7 @@ public class PatientPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][7];
+        Object[][] dataReturn = new Object[data.size()][8];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -299,7 +309,10 @@ public class PatientPanel extends JPanel {
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
             dataReturn[i][5] = data.get(i)[5];
-            System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
+
+            // System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
         }
         return dataReturn;
     }
@@ -317,16 +330,17 @@ public class PatientPanel extends JPanel {
 
                 if (selectedColumn == "Fiscal Code") {
                     try {
-                        patientFiscalCodeCheck = Integer.parseInt(textField.getText());
-                        myData = getPatientDataFromInteger(patientFiscalCodeCheck);
+                        if (stringToBeMatched.length() == 16) {
+                            myData = getPatientDataFromString("patientfiscalcode", stringToBeMatched);
 
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
-                        if (myData.length != 0)
-                            repaintTable(myData);
+                            //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                            if (myData.length != 0)
+                                repaintTable(myData);
 
-                        else {
-                            allData = getAllPatientsData();
-                            repaintTable(allData);
+                            else {
+                                allData = getAllPatientsData();
+                                repaintTable(allData);
+                            }
                         }
 
                     } catch (NumberFormatException n) {
@@ -336,7 +350,7 @@ public class PatientPanel extends JPanel {
                 }
                 if (selectedColumn == "Name") {
                     if (stringToBeMatched.length() < 30) {
-                        myData = getPatientDataFromString("patient.patientname", stringToBeMatched);
+                        myData = getPatientDataFromString("patientname", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -411,15 +425,16 @@ public class PatientPanel extends JPanel {
 
 
                     textField.setText("");
-                } else {
-
-                    if (selectedColumn == "Show all") {
-                        repaintTable(getAllPatientsData());
-                        textField.setText("");
-                    } else
-                        JOptionPane.showMessageDialog(container, "Error: Enter the string to be found.");
                 }
+            } else {
+
+                if (selectedColumn == "Show all") {
+                    repaintTable(getAllPatientsData());
+                    textField.setText("");
+                } else
+                    JOptionPane.showMessageDialog(container, "Error: Enter the string to be found.");
             }
+
         }
     }
 
@@ -444,7 +459,7 @@ public class PatientPanel extends JPanel {
             JTextField fiscCodeField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
             fiscCodeField.setEditable(false);
             firstRow.add(fiscCode);
-            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
+            firstRow.add(Box.createRigidArea(new Dimension(95, 0)));
             firstRow.add(fiscCodeField);
 
             addPanel.add(firstRow);
@@ -458,7 +473,7 @@ public class PatientPanel extends JPanel {
             JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
             nameField.setEditable(false);
             secondRow.add(name);
-            secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
+            secondRow.add(Box.createRigidArea(new Dimension(70, 0)));
             secondRow.add(nameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -473,7 +488,7 @@ public class PatientPanel extends JPanel {
             JTextField surnameField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
             surnameField.setEditable(false);
             thirdRow.add(surname);
-            thirdRow.add(Box.createRigidArea(new Dimension(107, 0)));
+            thirdRow.add(Box.createRigidArea(new Dimension(70, 0)));
             thirdRow.add(surnameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -488,7 +503,7 @@ public class PatientPanel extends JPanel {
             JTextField birthDateField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
             birthDateField.setEditable(false);
             fourthRow.add(birthDate);
-            fourthRow.add(Box.createRigidArea(new Dimension(60, 0)));
+            fourthRow.add(Box.createRigidArea(new Dimension(50, 0)));
             fourthRow.add(birthDateField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -503,7 +518,7 @@ public class PatientPanel extends JPanel {
             JTextField genderField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
             genderField.setEditable(false);
             fifthRow.add(gender);
-            fifthRow.add(Box.createRigidArea(new Dimension(125, 0)));
+            fifthRow.add(Box.createRigidArea(new Dimension(10, 0)));
             fifthRow.add(genderField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -517,7 +532,7 @@ public class PatientPanel extends JPanel {
             famDoctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField famDoctorIdField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
             sixthRow.add(famDoctorId);
-            sixthRow.add(Box.createRigidArea(new Dimension(85, 0)));
+            sixthRow.add(Box.createRigidArea(new Dimension(20, 0)));
             sixthRow.add(famDoctorIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -536,12 +551,12 @@ public class PatientPanel extends JPanel {
                 //Family Doctor Id check
 
                 Connection conn;
-                String findDoctor = "SELECT * FROM doctor WHERE UPPER(doctorid) = UPPER(?)";
+                String findDoctor = "SELECT * FROM doctor WHERE doctorid = " + famDoctorId;
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = conn.prepareStatement(findDoctor);
-                    stat.setInt(1, Integer.parseInt(famDoctorIdField.getText()));
+                    stat.setInt(0, Integer.parseInt(famDoctorIdField.getText()));
 
                     ResultSet rs = stat.executeQuery();
 
@@ -556,12 +571,15 @@ public class PatientPanel extends JPanel {
 
                         }
                     }
+                    else{
+
+                    }
 
 
                     //Repaint the table
 
                     AppFrame.frame.getContentPane().setVisible(false);
-                    AppFrame.frame.setContentPane(new HospitalPanel());
+                    AppFrame.frame.setContentPane(new PatientPanel());
                     AppFrame.frame.getContentPane().setVisible(true);
 
                 } catch (SQLException s) {
@@ -574,247 +592,175 @@ public class PatientPanel extends JPanel {
     private class insertListener implements ActionListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {/*
+        public void actionPerformed(ActionEvent e) {
 
             // Container
             JPanel addPanel = new JPanel();
             addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
             addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
 
-            // First row: Hospital Id
+            // First row: Patient Fiscal Code
             JPanel firstRow = new JPanel();
             firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
 
-            JLabel id = new JLabel("Hospital ID");
-            id.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField idField = new JTextField();
-            firstRow.add(id);
-            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
-            firstRow.add(idField);
+            JLabel fiscCode = new JLabel("Fiscal Code");
+            fiscCode.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField fiscCodeField = new JTextField();
+            firstRow.add(fiscCode);
+            firstRow.add(Box.createRigidArea(new Dimension(95, 0)));
+            firstRow.add(fiscCodeField);
 
             addPanel.add(firstRow);
 
-            // Second row: Hospital Name
+            // Second row: Patient Name
             JPanel secondRow = new JPanel();
             secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
 
-            JLabel name = new JLabel("Hospital Name");
+            JLabel name = new JLabel("Patient Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField nameField = new JTextField();
             secondRow.add(name);
-            secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
+            secondRow.add(Box.createRigidArea(new Dimension(70, 0)));
             secondRow.add(nameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(secondRow);
 
-            // Third row: Street
+            // Third row: Patient Surname
             JPanel thirdRow = new JPanel();
             thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
 
-            JLabel street = new JLabel("Street");
-            street.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField streetField = new JTextField();
-            thirdRow.add(street);
-            thirdRow.add(Box.createRigidArea(new Dimension(107, 0)));
-            thirdRow.add(streetField);
+            JLabel surname = new JLabel("Patient Surname");
+            surname.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField surnameField = new JTextField();
+            thirdRow.add(surname);
+            thirdRow.add(Box.createRigidArea(new Dimension(70, 0)));
+            thirdRow.add(surnameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(thirdRow);
 
-            // Fourth row: PostalCode
+            // Fourth row: BirthDate
             JPanel fourthRow = new JPanel();
             fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
 
-            JLabel postalCode = new JLabel("Postal code");
-            postalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField postalCodeField = new JTextField();
-            fourthRow.add(postalCode);
-            fourthRow.add(Box.createRigidArea(new Dimension(60, 0)));
-            fourthRow.add(postalCodeField);
+            JLabel birthDate = new JLabel("Birth Date");
+            birthDate.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField birthDateField = new JTextField();
+            fourthRow.add(birthDate);
+            fourthRow.add(Box.createRigidArea(new Dimension(50, 0)));
+            fourthRow.add(birthDateField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fourthRow);
 
-            // Fifth row: City
+            // Fifth row: Gender
             JPanel fifthRow = new JPanel();
             fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
 
-            JLabel city = new JLabel("City");
-            city.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField cityField = new JTextField();
-            fifthRow.add(city);
-            fifthRow.add(Box.createRigidArea(new Dimension(125, 0)));
-            fifthRow.add(cityField);
+            JLabel gender = new JLabel("Gender");
+            gender.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField genderField = new JTextField();
+            fifthRow.add(gender);
+            fifthRow.add(Box.createRigidArea(new Dimension(10, 0)));
+            fifthRow.add(genderField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fifthRow);
 
-            // Sixth row: Province
+            // Sixth row: Family Doctor
             JPanel sixthRow = new JPanel();
             sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
 
-            JLabel province = new JLabel("Province");
-            province.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField provinceField = new JTextField();
-            sixthRow.add(province);
-            sixthRow.add(Box.createRigidArea(new Dimension(85, 0)));
-            sixthRow.add(provinceField);
+            JLabel famDoctorId = new JLabel("Family Doctor ID");
+            famDoctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField famDoctorIdField = new JTextField();
+            sixthRow.add(famDoctorId);
+            sixthRow.add(Box.createRigidArea(new Dimension(20, 0)));
+            sixthRow.add(famDoctorIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(sixthRow);
 
-            // Seventh row: Province
-            JPanel seventhRow = new JPanel();
-            seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
-
-            JLabel state = new JLabel("State");
-            state.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField stateField = new JTextField();
-            seventhRow.add(state);
-            seventhRow.add(Box.createRigidArea(new Dimension(115, 0)));
-            seventhRow.add(stateField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(seventhRow);
-            addPanel.add(Box.createRigidArea(new Dimension(0, 30)));
-
             //add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Add hospital", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    addPanel, "Add patient", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             //now we check the result
 
             if (result == JOptionPane.YES_OPTION) {
                 //it is a yes so we want to add it
-                //first we need to check if the address already exists, if not we have to add it
                 //before we add the hospital
-
-                String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
                 Connection conn;
+                String addPatient = "INSERT INTO patient(patientfiscalcode, patientname, patientsurname, brithdate, gender, familydoctorid) values (?,?,?,?,?,?)";
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
-                    PreparedStatement stat = conn.prepareStatement(findAddress);
-                    stat.setString(1, streetField.getText());
-                    stat.setString(2, postalCodeField.getText());
-                    stat.setString(3, cityField.getText());
-                    stat.setString(4, provinceField.getText());
-                    stat.setString(5, stateField.getText());
+                    if (fiscCodeField.getText().length() == 0) {
+                        JOptionPane.showMessageDialog(container, "Fiscalcode field cannot be empty.\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
 
-                    ResultSet rs = stat.executeQuery();
-
-                    int hospitalId = 0;
-
-                    //Hospital checks
-                    try {
-                        hospitalId = Integer.parseInt(idField.getText());
-
-                    } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Error: Hospital id must be an integer.\n" +
-                                "No hospital will be added.");
+                    if (fiscCodeField.getText().length() != 16) {
+                        JOptionPane.showMessageDialog(container, "Fiscalcode should be 16 characters.\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     if (nameField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Hospital name field cannot be empty.\n" +
-                                "No hospital will be added.");
+                        JOptionPane.showMessageDialog(container, "Name field cannot be empty.\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    if (nameField.getText().length() > 60) {
-                        JOptionPane.showMessageDialog(container, "Hospital name should be less than 60 characters.\n" +
-                                "No hospital will be added.");
+                    if (nameField.getText().length() > 30) {
+                        JOptionPane.showMessageDialog(container, "Fiscalcode field should be less than 30 characters.\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    //Address checks
-                    if (streetField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Street field cannot be empty.\n" +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    if (surnameField.getText().length() == 0) {
+                        JOptionPane.showMessageDialog(container, "Surname field cannot be empty.\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    //manca il check per vedere se la brithdate è piccola della data attuale
+                    if (birthDateField.getText().length() == 0) {
+                        JOptionPane.showMessageDialog(container, "Birth date field cannot be empty.\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    if (streetField.getText().length() > 50) {
-                        JOptionPane.showMessageDialog(container, "Street should be less than 50 characters. \n" +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    if (genderField.getText().length() == 0) {
+                        JOptionPane.showMessageDialog(container, "Gender field cannot be empty.\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    if (postalCodeField.getText().length() != 5) {
-                        JOptionPane.showMessageDialog(container, "Postal code should have 5 characters.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    if (genderField.getText() != "m" || genderField.getText() != "M" || genderField.getText() != "f" || genderField.getText() != "F") {
+                        JOptionPane.showMessageDialog(container, "Gender field must be either \"m\" or \"f\" .\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    if (cityField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "City field cannot be empty.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    if (famDoctorIdField.getText().length() == 0) {
+                        JOptionPane.showMessageDialog(container, "Famoòy doctor ID field cannot be empty.\n " +
+                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    if (cityField.getText().length() > 30) {
-                        JOptionPane.showMessageDialog(container, "City should be less than 30 characters.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                    PreparedStatement stat = conn.prepareStatement(addPatient);
+                    stat.setString(1, fiscCodeField.getText());
+                    stat.setString(2, nameField.getText());
+                    stat.setString(3, surnameField.getText());
+                    stat.setString(4, birthDateField.getText());
+                    stat.setString(5, genderField.getText());
+                    stat.setString(6, famDoctorIdField.getText());
 
-                    if (provinceField.getText().length() != 2) {
-                        JOptionPane.showMessageDialog(container, "Province should be 2 characters.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                    int res = stat.executeUpdate();
 
-                    if (stateField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "State field cannot be empty.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (stateField.getText().length() > 30) {
-                        JOptionPane.showMessageDialog(container, "State should be less than 30 characters.\n " +
-                                "No hospital will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    int addressId = 0;
-
-                    //Either we have the address or we should first add it
-                    if (rs.next()) {
-                        addressId = rs.getInt("addressid");
-                    } else {
-
-                        String addAddress = "INSERT INTO address (street, postalcode, city,province,state) VALUES(?,?,?,?,?)";
-
-                        PreparedStatement addAddressStat = conn.prepareStatement(addAddress, Statement.RETURN_GENERATED_KEYS);
-
-
-                        addAddressStat.setString(1, streetField.getText());
-                        addAddressStat.setString(2, postalCodeField.getText());
-                        addAddressStat.setString(3, cityField.getText());
-                        addAddressStat.setString(4, provinceField.getText());
-                        addAddressStat.setString(5, stateField.getText());
-
-                        addAddressStat.executeUpdate();
-                        ResultSet key = addAddressStat.getGeneratedKeys();
-
-                        if (key.next())
-                            addressId = key.getInt(1);
-                    }
-
-                    //Now we have the address, so we add the hospital
-
-                    String addHospital = " INSERT INTO hospital (hospitalid, hospitalname, hospitaladdress) VALUES (?,?,?)";
-
-                    PreparedStatement addHospitalStat = conn.prepareStatement(addHospital);
-
-                    addPatientsStat.setInt(1, hospitalId);
-                    addPatientStat.setString(2, nameField.getText());
-                    addHospitalStat.setInt(3, addressId);
-
-                    int res = addPatientsStat.executeUpdate();
-
-                    //Confirm that hospital record has been added successfully
+                    //Confirm that patient record has been added successfully
                     if (res > 0) {
                         JOptionPane.showMessageDialog(container, "Hospital added successfully");
                     }
@@ -828,13 +774,38 @@ public class PatientPanel extends JPanel {
                     s.printStackTrace();
                 }
             }
-      */  }
+
+        }
     }
 
-    // To be erased since not used for hospital
+    // To be done
     private class deleteListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            int index = tab.getSelectedRow();
+            String patFisCode = allPatientFisCodeList.get(index);
+
+            int result = JOptionPane.showConfirmDialog(container, "Are you sure you want to permanently delete the selected patient?", "Warning", JOptionPane.WARNING_MESSAGE);
+
+            if (result == JOptionPane.YES_OPTION) {
+                String deletePatient = "DELETE FROM patient WHERE patientfiscalcode = ?";
+
+                try {
+                    Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    PreparedStatement s = conn.prepareStatement(deletePatient);
+                    s.setString(1, patFisCode);
+
+                    int res = s.executeUpdate();
+
+                    //Confirm that hospital record has been added successfully
+                    if (res > 0) {
+                        JOptionPane.showMessageDialog(container, "Patient deleted successfully.");
+                    }
+
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
     }
 
@@ -853,11 +824,15 @@ public class PatientPanel extends JPanel {
 
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(150);
-        columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(15);
-        columnModel.getColumn(5).setPreferredWidth(15);
+        columnModel.getColumn(0).setPreferredWidth(95);
+        columnModel.getColumn(1).setPreferredWidth(70);
+        columnModel.getColumn(2).setPreferredWidth(70);
+        columnModel.getColumn(3).setPreferredWidth(50);
+        columnModel.getColumn(4).setPreferredWidth(10);
+        columnModel.getColumn(5).setPreferredWidth(20);
+        columnModel.getColumn(6).setPreferredWidth(70);
+        columnModel.getColumn(7).setPreferredWidth(70);
     }
 }
+
 
