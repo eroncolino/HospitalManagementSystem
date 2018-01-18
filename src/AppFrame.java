@@ -25,7 +25,7 @@ public class AppFrame {
         aboutImage = new ImageIcon(
                 new ImageIcon("about.png").getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
         about = new JMenuItem("About", aboutImage);
-        String aboutString = "Developers: Yuri Scalzo & Elena Roncolino.";
+        String aboutString = "Developers: Yuri Scalzo & Elena Roncolino.\nImages for the dashboard and the buttons have been taken from https://it.123rf.com/.";
         about.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(frame, aboutString);
@@ -58,6 +58,4 @@ public class AppFrame {
         frame.setLocationRelativeTo(null);
 
     }
-
-
 }

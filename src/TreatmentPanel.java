@@ -504,7 +504,6 @@ public class TreatmentPanel extends JPanel {
         }
     }
 
-
     private class insertListener implements ActionListener {
 
         @Override

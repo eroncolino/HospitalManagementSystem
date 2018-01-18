@@ -354,6 +354,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "Hospital name must be less than 60 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "Street") {
@@ -369,6 +370,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "Street name must be less than 50 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "ZIP Code") {
@@ -384,6 +386,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "ZIP Code must be 5 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "City") {
@@ -399,6 +402,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "City name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "Province") {
@@ -414,6 +418,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "Province name must be 2 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "State") {
@@ -429,7 +434,9 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "State name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
+                    textField.setText("");
                 }
 
                 textField.setText("");
@@ -693,7 +700,7 @@ public class HospitalPanel extends JPanel {
 
                     //Confirm that hospital record has been added successfully
                     if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Hospital updated successfully");
+                        JOptionPane.showMessageDialog(container, "Hospital updated successfully.");
                     }
 
                     //Repaint the table

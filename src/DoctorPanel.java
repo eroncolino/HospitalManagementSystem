@@ -596,7 +596,7 @@ public class DoctorPanel extends JPanel {
 
                     //Confirm that doctor record has been added successfully
                     if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Doctor updated successfully");
+                        JOptionPane.showMessageDialog(container, "Doctor updated successfully.");
                     }
 
                     //Repaint the table
