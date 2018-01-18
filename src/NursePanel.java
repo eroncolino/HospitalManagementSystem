@@ -581,7 +581,7 @@ public class NursePanel extends JPanel {/*
 
 
                         //Repaint the table
-
+ ciao
                         AppFrame.frame.getContentPane().setVisible(false);
                         AppFrame.frame.setContentPane(new PatientPanel());
                         AppFrame.frame.getContentPane().setVisible(true);
