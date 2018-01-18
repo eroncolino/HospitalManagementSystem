@@ -10,4 +10,5 @@ public class CustomTableModel extends DefaultTableModel{
          public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
+    
 }

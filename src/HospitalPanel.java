@@ -139,7 +139,6 @@ public class HospitalPanel extends JPanel {
         deleteButton.setMaximumSize(d);
         deleteButton.setIcon(new ImageIcon("delete.png"));
         deleteButton.setHorizontalTextPosition(AbstractButton.RIGHT);
-        deleteButton.addActionListener(new deleteListener());
 
         goBackButton = new JButton("Go back");
         goBackButton.setFont(new Font("Verdana", Font.PLAIN, 18));
@@ -152,9 +151,9 @@ public class HospitalPanel extends JPanel {
         buttonPanel.add(Box.createRigidArea(new Dimension(200, 0)));
         buttonPanel.add(findButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(updateButton);
-        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(insertButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        buttonPanel.add(updateButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(deleteButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -268,7 +267,7 @@ public class HospitalPanel extends JPanel {
         return dataReturn;
     }
 
-    //Get all data when ID is inserted as query string
+    //Get all data when a string is inserted as query string
     public Object[][] getHospitalDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE UPPER(" + column + ") = UPPER(?)";
@@ -355,6 +354,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "Hospital name must be less than 60 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "Street") {
@@ -370,6 +370,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "Street name must be less than 50 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "ZIP Code") {
@@ -385,6 +386,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "ZIP Code must be 5 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "City") {
@@ -400,6 +402,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "City name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "Province") {
@@ -415,6 +418,7 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "Province name must be 2 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
                 }
                 if (selectedColumn == "State") {
@@ -430,7 +434,9 @@ public class HospitalPanel extends JPanel {
                         }
                     } else {
                         JOptionPane.showMessageDialog(container, "State name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
+                    textField.setText("");
                 }
 
                 textField.setText("");
@@ -541,7 +547,7 @@ public class HospitalPanel extends JPanel {
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(sixthRow);
 
-            // Seventh row: Province
+            // Seventh row: State
             JPanel seventhRow = new JPanel();
             seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
 
@@ -694,7 +700,7 @@ public class HospitalPanel extends JPanel {
 
                     //Confirm that hospital record has been added successfully
                     if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Hospital updated successfully");
+                        JOptionPane.showMessageDialog(container, "Hospital updated successfully.");
                     }
 
                     //Repaint the table
@@ -803,7 +809,7 @@ public class HospitalPanel extends JPanel {
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(sixthRow);
 
-            // Seventh row: Province
+            // Seventh row: State
             JPanel seventhRow = new JPanel();
             seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
 
@@ -828,6 +834,14 @@ public class HospitalPanel extends JPanel {
                 //it is a yes so we want to add it
                 //first we need to check if the address already exists, if not we have to add it
                 //before we add the hospital
+
+                boolean hospitalAlreadyExists = checkHospitalExists(Integer.parseInt(idField.getText()));
+
+                if (hospitalAlreadyExists) {
+                    JOptionPane.showMessageDialog(container, "This hospital ID already exists. Insert another hospital ID or modify the existing one.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
                 String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
                 Connection conn;
@@ -970,13 +984,6 @@ public class HospitalPanel extends JPanel {
         }
     }
 
-    // To be erased since not used for hospital
-    private class deleteListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-        }
-    }
-
     private class goBackListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -986,7 +993,7 @@ public class HospitalPanel extends JPanel {
         }
     }
 
-    public void repaintTable(Object[][] dataToBeInserted) {
+    private void repaintTable(Object[][] dataToBeInserted) {
         //Show the found rows
         tab.setModel(new CustomTableModel(dataToBeInserted, hospitalColumns));
 
@@ -998,5 +1005,29 @@ public class HospitalPanel extends JPanel {
         columnModel.getColumn(3).setPreferredWidth(15);
         columnModel.getColumn(5).setPreferredWidth(15);
         columnModel.getColumn(6).setPreferredWidth(20);
+    }
+
+    private boolean checkHospitalExists (int id) {
+        boolean hospitalExists = false;
+
+        String query = "SELECT * FROM hospital WHERE hospitalid = ?";
+
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+            PreparedStatement s = conn.prepareStatement(query);
+
+            s.setInt(1, id);
+
+            ResultSet res = s.executeQuery();
+
+            if (res.next())
+                hospitalExists = true;
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return hospitalExists;
     }
 }

@@ -1216,8 +1216,15 @@ public class TimetablePanel extends JPanel {
                     ResultSet res = s.executeQuery(checkDoctorExists);
 
                     if (!res.next()) {
-                        JOptionPane.showMessageDialog(container, "No doctor found with that ID. Please check if the doctor ID is correct or" +
-                                "add a new doctor in the doctor section.", "Error", JOptionPane.ERROR_MESSAGE);
+                        int addDoctor = JOptionPane.showConfirmDialog(container, "No doctor found for the given ID. Please check if the doctor ID is correct or" +
+                                "add a new doctor in the doctor section.\n" +
+                                "Do you want to add a new doctor now?", "No doctor found!", JOptionPane.INFORMATION_MESSAGE);
+
+                        if (addDoctor == JOptionPane.YES_OPTION) {
+                            AppFrame.frame.getContentPane().setVisible(false);
+                            AppFrame.frame.setContentPane(new DoctorPanel());
+                            AppFrame.frame.getContentPane().setVisible(true);
+                        }
                     } else {
 
                         doctorIdField.setText(String.valueOf(checkDoctorId));
@@ -1432,7 +1439,6 @@ public class TimetablePanel extends JPanel {
         }
     }
 
-
     private class deleteListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -1451,7 +1457,7 @@ public class TimetablePanel extends JPanel {
 
                     int res = s.executeUpdate();
 
-                    //Confirm that hospital record has been added successfully
+                    //Confirm that timetable record has been added successfully
                     if (res > 0) {
                         JOptionPane.showMessageDialog(container, "Timetable deleted successfully.");
                     }

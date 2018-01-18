@@ -157,43 +157,6 @@ public class DashboardPanel extends JPanel{
         c.gridx = 4;
         c.gridy = 1;
         add(closeButton, c);
-//
-//
-//        //Create JRadioButtons and goButton and relative panels
-//        ImageIcon searchImage = new ImageIcon(new ImageIcon("glass.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
-//        searchDataButton = new JRadioButton("Search Data", true);
-//        searchDataButton.setFont(new Font("Verdana", Font.PLAIN, 20));
-//
-//        ImageIcon manageImage = new ImageIcon(new ImageIcon("manage.png").getImage().getScaledInstance(60, 60, Image.SCALE_DEFAULT));
-//        manageDataButton = new JRadioButton("Manage Data");
-//        manageDataButton.setFont(new Font("Verdana", Font.PLAIN, 20));
-//
-//        goButton = new JButton("Go");
-//        goButton.setFont(new Font("Verdana", Font.PLAIN, 20));
-//
-//        JPanel southPanel = new JPanel();
-//        southPanel.setLayout(new BorderLayout());
-//        JPanel centerPanel = new JPanel();
-//        centerPanel.add(searchDataButton, BorderLayout.WEST);
-//        centerPanel.add(Box.createRigidArea(new Dimension(100, 0)));
-//        centerPanel.add(manageDataButton, BorderLayout.EAST);
-//        southPanel.add(centerPanel, BorderLayout.CENTER);
-//        southPanel.add(goButton, BorderLayout.SOUTH);
-//
-//        c.fill = GridBagConstraints.HORIZONTAL;
-//        c.gridx = 1;
-//        c.gridy = 2;
-//        c.gridwidth = 3;
-//        add(southPanel, c);
-//
-//        ButtonGroup group = new ButtonGroup();
-//        group.add(searchDataButton);
-//        group.add(manageDataButton);
-//
-//        FunctionListener functionListener = new FunctionListener();
-//        searchDataButton.addActionListener(functionListener);
-//        manageDataButton.addActionListener(functionListener);
-
     }
 
     private class hospitalButtonListener implements ActionListener {
