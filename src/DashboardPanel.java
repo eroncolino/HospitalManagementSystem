@@ -150,7 +150,7 @@ public class DashboardPanel extends JPanel{
         closeButton.setIcon(new ImageIcon("close.png"));
         closeButton.setHorizontalTextPosition(AbstractButton.CENTER);
         closeButton.setVerticalTextPosition(AbstractButton.BOTTOM);
-        closeButton.addActionListener(new addressButtonListener());
+        closeButton.addActionListener(new exitButtonListener());
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipadx = 100;
         c.ipady = 80;
@@ -240,7 +240,7 @@ public class DashboardPanel extends JPanel{
         }
     }
 
-    private class addressButtonListener implements ActionListener {
+    private class exitButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.exit(0);

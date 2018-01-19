@@ -101,7 +101,6 @@ public class PatientPanel extends JPanel {
         columnModel.getColumn(6).setPreferredWidth(70);
         columnModel.getColumn(7).setPreferredWidth(70);
 
-
         // Buttons
 
         JPanel buttonPanel = new JPanel();
@@ -132,12 +131,11 @@ public class PatientPanel extends JPanel {
         insertButton.addActionListener(new PatientPanel.insertListener());
 
         deleteButton = new JButton("Delete");
-        //deleteButton.setEnabled(false);
+        deleteButton.setEnabled(false);
         deleteButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         deleteButton.setMaximumSize(d);
         deleteButton.setIcon(new ImageIcon("delete.png"));
         deleteButton.setHorizontalTextPosition(AbstractButton.RIGHT);
-        deleteButton.addActionListener(new PatientPanel.deleteListener());
 
         goBackButton = new JButton("Go back");
         goBackButton.setFont(new Font("Verdana", Font.PLAIN, 18));
@@ -204,7 +202,6 @@ public class PatientPanel extends JPanel {
 
                 data.add(row);
                 allPatientFisCodeList.add(rs.getString("patientfiscalcode"));
-
             }
 
         } catch (SQLException e) {
@@ -266,8 +263,6 @@ public class PatientPanel extends JPanel {
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
-
-            //System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
         }
         return dataReturn;
     }
@@ -574,8 +569,6 @@ public class PatientPanel extends JPanel {
                     else{
 
                     }
-
-
                     //Repaint the table
 
                     AppFrame.frame.getContentPane().setVisible(false);
@@ -745,7 +738,7 @@ public class PatientPanel extends JPanel {
                     }
 
                     if (famDoctorIdField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Famoòy doctor ID field cannot be empty.\n " +
+                        JOptionPane.showMessageDialog(container, "Family doctor ID field cannot be empty.\n " +
                                 "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -772,38 +765,6 @@ public class PatientPanel extends JPanel {
 
                 } catch (SQLException s) {
                     s.printStackTrace();
-                }
-            }
-
-        }
-    }
-
-    // To be done
-    private class deleteListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int index = tab.getSelectedRow();
-            String patFisCode = allPatientFisCodeList.get(index);
-
-            int result = JOptionPane.showConfirmDialog(container, "Are you sure you want to permanently delete the selected patient?", "Warning", JOptionPane.WARNING_MESSAGE);
-
-            if (result == JOptionPane.YES_OPTION) {
-                String deletePatient = "DELETE FROM patient WHERE patientfiscalcode = ?";
-
-                try {
-                    Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-                    PreparedStatement s = conn.prepareStatement(deletePatient);
-                    s.setString(1, patFisCode);
-
-                    int res = s.executeUpdate();
-
-                    //Confirm that hospital record has been added successfully
-                    if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Patient deleted successfully.");
-                    }
-
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
                 }
             }
         }
