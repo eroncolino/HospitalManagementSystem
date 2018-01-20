@@ -443,7 +443,7 @@ public class DoctorPanel extends JPanel {
                     repaintTable(getAllDoctorsData());
                     textField.setText("");
                 } else
-                    JOptionPane.showMessageDialog(container, "Error: Enter the string to be found.");
+                    JOptionPane.showMessageDialog(container, "Enter the string to be found.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

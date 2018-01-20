@@ -313,15 +313,15 @@ public class TreatmentPanel extends JPanel {
     }
 
     //Get all data when date is inserted as query string
-    public Object[][] getTreatmentDataFromDate(String column, Date dateToBeMatched) {
+    public Object[][] getTreatmentDataFromDate(Date dateToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
-        String findIdQuery = "SELECT * FROM treatment t INNER JOIN doctor d ON d.doctorid = t.doctorid INNER JOIN patient  p ON p.patientfiscalcode = t.patientfiscalcode " +
-                "WHERE " + column + " = ?";
+        String findDateQuery = "SELECT * FROM treatment t INNER JOIN doctor d ON d.doctorid = t.doctorid INNER JOIN patient  p ON p.patientfiscalcode = t.patientfiscalcode " +
+                "WHERE treatmentdate = ?";
         Connection conn;
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-            PreparedStatement stmt = conn.prepareStatement(findIdQuery);
+            PreparedStatement stmt = conn.prepareStatement(findDateQuery);
             stmt.setDate(1, dateToBeMatched);
 
             ResultSet rs = stmt.executeQuery();
@@ -378,7 +378,7 @@ public class TreatmentPanel extends JPanel {
                     try {
                         dateFormat.parse(stringToBeMatched);
                         treatmentDate = Date.valueOf(stringToBeMatched);
-                        myData = getTreatmentDataFromDate("treatmentdate", treatmentDate);
+                        myData = getTreatmentDataFromDate(treatmentDate);
 
                         if (myData.length != 0)
                             repaintTable(myData);

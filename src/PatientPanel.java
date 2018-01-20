@@ -1,4 +1,8 @@
 
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -9,7 +13,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Properties;
 
 public class PatientPanel extends JPanel {
     private JLabel searchLabel, stringLabel;
@@ -19,7 +27,6 @@ public class PatientPanel extends JPanel {
     private JButton findButton, insertButton, deleteButton, updateButton, goBackButton;
     private JPanel container;
     private String[] boxColumns, patientColumns;
-    private ArrayList<String> allPatientFisCodeList;
 
     public PatientPanel() {
 
@@ -42,7 +49,7 @@ public class PatientPanel extends JPanel {
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family Doctor ID"};
-        patientColumns = new String[]{"Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family DoctorID", "Family Doctor Name", "Family Doctor Surname"};
+        patientColumns = new String[]{"Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family Doctor ID", "Family Doctor Name", "Family Doctor Surname"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -78,7 +85,7 @@ public class PatientPanel extends JPanel {
         // we need to read data in order to fill in the table
 
         Object[][] myData = getAllPatientsData();
-        tab = new JTable() {
+        tab = new JTable() {        //this deselects a row when the user clicks on a selected row
             public void changeSelection(int rowIndex, int columnIndex,
                                         boolean toggle, boolean extend) {
                 super.changeSelection(rowIndex, columnIndex, true, false);
@@ -182,14 +189,12 @@ public class PatientPanel extends JPanel {
     }
 
     //Get all the data from the patient table
-
-    public Object[][] getAllPatientsData() {
+    private Object[][] getAllPatientsData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * " +
                 "FROM patient INNER JOIN doctor ON patient.familydoctorid = doctor.doctorid";
         Connection conn;
-        allPatientFisCodeList = new ArrayList();
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
@@ -198,12 +203,11 @@ public class PatientPanel extends JPanel {
 
             while (rs.next()) {
                 Object[] row = {rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
-                        rs.getString("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
+                        rs.getString("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"),
+                        rs.getString("doctorname"), rs.getString("doctorsurname")};
 
                 data.add(row);
-                allPatientFisCodeList.add(rs.getString("patientfiscalcode"));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -224,8 +228,8 @@ public class PatientPanel extends JPanel {
         return dataReturn;
     }
 
-    //Get all data when an integer is inserted as query string
-    public Object[][] getPatientDataFromInteger(int number) {
+    //Get all data when the doctor id is inserted as query string
+    private Object[][] getPatientDataFromDoctorId(int id) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM patient INNER JOIN doctor ON patient.familydoctorid = doctor.doctorid WHERE familydoctorid = ?";
         Connection conn;
@@ -233,12 +237,12 @@ public class PatientPanel extends JPanel {
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
             PreparedStatement stmt = conn.prepareStatement(findIdQuery);
-            stmt.setInt(1, number);
+            stmt.setInt(1, id);
 
             ResultSet rs = stmt.executeQuery();
 
             if (!rs.next())
-                JOptionPane.showMessageDialog(container, "No match was found for the given string.");
+                JOptionPane.showMessageDialog(container, "No match was found for the given doctor ID.");
 
             else {
                 do {
@@ -268,7 +272,7 @@ public class PatientPanel extends JPanel {
     }
 
     //Get all data when ID is inserted as query string
-    public Object[][] getPatientDataFromString(String column, String stringToBeMatched) {
+    private Object[][] getPatientDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM patient INNER JOIN doctor ON patient.familydoctorid = doctor.doctorid WHERE UPPER(" + column + ") = UPPER(?)";
         Connection conn;
@@ -306,8 +310,51 @@ public class PatientPanel extends JPanel {
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
+        }
+        return dataReturn;
+    }
 
-            // System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
+    //Get all data when birth date is inserted as query string
+    private Object[][] getPatientDataFromDate(Date dateToBeMatched) {
+        ArrayList<Object[]> data = new ArrayList();
+        String findDateQuery = "SELECT * FROM patient INNER JOIN doctor ON patient.familydoctorid = doctor.doctorid WHERE birthdate = ?";
+        Connection conn;
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+            PreparedStatement stmt = conn.prepareStatement(findDateQuery);
+            stmt.setDate(1, dateToBeMatched);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next())
+                JOptionPane.showMessageDialog(container, "No match was found for the given date.");
+
+            else {
+                do {
+                    Object[] row = {rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
+                            rs.getDate("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"),
+                            rs.getString("doctorname"), rs.getString("doctorsurname")};
+
+                    data.add(row);
+                } while (rs.next());
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        Object[][] dataReturn = new Object[data.size()][8];
+
+        for (int i = 0; i < data.size(); i++) {
+            dataReturn[i][0] = data.get(i)[0];
+            dataReturn[i][1] = data.get(i)[1];
+            dataReturn[i][2] = data.get(i)[2];
+            dataReturn[i][3] = data.get(i)[3];
+            dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
         }
         return dataReturn;
     }
@@ -317,32 +364,30 @@ public class PatientPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             String selectedColumn = (String) columnsList.getSelectedItem();
             String stringToBeMatched = textField.getText();
-            int patientFiscalCodeCheck = 0;
-            Object[][] myData = new Object[0][];
+            Object[][] myData;
             Object[][] allData;
 
             if (stringToBeMatched.length() != 0) {
 
                 if (selectedColumn == "Fiscal Code") {
-                    try {
-                        if (stringToBeMatched.length() == 16) {
-                            myData = getPatientDataFromString("patientfiscalcode", stringToBeMatched);
+                    if (stringToBeMatched.length() == 16) {
+                        myData = getPatientDataFromString("patientfiscalcode", stringToBeMatched);
 
-                            //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
-                            if (myData.length != 0)
-                                repaintTable(myData);
+                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                        if (myData.length != 0)
+                            repaintTable(myData);
 
-                            else {
-                                allData = getAllPatientsData();
-                                repaintTable(allData);
-                            }
+                        else {
+                            allData = getAllPatientsData();
+                            repaintTable(allData);
                         }
 
-                    } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Error: Patient Fiscal Code must be an integer.");
+                    } else {
+                        JOptionPane.showMessageDialog(container, "Patient fiscal code must be 16 characters long.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                 }
+
                 if (selectedColumn == "Name") {
                     if (stringToBeMatched.length() < 30) {
                         myData = getPatientDataFromString("patientname", stringToBeMatched);
@@ -355,9 +400,10 @@ public class PatientPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Error: Patient name must be less than 30 characters.");
+                        JOptionPane.showMessageDialog(container, "Patient name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
+
                 if (selectedColumn == "Surname") {
                     if (stringToBeMatched.length() < 30) {
                         myData = getPatientDataFromString("patientsurname", stringToBeMatched);
@@ -370,12 +416,18 @@ public class PatientPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Error: Patient Surname name must be less than 30 characters.");
+                        JOptionPane.showMessageDialog(container, "Patient surname name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
+
                 if (selectedColumn == "Birth Date") {
-                    if (stringToBeMatched.length() == 5) {
-                        myData = getPatientDataFromString("birthdate", stringToBeMatched);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+                    Date birthDate;
+
+                    try {
+                        dateFormat.parse(stringToBeMatched);
+                        birthDate = Date.valueOf(stringToBeMatched);
+                        myData = getPatientDataFromDate(birthDate);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -384,12 +436,15 @@ public class PatientPanel extends JPanel {
                             allData = getAllPatientsData();
                             repaintTable(allData);
                         }
-                    } else {
-                        JOptionPane.showMessageDialog(container, "Error: Birth Date must be 5 characters.");
+
+                    } catch (ParseException e1) {
+                        JOptionPane.showMessageDialog(container, "Wrong patient's birth date format.\nDate format must be the following: \"yyyy-mm-dd\"",
+                                "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
+
                 if (selectedColumn == "Gender") {
-                    if (stringToBeMatched.length() == 1) {
+                    if (stringToBeMatched.toUpperCase().equals("M") || stringToBeMatched.toUpperCase().equals("F")) {
                         myData = getPatientDataFromString("gender", stringToBeMatched);
 
                         if (myData.length != 0)
@@ -400,12 +455,13 @@ public class PatientPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Error: Gender  must be less one character");
+                        JOptionPane.showMessageDialog(container, "Gender must be either \"M\" or \"F\".", "Warning", JOptionPane.WARNING_MESSAGE);
                     }
                 }
+
                 if (selectedColumn == "Family Doctor ID") {
-                    if (stringToBeMatched.length() == 2) {
-                        myData = getPatientDataFromString("familydoctorid", stringToBeMatched);
+                    try {
+                        myData = getPatientDataFromDoctorId(Integer.parseInt(stringToBeMatched));
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -414,22 +470,21 @@ public class PatientPanel extends JPanel {
                             allData = getAllPatientsData();
                             repaintTable(allData);
                         }
-                    } else {
-                        JOptionPane.showMessageDialog(container, "Error: Family Doctor name must be 2 characters.");
+                    } catch (NumberFormatException n) {
+                        JOptionPane.showMessageDialog(container, "Family doctor  ID name must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
                     }
-
-
-                    textField.setText("");
                 }
+                textField.setText("");
+
             } else {
 
                 if (selectedColumn == "Show all") {
                     repaintTable(getAllPatientsData());
                     textField.setText("");
                 } else
-                    JOptionPane.showMessageDialog(container, "Error: Enter the string to be found.");
+                    JOptionPane.showMessageDialog(container, "Enter the string to be found.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-
         }
     }
 
@@ -449,13 +504,13 @@ public class PatientPanel extends JPanel {
             JPanel firstRow = new JPanel();
             firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
 
-            JLabel fiscCode = new JLabel("Fiscal Code");
-            fiscCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField fiscCodeField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
-            fiscCodeField.setEditable(false);
-            firstRow.add(fiscCode);
-            firstRow.add(Box.createRigidArea(new Dimension(95, 0)));
-            firstRow.add(fiscCodeField);
+            JLabel fiscalCode = new JLabel("Fiscal Code");
+            fiscalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField fiscalCodeField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
+            fiscalCodeField.setEditable(false);
+            firstRow.add(fiscalCode);
+            firstRow.add(Box.createRigidArea(new Dimension(90, 0)));
+            firstRow.add(fiscalCodeField);
 
             addPanel.add(firstRow);
 
@@ -483,13 +538,13 @@ public class PatientPanel extends JPanel {
             JTextField surnameField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
             surnameField.setEditable(false);
             thirdRow.add(surname);
-            thirdRow.add(Box.createRigidArea(new Dimension(70, 0)));
+            thirdRow.add(Box.createRigidArea(new Dimension(41, 0)));
             thirdRow.add(surnameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(thirdRow);
 
-            // Fourth row: BirthDate
+            // Fourth row: Birth date
             JPanel fourthRow = new JPanel();
             fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
 
@@ -498,7 +553,7 @@ public class PatientPanel extends JPanel {
             JTextField birthDateField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
             birthDateField.setEditable(false);
             fourthRow.add(birthDate);
-            fourthRow.add(Box.createRigidArea(new Dimension(50, 0)));
+            fourthRow.add(Box.createRigidArea(new Dimension(101, 0)));
             fourthRow.add(birthDateField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -513,7 +568,7 @@ public class PatientPanel extends JPanel {
             JTextField genderField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
             genderField.setEditable(false);
             fifthRow.add(gender);
-            fifthRow.add(Box.createRigidArea(new Dimension(10, 0)));
+            fifthRow.add(Box.createRigidArea(new Dimension(127, 0)));
             fifthRow.add(genderField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -523,15 +578,16 @@ public class PatientPanel extends JPanel {
             JPanel sixthRow = new JPanel();
             sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
 
-            JLabel famDoctorId = new JLabel("Family Doctor ID");
-            famDoctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField famDoctorIdField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
-            sixthRow.add(famDoctorId);
-            sixthRow.add(Box.createRigidArea(new Dimension(20, 0)));
-            sixthRow.add(famDoctorIdField);
+            JLabel familyDoctorId = new JLabel("Family Doctor ID");
+            familyDoctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField familyDoctorIdField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
+            sixthRow.add(familyDoctorId);
+            sixthRow.add(Box.createRigidArea(new Dimension(39, 0)));
+            sixthRow.add(familyDoctorIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(sixthRow);
+            addPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
             // add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
@@ -546,28 +602,37 @@ public class PatientPanel extends JPanel {
                 //Family Doctor Id check
 
                 Connection conn;
-                String findDoctor = "SELECT * FROM doctor WHERE doctorid = " + famDoctorId;
+                String findDoctor = "SELECT * FROM doctor WHERE doctorid = " + familyDoctorIdField.getText();
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
-                    PreparedStatement stat = conn.prepareStatement(findDoctor);
-                    stat.setInt(0, Integer.parseInt(famDoctorIdField.getText()));
+                    Statement stmt = conn.createStatement();
 
-                    ResultSet rs = stat.executeQuery();
+                    ResultSet rs = stmt.executeQuery(findDoctor);
 
                     if (!rs.next()) {
-                        int addDoctor = JOptionPane.showConfirmDialog(container, "No Doctor found for the given ID. Please check if the doctor ID is correct or" +
-                                "add a new doctor in the doctor section./n" +
+                        int addDoctor = JOptionPane.showConfirmDialog(container, "No doctor found for the given ID. Please check if the doctor ID is correct or" +
+                                "add a new doctor in the doctor section.\n" +
                                 "Do you want to add a new doctor now?", "No doctor found!", JOptionPane.INFORMATION_MESSAGE);
+
                         if (addDoctor == JOptionPane.YES_OPTION) {
                             AppFrame.frame.getContentPane().setVisible(false);
                             AppFrame.frame.setContentPane(new DoctorPanel());
                             AppFrame.frame.getContentPane().setVisible(true);
-
                         }
-                    }
-                    else{
+                        return;
+                    } else {
+                        int doctorId = rs.getInt("doctorid");
 
+                        String updateQuery = "UPDATE patient SET familydoctorid = ? WHERE patientfiscalcode = ?";
+                        PreparedStatement st = conn.prepareStatement(updateQuery);
+                        st.setInt(1, doctorId);
+                        st.setString(2, tab.getModel().getValueAt(index, 0).toString());
+
+                        int res = st.executeUpdate();
+
+                        if (res > 0)
+                            JOptionPane.showMessageDialog(container, "Patient updated successfully.");
                     }
                     //Repaint the table
 
@@ -600,7 +665,7 @@ public class PatientPanel extends JPanel {
             fiscCode.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField fiscCodeField = new JTextField();
             firstRow.add(fiscCode);
-            firstRow.add(Box.createRigidArea(new Dimension(95, 0)));
+            firstRow.add(Box.createRigidArea(new Dimension(90, 0)));
             firstRow.add(fiscCodeField);
 
             addPanel.add(firstRow);
@@ -627,7 +692,7 @@ public class PatientPanel extends JPanel {
             surname.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField surnameField = new JTextField();
             thirdRow.add(surname);
-            thirdRow.add(Box.createRigidArea(new Dimension(70, 0)));
+            thirdRow.add(Box.createRigidArea(new Dimension(41, 0)));
             thirdRow.add(surnameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -639,10 +704,19 @@ public class PatientPanel extends JPanel {
 
             JLabel birthDate = new JLabel("Birth Date");
             birthDate.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField birthDateField = new JTextField();
+
+            UtilDateModel model = new UtilDateModel();
+            Properties p = new Properties();
+            p.put("text.today", "Today");
+            p.put("text.month", "Month");
+            p.put("text.year", "Year");
+
+            JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+            JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
             fourthRow.add(birthDate);
-            fourthRow.add(Box.createRigidArea(new Dimension(50, 0)));
-            fourthRow.add(birthDateField);
+            fourthRow.add(Box.createRigidArea(new Dimension(101, 0)));
+            fourthRow.add(datePicker);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fourthRow);
@@ -655,7 +729,7 @@ public class PatientPanel extends JPanel {
             gender.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField genderField = new JTextField();
             fifthRow.add(gender);
-            fifthRow.add(Box.createRigidArea(new Dimension(10, 0)));
+            fifthRow.add(Box.createRigidArea(new Dimension(127, 0)));
             fifthRow.add(genderField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -665,15 +739,16 @@ public class PatientPanel extends JPanel {
             JPanel sixthRow = new JPanel();
             sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
 
-            JLabel famDoctorId = new JLabel("Family Doctor ID");
-            famDoctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField famDoctorIdField = new JTextField();
-            sixthRow.add(famDoctorId);
-            sixthRow.add(Box.createRigidArea(new Dimension(20, 0)));
-            sixthRow.add(famDoctorIdField);
+            JLabel familyDoctorId = new JLabel("Family Doctor ID");
+            familyDoctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField familyDoctorIdField = new JTextField();
+            sixthRow.add(familyDoctorId);
+            sixthRow.add(Box.createRigidArea(new Dimension(39, 0)));
+            sixthRow.add(familyDoctorIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(sixthRow);
+            addPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
             //add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
@@ -682,80 +757,104 @@ public class PatientPanel extends JPanel {
             //now we check the result
 
             if (result == JOptionPane.YES_OPTION) {
-                //it is a yes so we want to add it
-                //before we add the hospital
+
                 Connection conn;
-                String addPatient = "INSERT INTO patient(patientfiscalcode, patientname, patientsurname, brithdate, gender, familydoctorid) values (?,?,?,?,?,?)";
+
+                if (fiscCodeField.getText().length() != 16) {
+                    JOptionPane.showMessageDialog(container, "Fiscal code should be 16 characters.\n " +
+                            "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (nameField.getText().length() == 0) {
+                    JOptionPane.showMessageDialog(container, "Name field cannot be empty.\n " +
+                            "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (nameField.getText().length() > 30) {
+                    JOptionPane.showMessageDialog(container, "Name field should be less than 30 characters.\n " +
+                            "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (surnameField.getText().length() == 0) {
+                    JOptionPane.showMessageDialog(container, "Surname field cannot be empty.\n " +
+                            "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (surnameField.getText().length() > 30) {
+                    JOptionPane.showMessageDialog(container, "Surname field should be less than 30 characters.\n " +
+                            "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                java.util.Date selectedDate = (java.util.Date) datePicker.getModel().getValue();
+
+                if (selectedDate == null) {
+                    JOptionPane.showMessageDialog(container, "No date selected. Please select a birth date.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                java.sql.Date sqlDate = new java.sql.Date(selectedDate.getTime());
+
+                if (sqlDate.after(Calendar.getInstance().getTime())) {
+                    JOptionPane.showMessageDialog(container, "The patient's birth date cannot be later than today's date.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (!genderField.getText().toUpperCase().equals("M") && !genderField.getText().toUpperCase().equals("F")) {
+                    JOptionPane.showMessageDialog(container, "Gender field must be either \"M\" or \"F\".\n" +
+                            "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                try {
+                    int id = Integer.parseInt(familyDoctorIdField.getText());
+
+                    String findDoctor = "SELECT * FROM doctor WHERE doctorid = " + id;
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(findDoctor);
+
+                    if (!rs.next()) {
+                        int addDoctor = JOptionPane.showConfirmDialog(container, "No doctor found for the given ID. Please check if the doctor ID is correct or" +
+                                "add a new doctor in the doctor section.\n" +
+                                "Do you want to add a new doctor now?", "No doctor found!", JOptionPane.INFORMATION_MESSAGE);
+
+                        if (addDoctor == JOptionPane.YES_OPTION) {
+                            AppFrame.frame.getContentPane().setVisible(false);
+                            AppFrame.frame.setContentPane(new DoctorPanel());
+                            AppFrame.frame.getContentPane().setVisible(true);
+                        }
+                        return;
+                    }
+                } catch (NumberFormatException n) {
+                    JOptionPane.showMessageDialog(container, "Doctor ID must be an integer", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-
-                    if (fiscCodeField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Fiscalcode field cannot be empty.\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (fiscCodeField.getText().length() != 16) {
-                        JOptionPane.showMessageDialog(container, "Fiscalcode should be 16 characters.\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (nameField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Name field cannot be empty.\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (nameField.getText().length() > 30) {
-                        JOptionPane.showMessageDialog(container, "Fiscalcode field should be less than 30 characters.\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (surnameField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Surname field cannot be empty.\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    //manca il check per vedere se la brithdate è piccola della data attuale
-                    if (birthDateField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Birth date field cannot be empty.\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (genderField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Gender field cannot be empty.\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (genderField.getText() != "m" || genderField.getText() != "M" || genderField.getText() != "f" || genderField.getText() != "F") {
-                        JOptionPane.showMessageDialog(container, "Gender field must be either \"m\" or \"f\" .\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (famDoctorIdField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Family doctor ID field cannot be empty.\n " +
-                                "No patient will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                    String addPatient = "INSERT INTO patient(patientfiscalcode, patientname, patientsurname, birthdate, gender, familydoctorid) values (?,?,?,?,?,?)";
 
                     PreparedStatement stat = conn.prepareStatement(addPatient);
-                    stat.setString(1, fiscCodeField.getText());
+                    stat.setString(1, fiscCodeField.getText().toUpperCase());
                     stat.setString(2, nameField.getText());
                     stat.setString(3, surnameField.getText());
-                    stat.setString(4, birthDateField.getText());
-                    stat.setString(5, genderField.getText());
-                    stat.setString(6, famDoctorIdField.getText());
+                    stat.setDate(4, sqlDate);
+                    stat.setString(5, genderField.getText().toUpperCase());
+                    stat.setInt(6, Integer.parseInt(familyDoctorIdField.getText()));
 
                     int res = stat.executeUpdate();
 
                     //Confirm that patient record has been added successfully
                     if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Hospital added successfully");
+                        JOptionPane.showMessageDialog(container, "Patient added successfully.");
                     }
 
                     //Repaint the table
@@ -763,10 +862,32 @@ public class PatientPanel extends JPanel {
                     AppFrame.frame.setContentPane(new PatientPanel());
                     AppFrame.frame.getContentPane().setVisible(true);
 
-                } catch (SQLException s) {
-                    s.printStackTrace();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
                 }
             }
+        }
+
+        private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+
+            private String datePattern = "yyyy-MM-dd";
+            private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
+            @Override
+            public Object stringToValue(String text) throws ParseException {
+                return dateFormatter.parseObject(text);
+            }
+
+            @Override
+            public String valueToString(Object value) throws ParseException {
+                if (value != null) {
+                    Calendar cal = (Calendar) value;
+                    return dateFormatter.format(cal.getTime());
+                }
+
+                return "";
+            }
+
         }
     }
 
@@ -779,7 +900,7 @@ public class PatientPanel extends JPanel {
         }
     }
 
-    public void repaintTable(Object[][] dataToBeInserted) {
+    private void repaintTable(Object[][] dataToBeInserted) {
         //Show the found rows
         tab.setModel(new CustomTableModel(dataToBeInserted, patientColumns));
 
@@ -795,5 +916,6 @@ public class PatientPanel extends JPanel {
         columnModel.getColumn(7).setPreferredWidth(70);
     }
 }
+
 
 
