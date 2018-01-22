@@ -199,7 +199,7 @@ public class DashboardPanel extends JPanel{
         @Override
         public void actionPerformed(ActionEvent e) {
             AppFrame.frame.getContentPane().setVisible(false);
-            AppFrame.frame.setContentPane(new PrescripionPanel());
+            AppFrame.frame.setContentPane(new PrescriptionPanel());
             AppFrame.frame.getContentPane().setVisible(true);
         }
     }
