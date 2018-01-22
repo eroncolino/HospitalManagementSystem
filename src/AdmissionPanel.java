@@ -27,7 +27,7 @@ public class AdmissionPanel extends JPanel {
         // Create border
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 20, 20, 20);
-        TitledBorder tb = BorderFactory.createTitledBorder("Medicine");
+        TitledBorder tb = BorderFactory.createTitledBorder("Hospital Admission");
         tb.setTitleFont(new Font("Verdana", Font.PLAIN, 30));
         tb.setTitleColor(Color.DARK_GRAY);
         setBorder(BorderFactory.createCompoundBorder(emptyBorder, tb));
@@ -42,8 +42,8 @@ public class AdmissionPanel extends JPanel {
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        boxColumns = new String[]{"Show all", "Medicine Code", "Medicine Name", "Producer", "Active Substance", "Cost"};
-        medicineColumns = new String[]{"Medicine Code", "Medicine Name", "Producer", "Active Substance", "Cost (in €)"};
+        boxColumns = new String[]{"Show all", "Admission date", "Release date", "Patient Fiscal Code", "Admission Cause", "Hospital ID"};
+        medicineColumns = new String[]{"Admission date", "Release date", "Patient Fiscal Code", "Patient name", "Patient surname", "Admission Cause", "Hospital ID", "Ward ID", "Room Number"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
