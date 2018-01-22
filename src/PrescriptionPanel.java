@@ -39,7 +39,7 @@ public class PrescriptionPanel extends JPanel {
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        boxColumns = new String[]{"Show all","Prescrpition No", "Medicine Name", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
+        boxColumns = new String[]{"Show all", "Prescrpition No", "Medicine Name", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
         prescriptionColumns = new String[]{"Prescrpition No", "Medicine Name", "Qty", "Patient Fiscal Code", "Patient Name", "Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
@@ -736,7 +736,7 @@ public class PrescriptionPanel extends JPanel {
                 }
 
                 try {
-                   int medQuant = Integer.parseInt(medQuanField.getText());
+                    int medQuant = Integer.parseInt(medQuanField.getText());
 
                 } catch (NumberFormatException n) {
                     JOptionPane.showMessageDialog(container, "Medicine quantity must be an integer.\n" +
