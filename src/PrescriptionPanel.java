@@ -277,7 +277,7 @@ public class PrescriptionPanel extends JPanel {
         ArrayList<Object[]> data = new ArrayList();
         String findPrescriptionQuery = "SELECT * FROM prescription p INNER JOIN medicine m ON p.medicinecode = m.medicinecode " +
                 "INNER JOIN doctor d ON p.doctorid = d.doctorid INNER JOIN patient pat ON p.patientfiscalcode = pat.patientfiscalcode" +
-                " WHERE UPPER(" + column + ") = UPPER(?)";
+                " WHERE UPPER (" + column + ") = UPPER(?)";
         Connection conn;
 
         try {
@@ -319,47 +319,6 @@ public class PrescriptionPanel extends JPanel {
         return dataReturn;
     }
 
-        /*
-        //Get all data when a money value is inserted as query string
-        public Object[][] getMedicineDataFromMoney (double cost) {
-            ArrayList<Object[]> data = new ArrayList();
-            String findIdQuery = "SELECT * FROM medicine WHERE cost = " + cost;
-            Connection conn;
-
-            try {
-                conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-                Statement stmt = conn.createStatement();
-
-                ResultSet rs = stmt.executeQuery(findIdQuery);
-
-                if (!rs.next())
-                    JOptionPane.showMessageDialog(container, "No match was found for the given string.");
-
-                else {
-                    do {
-                        Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
-                                rs.getString("activesubstance"), rs.getString("cost")};
-
-                        data.add(row);
-                    } while (rs.next());
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            Object[][] dataReturn = new Object[data.size()][5];
-
-            for (int i = 0; i < data.size(); i++) {
-                dataReturn[i][0] = data.get(i)[0];
-                dataReturn[i][1] = data.get(i)[1];
-                dataReturn[i][2] = data.get(i)[2];
-                dataReturn[i][3] = data.get(i)[3];
-                dataReturn[i][4] = data.get(i)[4];
-            }
-            return dataReturn;
-        }*/
-
     private class findListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -372,7 +331,7 @@ public class PrescriptionPanel extends JPanel {
 
                 if (selectedColumn == "Prescription") {
                     if (stringToBeMatched.length() < 17) {
-                        myData = getPrescriptionDataFromString("prescription", stringToBeMatched);
+                        myData = getPrescriptionDataFromString("prescriptionno", stringToBeMatched.toUpperCase());
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -450,10 +409,9 @@ public class PrescriptionPanel extends JPanel {
                     if (stringToBeMatched.length() < 80) {
                         myData = getPrescriptionDataFromString("patientfiscalcode", stringToBeMatched);
 
-                        if (myData.length != 0)
+                        if (myData.length != 0) {
                             repaintTable(myData);
-
-                        else {
+                        } else {
                             allData = getAllPrescriptionData();
                             repaintTable(allData);
                         }

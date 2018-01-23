@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class NursePanel extends JPanel {/*
+public class NursePanel extends JPanel {
 
         private JLabel searchLabel, stringLabel;
         private JComboBox columnsList;
@@ -26,7 +26,7 @@ public class NursePanel extends JPanel {/*
             // Create border
             setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
             Border emptyBorder = BorderFactory.createEmptyBorder(10, 20, 20, 20);
-            TitledBorder tb = BorderFactory.createTitledBorder("Patient");
+            TitledBorder tb = BorderFactory.createTitledBorder("Nurse");
             tb.setTitleFont(new Font("Verdana", Font.PLAIN, 30));
             tb.setTitleColor(Color.DARK_GRAY);
             setBorder(BorderFactory.createCompoundBorder(emptyBorder, tb));
@@ -92,14 +92,14 @@ public class NursePanel extends JPanel {/*
             mainRow.add(tablePanel);
 
             TableColumnModel columnModel = tab.getColumnModel();
-            columnModel.getColumn(0).setPreferredWidth(95);
+            columnModel.getColumn(0).setPreferredWidth(25);
             columnModel.getColumn(1).setPreferredWidth(70);
             columnModel.getColumn(2).setPreferredWidth(70);
-            columnModel.getColumn(3).setPreferredWidth(50);
-            columnModel.getColumn(4).setPreferredWidth(10);
-            columnModel.getColumn(5).setPreferredWidth(20);
-            columnModel.getColumn(6).setPreferredWidth(70);
-            columnModel.getColumn(7).setPreferredWidth(70);
+            columnModel.getColumn(3).setPreferredWidth(110);
+            columnModel.getColumn(4).setPreferredWidth(15);
+            columnModel.getColumn(5).setPreferredWidth(190);
+            columnModel.getColumn(6).setPreferredWidth(5);
+            columnModel.getColumn(7).setPreferredWidth(135);
 
 
             // Buttons
@@ -132,7 +132,7 @@ public class NursePanel extends JPanel {/*
             insertButton.addActionListener(new NursePanel.insertListener());
 
             deleteButton = new JButton("Delete");
-            //deleteButton.setEnabled(false);
+            deleteButton.setEnabled(false);
             deleteButton.setFont(new Font("Verdana", Font.PLAIN, 18));
             deleteButton.setMaximumSize(d);
             deleteButton.setIcon(new ImageIcon("delete.png"));
@@ -189,8 +189,8 @@ public class NursePanel extends JPanel {/*
 
             ArrayList<Object[]> data = new ArrayList();
             String query = "SELECT * " +
-                    "FROM nurse INNER JOIN hospital ON nurse.hospitalid = hospital.hospitalid" +
-                    "INNER JOIN ward ON hospital.hospitalid = ward.hospitalid";
+                    "FROM nurse n INNER JOIN ward w ON n.hospitalid = w.hospitalid AND n.wardid = w.wardid  " +
+                    "INNER JOIN hospital h ON w.hospitalid = h.hospitalid";
             Connection conn;
             allNurseIdList = new ArrayList();
 
@@ -200,8 +200,8 @@ public class NursePanel extends JPanel {/*
                 ResultSet rs = s.executeQuery(query);
 
                 while (rs.next()) {
-                    Object[] row = {rs.getString("nurseid"), rs.getString("nursename"), rs.getString("nursesurname"),
-                            rs.getString("specialization"), rs.getString("hospitalid"), rs.getInt("hospitalname"), rs.getString("wardid"), rs.getString("wardname")};
+                    Object[] row = {rs.getInt("nurseid"), rs.getString("nursename"), rs.getString("nursesurname"),
+                            rs.getString("specialization"), rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getInt("wardid"), rs.getString("wardname")};
 
                     data.add(row);
                     allNurseIdList.add(rs.getString("nurseid"));
@@ -229,15 +229,16 @@ public class NursePanel extends JPanel {/*
         }
 
         //Get all data when an integer is inserted as query string
-        public Object[][] getPatientDataFromInteger(int number) {
+        public Object[][] getNurseDataFromInteger(String column, int number) {
             ArrayList<Object[]> data = new ArrayList();
-            String findIdQuery = "SELECT * FROM nurse INNER JOIN hospital ON nurse.hospitalid = hospital.hospitalid" +
-                    "INNER JOIN ward ON ward.hospitalid = hospital.hospitalid WHERE nurseid = ?";
+            String findIntQuery = "SELECT * " +
+                    " FROM nurse n INNER JOIN ward w ON n.hospitalid = w.hospitalid AND n.wardid = w.wardid " +
+                    " INNER JOIN hospital h ON w.hospitalid = h.hospitalid WHERE UPPER(" + column + ") = UPPER(?)";
             Connection conn;
 
             try {
                 conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-                PreparedStatement stmt = conn.prepareStatement(findIdQuery);
+                PreparedStatement stmt = conn.prepareStatement(findIntQuery);
                 stmt.setInt(1, number);
 
                 ResultSet rs = stmt.executeQuery();
@@ -247,8 +248,8 @@ public class NursePanel extends JPanel {/*
 
                 else {
                     do {
-                        Object[] row = {rs.getString("nurseid"), rs.getString("nursename"), rs.getString("nursesurname"),
-                                rs.getString("specialization"), rs.getString("hospitalid"), rs.getInt("hospitalname"), rs.getString("wardid"), rs.getString("wardname")};
+                        Object[] row = {rs.getInt("nurseid"), rs.getString("nursename"), rs.getString("nursesurname"),
+                                rs.getString("specialization"), rs.getInt("nurse.hospitalid"), rs.getString("hospitalname"), rs.getInt("wardid"), rs.getString("wardname")};
                         data.add(row);
                     } while (rs.next());
                 }
@@ -274,11 +275,12 @@ public class NursePanel extends JPanel {/*
             return dataReturn;
         }
 
-        //Get all data when ID is inserted as query string
-        public Object[][] getPatientDataFromString(String column, String stringToBeMatched) {
+        //Get all data when a String is inserted as query string
+        public Object[][] getNurseDataFromString(String column, String stringToBeMatched) {
             ArrayList<Object[]> data = new ArrayList();
-            String findIdQuery = "SELECT * FROM nurse INNER JOIN hospital ON nurse.hospitalid = hospital.hospitalid" +
-                    "INNER JOIN ward ON ward.hospitalid = hospital.hospitalid WHERE UPPER(" + column + ") = UPPER(?)";
+            String findIdQuery = "SELECT * " +
+                    "FROM nurse n INNER JOIN ward w ON n.hospitalid = w.hospitalid AND n.wardid = w.wardid " +
+                    "INNER JOIN hospital h ON w.hospitalid = h.hospitalid WHERE UPPER(" + column + ") = UPPER(?)";
             Connection conn;
 
             try {
@@ -293,8 +295,8 @@ public class NursePanel extends JPanel {/*
 
                 else {
                     do {
-                        Object[] row = {rs.getString("nurseid"), rs.getString("nursename"), rs.getString("nursesurname"),
-                                rs.getString("specialization"), rs.getString("hospitalid"), rs.getInt("hospitalname"), rs.getString("wardid"), rs.getString("wardname")};
+                        Object[] row = {rs.getInt("nurseid"), rs.getString("nursename"), rs.getString("nursesurname"),
+                                rs.getString("specialization"), rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getInt("wardid"), rs.getString("wardname")};
                         data.add(row);
                     } while (rs.next());
                 }
@@ -333,27 +335,26 @@ public class NursePanel extends JPanel {/*
 
                     if (selectedColumn == "Nurse ID") {
                         try {
-                            if (stringToBeMatched.length() == 16) {
-                                myData = getPatientDataFromString("nurseid", stringToBeMatched);
+                            int nurseIdCheck = Integer.parseInt(textField.getText());
+                            myData = getNurseDataFromInteger("nurseid", nurseIdCheck);
 
-                                //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
-                                if (myData.length != 0)
-                                    repaintTable(myData);
+                            //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
+                            if (myData.length != 0)
+                                repaintTable(myData);
 
-                                else {
-                                    allData = getAllNurseData();
-                                    repaintTable(allData);
-                                }
+                            else {
+                                allData = getAllNurseData();
+                                repaintTable(allData);
                             }
 
                         } catch (NumberFormatException n) {
-                            JOptionPane.showMessageDialog(container, "Error: Nurse ID must be an integer.");
+                            JOptionPane.showMessageDialog(container, "Nurse ID must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
                             return;
                         }
                     }
                     if (selectedColumn == "Name") {
                         if (stringToBeMatched.length() < 30) {
-                            myData = getPatientDataFromString("nursename", stringToBeMatched);
+                            myData = getNurseDataFromString("nursename", stringToBeMatched);
 
                             if (myData.length != 0)
                                 repaintTable(myData);
@@ -368,7 +369,7 @@ public class NursePanel extends JPanel {/*
                     }
                     if (selectedColumn == "Surname") {
                         if (stringToBeMatched.length() < 30) {
-                            myData = getPatientDataFromString("nursesurname", stringToBeMatched);
+                            myData = getNurseDataFromString("nursesurname", stringToBeMatched);
 
                             if (myData.length != 0)
                                 repaintTable(myData);
@@ -383,7 +384,7 @@ public class NursePanel extends JPanel {/*
                     }
                     if (selectedColumn == "Specialization") {
                         if (stringToBeMatched.length() < 70) {
-                            myData = getPatientDataFromString("specialization", stringToBeMatched);
+                            myData = getNurseDataFromString("specialization", stringToBeMatched);
 
                             if (myData.length != 0)
                                 repaintTable(myData);
@@ -397,8 +398,9 @@ public class NursePanel extends JPanel {/*
                         }
                     }
                     if (selectedColumn == "Hospital ID") {
-                        if (stringToBeMatched.length() == 16) {
-                            myData = getPatientDataFromString("nurseid", stringToBeMatched);
+                        try {
+                            int hospitalIdCheck = Integer.parseInt(textField.getText());
+                            myData = getNurseDataFromInteger("hospitalid", hospitalIdCheck);
 
                             //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                             if (myData.length != 0)
@@ -408,14 +410,18 @@ public class NursePanel extends JPanel {/*
                                 allData = getAllNurseData();
                                 repaintTable(allData);
                             }
+
+                        } catch (NumberFormatException n) {
+                            JOptionPane.showMessageDialog(container, "Hospital ID must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
+                            return;
                         }
-
                     }
-                    }
-                    if (selectedColumn == "Family Doctor ID") {
-                        if (stringToBeMatched.length() == 2) {
-                            myData = getPatientDataFromString("familydoctorid", stringToBeMatched);
+                    if (selectedColumn == "Ward ID") {
+                        try {
+                            int wardIdcheck = Integer.parseInt(textField.getText());
+                            myData = getNurseDataFromInteger("wardid", wardIdcheck);
 
+                            //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                             if (myData.length != 0)
                                 repaintTable(myData);
 
@@ -423,28 +429,29 @@ public class NursePanel extends JPanel {/*
                                 allData = getAllNurseData();
                                 repaintTable(allData);
                             }
-                        } else {
-                            JOptionPane.showMessageDialog(container, "Error: Family Doctor name must be 2 characters.");
+
+                        } catch (NumberFormatException n) {
+                            JOptionPane.showMessageDialog(container, "Doctor ID must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
+                            return;
                         }
-
-
-                        textField.setText("");
                     }
-                } else {
+                }else {
 
-                    if (selectedColumn == "Show all") {
-                        repaintTable(getAllNurseData());
-                        textField.setText("");
-                    } else
-                        JOptionPane.showMessageDialog(container, "Error: Enter the string to be found.");
-                }
+                        if (selectedColumn == "Show all") {
+                            repaintTable(getAllNurseData());
+                            textField.setText("");
+                        } else
+                            JOptionPane.showMessageDialog(container, "Error: Enter the string to be found.");
+                    }
+
 
             }
+        }
 
 
         private class updateListener implements ActionListener {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {/*
                 int index;
 
                 index = tab.getSelectedRow();
@@ -590,7 +597,7 @@ public class NursePanel extends JPanel {/*
                         s.printStackTrace();
                     }
                 }
-            }
+           */ }
         }
 
         private class insertListener implements ActionListener {
@@ -837,5 +844,5 @@ public class NursePanel extends JPanel {/*
             columnModel.getColumn(5).setPreferredWidth(20);
             columnModel.getColumn(6).setPreferredWidth(70);
             columnModel.getColumn(7).setPreferredWidth(70);
-        }*/
+        }
     }
