@@ -1,21 +1,4 @@
-import jdk.nashorn.internal.scripts.JO;
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
-
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.TableColumnModel;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Properties;
 
 public class AdmissionPanel extends JPanel {
     private JLabel searchLabel, stringLabel;
@@ -26,7 +9,7 @@ public class AdmissionPanel extends JPanel {
     private JPanel container;
     private String[] boxColumns, medicineColumns;
 
-    public AdmissionPanel() {
+    public AdmissionPanel() {/*
 
         // Create border
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
@@ -929,7 +912,7 @@ public class AdmissionPanel extends JPanel {
                     addPanel, "Update medicine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             //now we check the result
-
+/*
             if (result == JOptionPane.YES_OPTION) {
 
                 try {
@@ -1066,6 +1049,8 @@ public class AdmissionPanel extends JPanel {
         columnModel.getColumn(6).setPreferredWidth(20);
         columnModel.getColumn(7).setPreferredWidth(10);
         columnModel.getColumn(8).setPreferredWidth(10);
-    }
+    }*/
 
+    }
 }
+
