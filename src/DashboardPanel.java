@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class DashboardPanel extends JPanel{
-    static JComboBox tablesCombo;
     JButton hospitalButton, doctorButton, nurseButton, patientButton, prescriptionButton, timetableButton, treatmentButton,
             medicineButton, admissionButton, closeButton;
 

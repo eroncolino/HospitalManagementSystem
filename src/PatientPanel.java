@@ -381,7 +381,6 @@ public class PatientPanel extends JPanel {
                             allData = getAllPatientsData();
                             repaintTable(allData);
                         }
-
                     } else {
                         JOptionPane.showMessageDialog(container, "Patient fiscal code must be 16 characters long.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;

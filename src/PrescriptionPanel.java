@@ -39,8 +39,8 @@ public class PrescriptionPanel extends JPanel {
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        boxColumns = new String[]{"Show all", "Prescrpition No", "Medicine Name", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
-        prescriptionColumns = new String[]{"Prescrpition No", "Medicine Name", "Qty", "Patient Fiscal Code", "Patient Name", "Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
+        boxColumns = new String[]{"Show all", "Prescription No.", "Medicine Name", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
+        prescriptionColumns = new String[]{"Prescription No.", "Medicine Name", "Qty", "Patient Fiscal Code", "Patient Name", "Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -182,8 +182,6 @@ public class PrescriptionPanel extends JPanel {
         });
     }
 
-    //Get all the data from the medicine table
-
     public Object[][] getAllPrescriptionData() {
 
         ArrayList<Object[]> data = new ArrayList();
@@ -319,47 +317,6 @@ public class PrescriptionPanel extends JPanel {
         return dataReturn;
     }
 
-        /*
-        //Get all data when a money value is inserted as query string
-        public Object[][] getMedicineDataFromMoney (double cost) {
-            ArrayList<Object[]> data = new ArrayList();
-            String findIdQuery = "SELECT * FROM medicine WHERE cost = " + cost;
-            Connection conn;
-
-            try {
-                conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-                Statement stmt = conn.createStatement();
-
-                ResultSet rs = stmt.executeQuery(findIdQuery);
-
-                if (!rs.next())
-                    JOptionPane.showMessageDialog(container, "No match was found for the given string.");
-
-                else {
-                    do {
-                        Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
-                                rs.getString("activesubstance"), rs.getString("cost")};
-
-                        data.add(row);
-                    } while (rs.next());
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            Object[][] dataReturn = new Object[data.size()][5];
-
-            for (int i = 0; i < data.size(); i++) {
-                dataReturn[i][0] = data.get(i)[0];
-                dataReturn[i][1] = data.get(i)[1];
-                dataReturn[i][2] = data.get(i)[2];
-                dataReturn[i][3] = data.get(i)[3];
-                dataReturn[i][4] = data.get(i)[4];
-            }
-            return dataReturn;
-        }*/
-
     private class findListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -370,9 +327,9 @@ public class PrescriptionPanel extends JPanel {
 
             if (stringToBeMatched.length() != 0) {
 
-                if (selectedColumn == "Prescription") {
-                    if (stringToBeMatched.length() < 17) {
-                        myData = getPrescriptionDataFromString("prescription", stringToBeMatched);
+                if (selectedColumn == "Prescription No.") {
+                    if (stringToBeMatched.length() == 17) {
+                        myData = getPrescriptionDataFromString("prescriptionno", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -382,7 +339,7 @@ public class PrescriptionPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Prescription No must be less than 17 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Prescription No. must be 17 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                 }
@@ -399,10 +356,9 @@ public class PrescriptionPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Patient Fiscal Code must be 16 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Patient fiscal code must be 16 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    textField.setText("");
                 }
 
                 if (selectedColumn == "Medicine Quantity") {
@@ -420,7 +376,7 @@ public class PrescriptionPanel extends JPanel {
                         }
 
                     } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Medicine Quantity must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Medicine quantity must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                 }
@@ -441,7 +397,7 @@ public class PrescriptionPanel extends JPanel {
                         }
 
                     } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Medicine Code must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Medicine code must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                 }
@@ -458,10 +414,9 @@ public class PrescriptionPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Patient Fiscal Code must be less than 80 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Medicine name must be less than 80 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    textField.setText("");
                 }
 
                 if (selectedColumn == "Doctor ID") {
@@ -469,7 +424,6 @@ public class PrescriptionPanel extends JPanel {
                         int doctorIDCheck = Integer.parseInt(textField.getText());
                         myData = getPrescriptionDataFromInteger("doctorid", doctorIDCheck);
 
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
                             repaintTable(myData);
 
@@ -496,10 +450,9 @@ public class PrescriptionPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Doctor Name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Doctor name must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    textField.setText("");
                 }
 
                 if (selectedColumn == "Doctor Surname") {
@@ -514,10 +467,9 @@ public class PrescriptionPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Doctor Surname must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Doctor surname must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    textField.setText("");
                 }
 
                 textField.setText("");
@@ -548,16 +500,16 @@ public class PrescriptionPanel extends JPanel {
             addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
             addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
 
-            // First row: Prescription No
+            // First row: Prescription No.
             JPanel firstRow = new JPanel();
             firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
 
-            JLabel prescNo = new JLabel("Prescription No");
-            prescNo.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField prescNoField = new JTextField();
-            firstRow.add(prescNo);
+            JLabel prescriptionNo = new JLabel("Prescription No.");
+            prescriptionNo.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField prescriptionNoField = new JTextField();
+            firstRow.add(prescriptionNo);
             firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
-            firstRow.add(prescNoField);
+            firstRow.add(prescriptionNoField);
 
             addPanel.add(firstRow);
 
@@ -708,7 +660,7 @@ public class PrescriptionPanel extends JPanel {
                     e1.printStackTrace();
                 }
 
-                if (prescNoField.getText().length() != 17) {
+                if (prescriptionNoField.getText().length() != 17) {
                     JOptionPane.showMessageDialog(container, "Prescription No must be 17 characters. \n" +
                             "Prescription will not be inserted.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -756,7 +708,7 @@ public class PrescriptionPanel extends JPanel {
                     con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = con.prepareStatement(insertPrescription);
-                    stat.setString(1, prescNoField.getText());
+                    stat.setString(1, prescriptionNoField.getText());
                     stat.setInt(2, Integer.parseInt(docIdField.getText()));
                     stat.setString(3, patFisCodeField.getText().toUpperCase());
                     stat.setInt(4, Integer.parseInt(medCodeField.getText()));
