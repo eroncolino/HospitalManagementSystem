@@ -583,7 +583,6 @@ public class PrescriptionPanel extends JPanel {
 
             if (result == JOptionPane.YES_OPTION) {
                 //doctor check
-                int doctorId;
                 Connection conn;
                 try {
                     int id = Integer.parseInt(docIdField.getText());
