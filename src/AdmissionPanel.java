@@ -517,6 +517,8 @@ public class AdmissionPanel extends JPanel {
             boolean changed = false;
             JDatePanelImpl datePanel;
             JDatePickerImpl datePicker = null;
+            JTextField releaseDateField = null;
+
 
             if (dateExists == "") {
                 UtilDateModel model = new UtilDateModel();
@@ -535,7 +537,7 @@ public class AdmissionPanel extends JPanel {
             }
 
             else {
-                JTextField releaseDateField = new JTextField(dateExists);
+                releaseDateField = new JTextField(dateExists);
                 releaseDateField.setEditable(false);
                 secondRow.add(releaseDateField);
             }
@@ -624,14 +626,13 @@ public class AdmissionPanel extends JPanel {
             //now we check the result
 
             if (result == JOptionPane.YES_OPTION) {
+                java.util.Date admission = (java.util.Date) tab.getModel().getValueAt(index, 0);
+                java.sql.Date sqlAdmission  = new java.sql.Date(admission.getTime());
                 java.sql.Date sqlReleaseDate = null;
 
                 if (changed) {
                     java.util.Date selectedDate = (java.util.Date) datePicker.getModel().getValue();
                     sqlReleaseDate = new java.sql.Date(selectedDate.getTime());
-
-                    java.util.Date admission = (java.util.Date) tab.getModel().getValueAt(index, 0);
-                    java.sql.Date sqlAdmission = new java.sql.Date(admission.getTime());
 
                     if (sqlReleaseDate.after(Calendar.getInstance().getTime())) {
                         JOptionPane.showMessageDialog(container, "The release date cannot be later than today's date.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -687,7 +688,7 @@ public class AdmissionPanel extends JPanel {
                 try {
                     checkWardId = Integer.parseInt(wardIdField.getText());
 
-                    String checkDoctorExists = "SELECT * FROM ward WHERE wardid = " + checkWardId + " AND hospitalid = " + checkWardId;
+                    String checkDoctorExists = "SELECT * FROM ward WHERE wardid = " + checkWardId + " AND hospitalid = " + checkHospitalId;
 
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
                     Statement s = conn.createStatement();
@@ -712,7 +713,7 @@ public class AdmissionPanel extends JPanel {
                 try {
                     checkRoom = Integer.parseInt(roomField.getText());
 
-                    String checkDoctorExists = "SELECT * FROM bedroom WHERE bedroomnumber = " + checkRoom + " AND wardid = " + checkWardId + " AND hospitalid = " + checkWardId;
+                    String checkDoctorExists = "SELECT * FROM bedroom WHERE bedroomnumber = " + checkRoom + " AND wardid = " + checkWardId + " AND hospitalid = " + checkHospitalId;
 
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
                     Statement s = conn.createStatement();
@@ -737,15 +738,22 @@ public class AdmissionPanel extends JPanel {
                     e1.printStackTrace();
                 }
 
-                String updateAdmission = "UPDATE hospital_admission SET releasedate = ?, wardid = ?, roomid = ? " +
-                        "WHERE admissiondate = " + tab.getModel().getValueAt(index, 0) + " AND patientfiscalcode = " + tab.getModel().getValueAt(index, 1);
+                String updateAdmission = "UPDATE hospital_admission SET releasedate = ?, wardid = ?, roomnumber = ? " +
+                        "WHERE admissiondate = ? AND patientfiscalcode = ?";
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = conn.prepareStatement(updateAdmission);
-                    stat.setDate(1, sqlReleaseDate);
+                    if (sqlReleaseDate != null)
+                        stat.setDate(1, sqlReleaseDate);
+                    else
+                        stat.setDate(1, Date.valueOf(releaseDateField.getText()));
                     stat.setInt(2, checkWardId);
                     stat.setInt(3, checkRoom);
+                    stat.setDate(4, sqlAdmission);
+                    stat.setString(5, patientFiscalCodeField.getText());
+
+                    System.out.println(stat);
 
                     int res = stat.executeUpdate();
 
@@ -757,7 +765,7 @@ public class AdmissionPanel extends JPanel {
                     //Repaint the table
 
                     AppFrame.frame.getContentPane().setVisible(false);
-                    AppFrame.frame.setContentPane(new MedicinePanel());
+                    AppFrame.frame.setContentPane(new AdmissionPanel());
                     AppFrame.frame.getContentPane().setVisible(true);
 
                 } catch (SQLException s) {
@@ -798,74 +806,123 @@ public class AdmissionPanel extends JPanel {
             addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
             addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
 
-            // First row: Medicine Code
+            // First row: Admission Date
             JPanel firstRow = new JPanel();
             firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
 
-            JLabel code = new JLabel("Medicine Code");
-            code.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField codeField = new JTextField();
-            firstRow.add(code);
-            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
-            firstRow.add(codeField);
+            JLabel admissionDate = new JLabel("Admission Date");
+            admissionDate.setFont(new Font("Verdana", Font.PLAIN, 18));
+
+            UtilDateModel model = new UtilDateModel();
+            Properties p = new Properties();
+            p.put("text.today", "Today");
+            p.put("text.month", "Month");
+            p.put("text.year", "Year");
+
+            JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+            JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
+            firstRow.add(admissionDate);
+            firstRow.add(Box.createRigidArea(new Dimension(68, 0)));
+            firstRow.add(datePicker);
 
             addPanel.add(firstRow);
 
-            // Second row: Medicine Name
+            // Second row: Release Date
             JPanel secondRow = new JPanel();
             secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
 
-            JLabel name = new JLabel("Medicine Name");
-            name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField();
-            secondRow.add(name);
-            secondRow.add(Box.createRigidArea(new Dimension(53, 0)));
-            secondRow.add(nameField);
+            JLabel releaseDate = new JLabel("Release Date");
+            releaseDate.setFont(new Font("Verdana", Font.PLAIN, 18));
+
+            UtilDateModel model2 = new UtilDateModel();
+            Properties p2 = new Properties();
+            p.put("text.today", "Today");
+            p.put("text.month", "Month");
+            p.put("text.year", "Year");
+
+            JDatePanelImpl datePanel2 = new JDatePanelImpl(model2, p2);
+            JDatePickerImpl datePicker2 = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
+
+            firstRow.add(admissionDate);
+            firstRow.add(Box.createRigidArea(new Dimension(68, 0)));
+            firstRow.add(datePicker2);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(secondRow);
 
-            // Third row: Producer
+            // Third row: Patient Fiscal Code
             JPanel thirdRow = new JPanel();
             thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
 
-            JLabel producer = new JLabel("Producer");
-            producer.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField producerField = new JTextField();
-            thirdRow.add(producer);
-            thirdRow.add(Box.createRigidArea(new Dimension(110, 0)));
-            thirdRow.add(producerField);
+            JLabel patientFiscalCode = new JLabel("Patient Fiscal Code");
+            patientFiscalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField patientFiscalCodeField = new JTextField();
+            patientFiscalCodeField.setEditable(false);
+            thirdRow.add(patientFiscalCode);
+            thirdRow.add(Box.createRigidArea(new Dimension(40, 0)));
+            thirdRow.add(patientFiscalCodeField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(thirdRow);
 
-            // Fourth row: Active Substance
+            // Fourth row: Admission Cause
             JPanel fourthRow = new JPanel();
             fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
 
-            JLabel activeSubstance = new JLabel("Active Substance");
-            activeSubstance.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField activeSubstanceField = new JTextField();
-            fourthRow.add(activeSubstance);
-            fourthRow.add(Box.createRigidArea(new Dimension(38, 0)));
-            fourthRow.add(activeSubstanceField);
+            JLabel admissionCause = new JLabel("Admission Cause");
+            admissionCause.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField admissionCauseField = new JTextField();
+            admissionCauseField.setEditable(false);
+            fourthRow.add(admissionCause);
+            fourthRow.add(Box.createRigidArea(new Dimension(57, 0)));
+            fourthRow.add(admissionCauseField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fourthRow);
 
-            // Fifth row: Cost
+            // Fifth row: Hospital ID
             JPanel fifthRow = new JPanel();
             fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
 
-            JLabel cost = new JLabel("Cost (in €)");
-            cost.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField costField = new JTextField();
-            fifthRow.add(cost);
-            fifthRow.add(Box.createRigidArea(new Dimension(96, 0)));
-            fifthRow.add(costField);
+            JLabel hospitalId = new JLabel("Hospital ID ");
+            hospitalId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField hospitalIdField = new JTextField();
+            hospitalIdField.setEditable(false);
+            fifthRow.add(hospitalId);
+            fifthRow.add(Box.createRigidArea(new Dimension(102, 0)));
+            fifthRow.add(hospitalIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fifthRow);
+
+            // Sixth row: Ward ID
+            JPanel sixthRow = new JPanel();
+            sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
+
+            JLabel wardId = new JLabel("Ward ID ");
+            wardId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField wardIdField = new JTextField();
+            sixthRow.add(wardId);
+            sixthRow.add(Box.createRigidArea(new Dimension(127, 0)));
+            sixthRow.add(wardIdField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(sixthRow);
+
+            // Sixth row: Room No.
+            JPanel seventhRow = new JPanel();
+            seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
+
+            JLabel room = new JLabel("Room No.");
+            room.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField roomField = new JTextField();
+            seventhRow.add(room);
+            seventhRow.add(Box.createRigidArea(new Dimension(117, 0)));
+            seventhRow.add(roomField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(seventhRow);
 
             // add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
@@ -961,6 +1018,27 @@ public class AdmissionPanel extends JPanel {
                     s.printStackTrace();
                 }
             }
+        }
+        private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+
+            private String datePattern = "yyyy-MM-dd";
+            private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
+            @Override
+            public Object stringToValue(String text) throws ParseException {
+                return dateFormatter.parseObject(text);
+            }
+
+            @Override
+            public String valueToString(Object value) throws ParseException {
+                if (value != null) {
+                    Calendar cal = (Calendar) value;
+                    return dateFormatter.format(cal.getTime());
+                }
+
+                return "";
+            }
+
         }
     }
 
