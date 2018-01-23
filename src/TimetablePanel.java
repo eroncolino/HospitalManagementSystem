@@ -194,7 +194,6 @@ public class TimetablePanel extends JPanel {
     }
 
     //Get all the data from the timetable table joined with address, private_office and doctor tables
-
     public Object[][] getAllTimetableData() {
 
         ArrayList<Object[]> data = new ArrayList();

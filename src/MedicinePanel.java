@@ -412,7 +412,6 @@ public class MedicinePanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Active substance must be less than 150 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    textField.setText("");
                 }
 
                 if (selectedColumn == "Cost") {
@@ -442,10 +441,9 @@ public class MedicinePanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Cost must be of the format \"€€€.€€\".", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    textField.setText("");
                 }
-
                 textField.setText("");
+
             } else {
                 if (selectedColumn == "Show all") {
                     repaintTable(getAllMedicinesData());

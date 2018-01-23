@@ -1,3 +1,8 @@
+import jdk.nashorn.internal.scripts.JO;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -5,13 +10,12 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Properties;
 
 public class AdmissionPanel extends JPanel {
     private JLabel searchLabel, stringLabel;
@@ -40,10 +44,10 @@ public class AdmissionPanel extends JPanel {
 
         JPanel criteria = new JPanel();
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
-        searchLabel = new JLabel("Search by: ");
+        searchLabel = new JLabel("Search by:");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        boxColumns = new String[]{"Show all", "Admission date", "Release date", "Patient Fiscal Code", "Admission Cause", "Hospital ID"};
-        medicineColumns = new String[]{"Admission date", "Release date", "Patient Fiscal Code", "Patient name", "Patient surname", "Admission Cause", "Hospital ID", "Ward ID", "Room Number"};
+        boxColumns = new String[]{"Show all", "Admission Date", "Release Date", "Patient Fiscal Code", "Admission Cause", "Hospital ID"};
+        medicineColumns = new String[]{"Admission", "Release", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Admission Cause", "Hospital ID", "Ward ID", "Room No"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -95,11 +99,16 @@ public class AdmissionPanel extends JPanel {
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(30);
-        columnModel.getColumn(1).setPreferredWidth(150);
-        columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(250);
-        columnModel.getColumn(4).setPreferredWidth(20);
+        columnModel.getColumn(0).setPreferredWidth(25);
+        columnModel.getColumn(1).setPreferredWidth(25);
+        columnModel.getColumn(2).setPreferredWidth(95);
+        columnModel.getColumn(3).setPreferredWidth(60);
+        columnModel.getColumn(4).setPreferredWidth(60);
+        columnModel.getColumn(5).setPreferredWidth(110);
+        columnModel.getColumn(6).setPreferredWidth(20);
+        columnModel.getColumn(7).setPreferredWidth(10);
+        columnModel.getColumn(8).setPreferredWidth(10);
+
 
         // Buttons
 
@@ -184,7 +193,8 @@ public class AdmissionPanel extends JPanel {
     public Object[][] getAllAdmissionData() {
 
         ArrayList<Object[]> data = new ArrayList();
-        String query = "SELECT * FROM medicine";
+        String query = "SELECT * FROM hospital_admission a INNER JOIN hospital h ON h.hospitalid = a.hospitalid " +
+                "INNER JOIN patient p ON p.patientfiscalcode = a.patientfiscalcode";
         Connection conn;
 
         try {
@@ -193,8 +203,9 @@ public class AdmissionPanel extends JPanel {
             ResultSet rs = s.executeQuery(query);
 
             while (rs.next()) {
-                Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
-                        rs.getString("activesubstance"), rs.getString("cost")};
+                Object[] row = {rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
+                        rs.getString("patientname"), rs.getString("patientsurname"), rs.getString("cause"),
+                        rs.getInt("hospitalid"), rs.getInt("wardid"), rs.getInt("roomnumber")};
 
                 data.add(row);
             }
@@ -202,7 +213,7 @@ public class AdmissionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][9];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -210,40 +221,38 @@ public class AdmissionPanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
         }
         return dataReturn;
     }
 
     //Get all data when an integer is inserted as query string
-    public Object[][] getMedicineDataFromInteger(int number) {
+    public Object[][] getAdmissionDataFromInteger(String column, int number) {
         ArrayList<Object[]> data = new ArrayList();
-        String findIdQuery = "SELECT * FROM medicine WHERE medicinecode = ?";
+        String query = "SELECT * FROM hospital_admission a INNER JOIN hospital h ON h.hospitalid = a.hospitalid " +
+                "INNER JOIN patient p ON p.patientfiscalcode = a.patientfiscalcode WHERE " + column + " = " + number;
         Connection conn;
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-            PreparedStatement stmt = conn.prepareStatement(findIdQuery);
-            stmt.setInt(1, number);
+            Statement s = conn.createStatement();
+            ResultSet rs = s.executeQuery(query);
 
-            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Object[] row = {rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
+                        rs.getString("patientname"), rs.getString("patientsurname"), rs.getString("cause"),
+                        rs.getInt("hospitalid"), rs.getInt("wardid"), rs.getInt("roomnumber")};
 
-            if (!rs.next())
-                JOptionPane.showMessageDialog(container, "No match was found for the given string.");
-
-            else {
-                do {
-                    Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
-                            rs.getString("activesubstance"), rs.getString("cost")};
-
-                    data.add(row);
-                } while (rs.next());
+                data.add(row);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][9];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -251,30 +260,76 @@ public class AdmissionPanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
         }
         return dataReturn;
     }
 
     //Get all data when a string is inserted as query string
-    public Object[][] getMedicineDataFromString(String column, String stringToBeMatched) {
+    public Object[][] getAdmissionDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
-        String findIdQuery = "SELECT * FROM medicine WHERE UPPER(" + column + ") = UPPER(?)";
+        String query = "SELECT * FROM hospital_admission a INNER JOIN hospital h ON h.hospitalid = a.hospitalid " +
+                "INNER JOIN patient p ON p.patientfiscalcode = a.patientfiscalcode WHERE UPPER(" + column + ") = UPPER('" + stringToBeMatched + "')";
         Connection conn;
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-            PreparedStatement stmt = conn.prepareStatement(findIdQuery);
-            stmt.setString(1, stringToBeMatched);
+            Statement s = conn.createStatement();
+            ResultSet rs = s.executeQuery(query);
+
+            while (rs.next()) {
+                Object[] row = {rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
+                        rs.getString("patientname"), rs.getString("patientsurname"), rs.getString("cause"),
+                        rs.getInt("hospitalid"), rs.getInt("wardid"), rs.getInt("roomnumber")};
+
+                data.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        Object[][] dataReturn = new Object[data.size()][9];
+
+        for (int i = 0; i < data.size(); i++) {
+            dataReturn[i][0] = data.get(i)[0];
+            dataReturn[i][1] = data.get(i)[1];
+            dataReturn[i][2] = data.get(i)[2];
+            dataReturn[i][3] = data.get(i)[3];
+            dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
+        }
+        return dataReturn;
+    }
+
+    //Get all data when date is inserted as query string
+    public Object[][] getAdmissionDataFromDate(String column, Date dateToBeMatched) {
+        ArrayList<Object[]> data = new ArrayList();
+        String findDateQuery = "SELECT * FROM hospital_admission a INNER JOIN hospital h ON h.hospitalid = a.hospitalid " +
+                "INNER JOIN patient p ON p.patientfiscalcode = a.patientfiscalcode WHERE " + column + " = ?";
+
+        Connection conn;
+
+        try {
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+            PreparedStatement stmt = conn.prepareStatement(findDateQuery);
+            stmt.setDate(1, dateToBeMatched);
 
             ResultSet rs = stmt.executeQuery();
 
             if (!rs.next())
-                JOptionPane.showMessageDialog(container, "No match was found for the given string.");
+                JOptionPane.showMessageDialog(container, "No match was found for the given date.");
 
             else {
                 do {
-                    Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
-                            rs.getString("activesubstance"), rs.getString("cost")};
+                    Object[] row = {rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
+                            rs.getString("patientname"), rs.getString("patientsurname"), rs.getString("cause"),
+                            rs.getInt("hospitalid"), rs.getInt("wardid"), rs.getInt("roomnumber")};
 
                     data.add(row);
                 } while (rs.next());
@@ -284,7 +339,7 @@ public class AdmissionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][9];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -292,10 +347,13 @@ public class AdmissionPanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
+            dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
         }
         return dataReturn;
     }
-
 
     private class findListener implements ActionListener {
         @Override
@@ -307,10 +365,90 @@ public class AdmissionPanel extends JPanel {
 
             if (stringToBeMatched.length() != 0) {
 
-                if (selectedColumn == "Medicine Code") {
+                if (selectedColumn == "Admission Date") {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+                    Date admissionDate;
+
                     try {
-                        int medicineCodeCheck = Integer.parseInt(textField.getText());
-                        myData = getMedicineDataFromInteger(medicineCodeCheck);
+                        dateFormat.parse(stringToBeMatched);
+                        admissionDate = Date.valueOf(stringToBeMatched);
+                        myData = getAdmissionDataFromDate("admissiondate", admissionDate);
+
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getAllAdmissionData();
+                            repaintTable(allData);
+                        }
+
+                    } catch (ParseException e1) {
+                        JOptionPane.showMessageDialog(container, "Wrong date format.\nDate format must be the following: \"yyyy-mm-dd\"",
+                                "Warning", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+
+                if (selectedColumn == "Release Date") {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+                    Date admissionDate;
+
+                    try {
+                        dateFormat.parse(stringToBeMatched);
+                        admissionDate = Date.valueOf(stringToBeMatched);
+                        myData = getAdmissionDataFromDate("releasedate", admissionDate);
+
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getAllAdmissionData();
+                            repaintTable(allData);
+                        }
+
+                    } catch (ParseException e1) {
+                        JOptionPane.showMessageDialog(container, "Wrong date format.\nDate format must be the following: \"yyyy-mm-dd\"",
+                                "Warning", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+
+                if (selectedColumn == "Patient Fiscal Code") {
+                    if (stringToBeMatched.length() == 16) {
+                        myData = getAdmissionDataFromString("a.patientfiscalcode", stringToBeMatched);
+
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getAllAdmissionData();
+                            repaintTable(allData);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(container, "Patient fiscal code must be 16 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }
+
+                if (selectedColumn == "Admission Cause") {
+                    if (stringToBeMatched.length() < 75) {
+                        myData = getAdmissionDataFromString("cause", stringToBeMatched);
+
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getAllAdmissionData();
+                            repaintTable(allData);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(container, "Admission cause must be less than 75 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }
+
+                if (selectedColumn == "Hospital ID") {
+                    try {
+                        int hospitalIdCheck = Integer.parseInt(textField.getText());
+                        myData = getAdmissionDataFromInteger("a.hospitalid", hospitalIdCheck);
 
                         //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
                         if (myData.length != 0)
@@ -322,61 +460,10 @@ public class AdmissionPanel extends JPanel {
                         }
 
                     } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Medicine code must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Hospital ID must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                 }
-                if (selectedColumn == "Medicine Name") {
-                    if (stringToBeMatched.length() < 80) {
-                        myData = getMedicineDataFromString("medicinename", stringToBeMatched);
-
-                        if (myData.length != 0)
-                            repaintTable(myData);
-
-                        else {
-                            allData = getAllAdmissionData();
-                            repaintTable(allData);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(container, "Medicine name must be less than 80 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                }
-                if (selectedColumn == "Producer") {
-                    if (stringToBeMatched.length() < 80) {
-                        myData = getMedicineDataFromString("producer", stringToBeMatched);
-
-                        if (myData.length != 0)
-                            repaintTable(myData);
-
-                        else {
-                            allData = getAllAdmissionData();
-                            repaintTable(allData);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(container, "Producer must be less than 80 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                }
-                if (selectedColumn == "Active Substance") {
-                    if (stringToBeMatched.length() < 150) {
-                        myData = getMedicineDataFromString("activesubstance", stringToBeMatched);
-
-                        if (myData.length != 0)
-                            repaintTable(myData);
-
-                        else {
-                            allData = getAllAdmissionData();
-                            repaintTable(allData);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(container, "Active substance must be less than 150 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    textField.setText("");
-                }
-
-
                 textField.setText("");
             } else {
                 if (selectedColumn == "Show all") {
@@ -401,149 +488,270 @@ public class AdmissionPanel extends JPanel {
             addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
             addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
 
-            // First row: Medicine Code
+            // First row: Admission Date
             JPanel firstRow = new JPanel();
             firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
 
-            JLabel code = new JLabel("Medicine Code");
-            code.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField codeField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
-            codeField.setEditable(false);
-            firstRow.add(code);
-            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
-            firstRow.add(codeField);
+            JLabel admissionDate = new JLabel("Admission Date");
+            admissionDate.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField admissionDateField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
+            admissionDateField.setEditable(false);
+            firstRow.add(admissionDate);
+            firstRow.add(Box.createRigidArea(new Dimension(68, 0)));
+            firstRow.add(admissionDateField);
 
             addPanel.add(firstRow);
 
-            // Second row: Medicine Name
+            // Second row: Release Date
             JPanel secondRow = new JPanel();
             secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
 
-            JLabel name = new JLabel("Medicine Name");
-            name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
-            secondRow.add(name);
-            secondRow.add(Box.createRigidArea(new Dimension(53, 0)));
-            secondRow.add(nameField);
+            JLabel releaseDate = new JLabel("Release Date");
+            releaseDate.setFont(new Font("Verdana", Font.PLAIN, 18));
+
+            secondRow.add(releaseDate);
+            secondRow.add(Box.createRigidArea(new Dimension(90, 0)));
+
+            //If release date has not yet been inserted, the date can be choosen, otherwise the JTextField is disabled
+            String dateExists = tab.getModel().getValueAt(index, 1).toString();
+            boolean changed = false;
+            JDatePanelImpl datePanel;
+            JDatePickerImpl datePicker = null;
+
+            if (dateExists == "") {
+                UtilDateModel model = new UtilDateModel();
+                Properties p = new Properties();
+                p.put("text.today", "Today");
+                p.put("text.month", "Month");
+                p.put("text.year", "Year");
+
+                datePanel = new JDatePanelImpl(model, p);
+                datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
+                if (datePicker.getModel().getValue() != null)
+                    changed = true;
+
+                secondRow.add(datePicker);
+            }
+
+            else {
+                JTextField releaseDateField = new JTextField(dateExists);
+                releaseDateField.setEditable(false);
+                secondRow.add(releaseDateField);
+            }
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(secondRow);
 
-            // Third row: Producer
+            // Third row: Patient Fiscal Code
             JPanel thirdRow = new JPanel();
             thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
 
-            JLabel producer = new JLabel("Producer");
-            producer.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField producerField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
-            thirdRow.add(producer);
-            thirdRow.add(Box.createRigidArea(new Dimension(110, 0)));
-            thirdRow.add(producerField);
+            JLabel patientFiscalCode = new JLabel("Patient Fiscal Code");
+            patientFiscalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField patientFiscalCodeField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
+            patientFiscalCodeField.setEditable(false);
+            thirdRow.add(patientFiscalCode);
+            thirdRow.add(Box.createRigidArea(new Dimension(40, 0)));
+            thirdRow.add(patientFiscalCodeField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(thirdRow);
 
-            // Fourth row: Active Substance
+            // Fourth row: Admission Cause
             JPanel fourthRow = new JPanel();
             fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
 
-            JLabel activeSubstance = new JLabel("Active Substance");
-            activeSubstance.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField activeSubstanceField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
-            fourthRow.add(activeSubstance);
-            fourthRow.add(Box.createRigidArea(new Dimension(38, 0)));
-            fourthRow.add(activeSubstanceField);
+            JLabel admissionCause = new JLabel("Admission Cause");
+            admissionCause.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField admissionCauseField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
+            admissionCauseField.setEditable(false);
+            fourthRow.add(admissionCause);
+            fourthRow.add(Box.createRigidArea(new Dimension(57, 0)));
+            fourthRow.add(admissionCauseField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fourthRow);
 
-            // Fifth row: Cost
+            // Fifth row: Hospital ID
             JPanel fifthRow = new JPanel();
             fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
 
-            JLabel cost = new JLabel("Cost (in €)");
-            cost.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField costField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
-            fifthRow.add(cost);
-            fifthRow.add(Box.createRigidArea(new Dimension(96, 0)));
-            fifthRow.add(costField);
+            JLabel hospitalId = new JLabel("Hospital ID ");
+            hospitalId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField hospitalIdField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
+            hospitalIdField.setEditable(false);
+            fifthRow.add(hospitalId);
+            fifthRow.add(Box.createRigidArea(new Dimension(102, 0)));
+            fifthRow.add(hospitalIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fifthRow);
 
+            // Sixth row: Ward ID
+            JPanel sixthRow = new JPanel();
+            sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
+
+            JLabel wardId = new JLabel("Ward ID ");
+            wardId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField wardIdField = new JTextField(tab.getModel().getValueAt(index, 7).toString());
+            sixthRow.add(wardId);
+            sixthRow.add(Box.createRigidArea(new Dimension(127, 0)));
+            sixthRow.add(wardIdField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(sixthRow);
+
+            // Sixth row: Room No.
+            JPanel seventhRow = new JPanel();
+            seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
+
+            JLabel room = new JLabel("Room No.");
+            room.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField roomField = new JTextField(tab.getModel().getValueAt(index, 8).toString());
+            seventhRow.add(room);
+            seventhRow.add(Box.createRigidArea(new Dimension(117, 0)));
+            seventhRow.add(roomField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(seventhRow);
+
 
             // add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Update medicine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    addPanel, "Update hospital admission", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             //now we check the result
 
             if (result == JOptionPane.YES_OPTION) {
+                java.sql.Date sqlReleaseDate = null;
 
-                if (nameField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Medicine name field cannot be empty. \n" +
-                            "No medicine will be updated.", "Error", JOptionPane.ERROR_MESSAGE);
+                if (changed) {
+                    java.util.Date selectedDate = (java.util.Date) datePicker.getModel().getValue();
+                    sqlReleaseDate = new java.sql.Date(selectedDate.getTime());
+
+                    java.util.Date admission = (java.util.Date) tab.getModel().getValueAt(index, 0);
+                    java.sql.Date sqlAdmission = new java.sql.Date(admission.getTime());
+
+                    if (sqlReleaseDate.after(Calendar.getInstance().getTime())) {
+                        JOptionPane.showMessageDialog(container, "The release date cannot be later than today's date.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    if (sqlAdmission.after(sqlReleaseDate)){
+                        JOptionPane.showMessageDialog(container, "The release date cannot be before the admission date.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+
+                if (hospitalIdField.getText().length() == 0) {
+                    JOptionPane.showMessageDialog(container, "Ward ID cannot be empty.\n " +
+                            "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                if (nameField.getText().length() > 80) {
-                    JOptionPane.showMessageDialog(container, "Medicine name should be less than 80 characters. \n" +
-                            "No medicine will be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (producerField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Producer field cannot be empty.\n" +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (producerField.getText().length() > 80) {
-                    JOptionPane.showMessageDialog(container, "Producer should be less than 80 characters. \n" +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (activeSubstanceField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Active substance field cannot be empty.\n " +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (activeSubstanceField.getText().length() > 150) {
-                    JOptionPane.showMessageDialog(container, "Active substance field must be less than 150 characters.\n " +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (Double.parseDouble(costField.getText()) == 0) {
-                    JOptionPane.showMessageDialog(container, "The cost of the medicine cannot be zero.\n " +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (Double.parseDouble(costField.getText()) > 999.99) {
-                    JOptionPane.showMessageDialog(container, "The cost of the medicine cannot be greater than 999.99.\n " +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                String updateMedicine = "UPDATE medicine SET medicinename = ?, producer = ?, activesubstance = ?, cost = ? WHERE medicinecode = " + tab.getModel().getValueAt(index, 0);
                 Connection conn;
+                int checkHospitalId = 0;
+                try {
+                    checkHospitalId = Integer.parseInt(hospitalIdField.getText());
+
+                    String checkDoctorExists = "SELECT * FROM hospital WHERE hospitalid = " + checkHospitalId;
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    Statement s = conn.createStatement();
+
+                    ResultSet res = s.executeQuery(checkDoctorExists);
+
+                    if (!res.next()) {
+                        int addHospital = JOptionPane.showConfirmDialog(container, "No hospital found for the given ID. Please check if the hospital ID is correct or" +
+                                "add a new hospital in the hospital section.\n" +
+                                "Do you want to add a new hospital now?", "No hospital found!", JOptionPane.INFORMATION_MESSAGE);
+
+                        if (addHospital == JOptionPane.YES_OPTION) {
+                            AppFrame.frame.getContentPane().setVisible(false);
+                            AppFrame.frame.setContentPane(new HospitalPanel());
+                            AppFrame.frame.getContentPane().setVisible(true);
+                        }
+                    }
+                }catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
+                if (wardIdField.getText().length() == 0) {
+                    JOptionPane.showMessageDialog(container, "Ward ID cannot be empty.\n " +
+                            "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int checkWardId = 0;
+                try {
+                    checkWardId = Integer.parseInt(wardIdField.getText());
+
+                    String checkDoctorExists = "SELECT * FROM ward WHERE wardid = " + checkWardId + " AND hospitalid = " + checkWardId;
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    Statement s = conn.createStatement();
+
+                    ResultSet res = s.executeQuery(checkDoctorExists);
+
+                    if (!res.next()) {
+                        JOptionPane.showMessageDialog(container, "No ward found for the given ID in that hospital. Please check that  \n" +
+                                "both the hospital ID and the Ward ID are correct.", "No ward found!", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+
+                } catch (NumberFormatException n){
+                    JOptionPane.showMessageDialog(container, "Ward ID must be an integer.\n " +
+                            "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
+                int checkRoom = 0;
+                try {
+                    checkRoom = Integer.parseInt(roomField.getText());
+
+                    String checkDoctorExists = "SELECT * FROM bedroom WHERE bedroomnumber = " + checkRoom + " AND wardid = " + checkWardId + " AND hospitalid = " + checkWardId;
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    Statement s = conn.createStatement();
+
+                    ResultSet res = s.executeQuery(checkDoctorExists);
+
+                    if (!res.next()) {
+                        JOptionPane.showMessageDialog(container, "No room found for the given ID in that hospital and ward. Please check that  \n" +
+                                "the hospital ID, the Ward ID and the room No. are correct.", "No room found", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+
+                    if (res.getInt("noavailablebeds") == 0) {
+                        JOptionPane.showMessageDialog(container, "This room is full and it cannot host another patient.", "Full room", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+                } catch (NumberFormatException n){
+                    JOptionPane.showMessageDialog(container, "Ward ID must be an integer.\n " +
+                            "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
+                String updateAdmission = "UPDATE hospital_admission SET releasedate = ?, wardid = ?, roomid = ? " +
+                        "WHERE admissiondate = " + tab.getModel().getValueAt(index, 0) + " AND patientfiscalcode = " + tab.getModel().getValueAt(index, 1);
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
-                    PreparedStatement stat = conn.prepareStatement(updateMedicine);
-                    stat.setString(1, nameField.getText());
-                    stat.setString(2, producerField.getText().toUpperCase());
-                    stat.setString(3, activeSubstanceField.getText());
-                    stat.setDouble(4, Double.parseDouble(costField.getText()));
+                    PreparedStatement stat = conn.prepareStatement(updateAdmission);
+                    stat.setDate(1, sqlReleaseDate);
+                    stat.setInt(2, checkWardId);
+                    stat.setInt(3, checkRoom);
 
                     int res = stat.executeUpdate();
 
                     //Confirm that hospital record has been added successfully
                     if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Medicine updated successfully.");
+                        JOptionPane.showMessageDialog(container, "Hospital admission updated successfully.");
                     }
 
                     //Repaint the table
@@ -556,6 +764,27 @@ public class AdmissionPanel extends JPanel {
                     s.printStackTrace();
                 }
             }
+        }
+        private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+
+            private String datePattern = "yyyy-MM-dd";
+            private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
+            @Override
+            public Object stringToValue(String text) throws ParseException {
+                return dateFormatter.parseObject(text);
+            }
+
+            @Override
+            public String valueToString(Object value) throws ParseException {
+                if (value != null) {
+                    Calendar cal = (Calendar) value;
+                    return dateFormatter.format(cal.getTime());
+                }
+
+                return "";
+            }
+
         }
     }
 
@@ -750,11 +979,15 @@ public class AdmissionPanel extends JPanel {
 
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(30);
-        columnModel.getColumn(1).setPreferredWidth(150);
-        columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(250);
-        columnModel.getColumn(4).setPreferredWidth(20);
+        columnModel.getColumn(0).setPreferredWidth(25);
+        columnModel.getColumn(1).setPreferredWidth(25);
+        columnModel.getColumn(2).setPreferredWidth(95);
+        columnModel.getColumn(3).setPreferredWidth(60);
+        columnModel.getColumn(4).setPreferredWidth(60);
+        columnModel.getColumn(5).setPreferredWidth(110);
+        columnModel.getColumn(6).setPreferredWidth(20);
+        columnModel.getColumn(7).setPreferredWidth(10);
+        columnModel.getColumn(8).setPreferredWidth(10);
     }
 
 }
