@@ -225,10 +225,10 @@ public class PrescriptionPanel extends JPanel {
     //Get all data when an integer is inserted as query string
     public Object[][] getPrescriptionDataFromInteger(String column, int number) {
         ArrayList<Object[]> data = new ArrayList();
-        String findPrescNoQuery = "SELECT p.prescriptionno, m.patientfiscalcode, m.medicinequantity, m.patientfisclacode, m.patientname, m.patientsurname, d.doctorid, d.doctorname, d.doctorsurname " +
+        String findPrescNoQuery = "SELECT p.prescriptionno, p.patientfiscalcode, m.medicinename, p.medicinequantity, pat.patientname, pat.patientsurname, d.doctorid, d.doctorname, d.doctorsurname " +
                 "FROM prescription p INNER JOIN medicine m ON p.medicinecode = m.medicinecode " +
                 "INNER JOIN doctor d ON p.doctorid = d.doctorid INNER JOIN patient pat ON p.patientfiscalcode = pat.patientfiscalcode" +
-                " WHERE UPPER(" + column + ") = UPPER(?)";
+                " WHERE (" + column + ") = (?)";
         Connection conn;
 
         try {
@@ -345,8 +345,8 @@ public class PrescriptionPanel extends JPanel {
                 }
 
                 if (selectedColumn == "Patient Fiscal Code") {
-                    if (stringToBeMatched.length() != 16) {
-                        myData = getPrescriptionDataFromString("patientfiscalcode", stringToBeMatched);
+                    if (stringToBeMatched.length() == 16) {
+                        myData = getPrescriptionDataFromString("p.patientfiscalcode", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -361,50 +361,9 @@ public class PrescriptionPanel extends JPanel {
                     }
                 }
 
-                if (selectedColumn == "Medicine Quantity") {
-                    try {
-                        int medicineQuaCheck = Integer.parseInt(textField.getText());
-                        myData = getPrescriptionDataFromInteger("medicinequantity", medicineQuaCheck);
-
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
-                        if (myData.length != 0)
-                            repaintTable(myData);
-
-                        else {
-                            allData = getAllPrescriptionData();
-                            repaintTable(allData);
-                        }
-
-                    } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Medicine quantity must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                }
-
-
-                if (selectedColumn == "Medicine Code") {
-                    try {
-                        int medicineCheck = Integer.parseInt(textField.getText());
-                        myData = getPrescriptionDataFromInteger("mediciencode", medicineCheck);
-
-                        //If matches to the given string have been found, they are shown in the table. Otherwise all the data from the table are shown again
-                        if (myData.length != 0)
-                            repaintTable(myData);
-
-                        else {
-                            allData = getAllPrescriptionData();
-                            repaintTable(allData);
-                        }
-
-                    } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Medicine code must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                }
-
-                if (selectedColumn == "Medicine Name") {
-                    if (stringToBeMatched.length() < 80) {
-                        myData = getPrescriptionDataFromString("patientfiscalcode", stringToBeMatched);
+                if (selectedColumn == "Patient Name") {
+                    if (stringToBeMatched.length() < 30) {
+                        myData = getPrescriptionDataFromString("pat.patientname", stringToBeMatched);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -414,7 +373,24 @@ public class PrescriptionPanel extends JPanel {
                             repaintTable(allData);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(container, "Medicine name must be less than 80 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Patient name must be less 30 than characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }
+
+                if (selectedColumn == "Patient Surname") {
+                    if (stringToBeMatched.length() < 30) {
+                        myData = getPrescriptionDataFromString("pat.patientsurname", stringToBeMatched);
+
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getAllPrescriptionData();
+                            repaintTable(allData);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(container, "Patient surname must be less than 30 characters.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                 }
@@ -422,7 +398,7 @@ public class PrescriptionPanel extends JPanel {
                 if (selectedColumn == "Doctor ID") {
                     try {
                         int doctorIDCheck = Integer.parseInt(textField.getText());
-                        myData = getPrescriptionDataFromInteger("doctorid", doctorIDCheck);
+                        myData = getPrescriptionDataFromInteger("p.doctorid", doctorIDCheck);
 
                         if (myData.length != 0)
                             repaintTable(myData);
@@ -577,7 +553,6 @@ public class PrescriptionPanel extends JPanel {
 
             if (result == JOptionPane.YES_OPTION) {
                 //doctor check
-                int doctorId;
                 Connection conn;
                 try {
                     int id = Integer.parseInt(docIdField.getText());
