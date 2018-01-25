@@ -344,6 +344,23 @@ public class PrescriptionPanel extends JPanel {
                     }
                 }
 
+                if (selectedColumn == "Medicine Name") {
+                    if (stringToBeMatched.length() < 80) {
+                        myData = getPrescriptionDataFromString("m.medicinename", stringToBeMatched);
+
+                        if (myData.length != 0)
+                            repaintTable(myData);
+
+                        else {
+                            allData = getAllPrescriptionData();
+                            repaintTable(allData);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(container, "Medicine name must be less than 80  characters.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }
+
                 if (selectedColumn == "Patient Fiscal Code") {
                     if (stringToBeMatched.length() == 16) {
                         myData = getPrescriptionDataFromString("p.patientfiscalcode", stringToBeMatched);
