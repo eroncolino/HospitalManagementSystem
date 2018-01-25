@@ -799,7 +799,7 @@ public class AdmissionPanel extends JPanel {
     private class insertListener implements ActionListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e) {/*
 
             // Container
             JPanel addPanel = new JPanel();
@@ -1017,7 +1017,7 @@ public class AdmissionPanel extends JPanel {
                 } catch (SQLException s) {
                     s.printStackTrace();
                 }
-            }
+            }*/
         }
         private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
 
