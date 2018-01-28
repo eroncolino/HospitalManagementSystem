@@ -31,7 +31,7 @@ public class TimetablePanel extends JPanel {
         // Create border
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 20, 20, 20);
-        TitledBorder tb = BorderFactory.createTitledBorder("Timetable");
+        TitledBorder tb = BorderFactory.createTitledBorder("Timetables");
         tb.setTitleFont(new Font("Verdana", Font.PLAIN, 30));
         tb.setTitleColor(Color.DARK_GRAY);
         setBorder(BorderFactory.createCompoundBorder(emptyBorder, tb));
@@ -54,6 +54,7 @@ public class TimetablePanel extends JPanel {
         criteria.add(searchLabel);
         criteria.add(Box.createRigidArea(new Dimension(30, 0)));
         criteria.add(columnsList);
+        container.add(Box.createRigidArea(new Dimension(0, 30)));
         container.add(criteria);
 
         // Parameter Panel
@@ -157,9 +158,9 @@ public class TimetablePanel extends JPanel {
         buttonPanel.add(Box.createRigidArea(new Dimension(200, 0)));
         buttonPanel.add(findButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(updateButton);
-        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(insertButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        buttonPanel.add(updateButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(deleteButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));

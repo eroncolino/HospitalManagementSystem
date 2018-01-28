@@ -33,7 +33,7 @@ public class PatientPanel extends JPanel {
         // Create border
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 20, 20, 20);
-        TitledBorder tb = BorderFactory.createTitledBorder("Patient");
+        TitledBorder tb = BorderFactory.createTitledBorder("Patients");
         tb.setTitleFont(new Font("Verdana", Font.PLAIN, 30));
         tb.setTitleColor(Color.DARK_GRAY);
         setBorder(BorderFactory.createCompoundBorder(emptyBorder, tb));
@@ -56,6 +56,7 @@ public class PatientPanel extends JPanel {
         criteria.add(searchLabel);
         criteria.add(Box.createRigidArea(new Dimension(30, 0)));
         criteria.add(columnsList);
+        container.add(Box.createRigidArea(new Dimension(0, 30)));
         container.add(criteria);
 
         // Parameter Panel
@@ -99,14 +100,14 @@ public class PatientPanel extends JPanel {
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(95);
+        columnModel.getColumn(0).setPreferredWidth(75);
         columnModel.getColumn(1).setPreferredWidth(70);
         columnModel.getColumn(2).setPreferredWidth(70);
-        columnModel.getColumn(3).setPreferredWidth(50);
+        columnModel.getColumn(3).setPreferredWidth(20);
         columnModel.getColumn(4).setPreferredWidth(10);
-        columnModel.getColumn(5).setPreferredWidth(20);
+        columnModel.getColumn(5).setPreferredWidth(40);
         columnModel.getColumn(6).setPreferredWidth(70);
-        columnModel.getColumn(7).setPreferredWidth(70);
+        columnModel.getColumn(7).setPreferredWidth(80);
 
         // Buttons
 
@@ -152,12 +153,12 @@ public class PatientPanel extends JPanel {
         goBackButton.addActionListener(new PatientPanel.goBackListener());
 
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(Box.createRigidArea(new Dimension(200, 0)));
+        buttonPanel.add(Box.createRigidArea(new Dimension(180, 0)));
         buttonPanel.add(findButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(updateButton);
-        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(insertButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        buttonPanel.add(updateButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(deleteButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -839,7 +840,7 @@ public class PatientPanel extends JPanel {
 
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-                    String addPatient = "INSERT INTO patient(patientfiscalcode, patientname, patientsurname, birthdate, gender, familydoctorid) values (?,?,?,?,?,?)";
+                    String addPatient = "INSERT INTO patient(patientfiscalcode, patientname, patientsurname, birthdate, gender, familydoctorid) VALUES (?,?,?,?,?,?)";
 
                     PreparedStatement stat = conn.prepareStatement(addPatient);
                     stat.setString(1, fiscCodeField.getText().toUpperCase());
@@ -905,14 +906,14 @@ public class PatientPanel extends JPanel {
 
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(95);
+        columnModel.getColumn(0).setPreferredWidth(75);
         columnModel.getColumn(1).setPreferredWidth(70);
         columnModel.getColumn(2).setPreferredWidth(70);
-        columnModel.getColumn(3).setPreferredWidth(50);
+        columnModel.getColumn(3).setPreferredWidth(20);
         columnModel.getColumn(4).setPreferredWidth(10);
-        columnModel.getColumn(5).setPreferredWidth(20);
+        columnModel.getColumn(5).setPreferredWidth(40);
         columnModel.getColumn(6).setPreferredWidth(70);
-        columnModel.getColumn(7).setPreferredWidth(70);
+        columnModel.getColumn(7).setPreferredWidth(80);
     }
 }
 

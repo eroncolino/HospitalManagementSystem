@@ -27,7 +27,7 @@ public class MedicinePanel extends JPanel {
         // Create border
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 20, 20, 20);
-        TitledBorder tb = BorderFactory.createTitledBorder("Medicine");
+        TitledBorder tb = BorderFactory.createTitledBorder("Medicines");
         tb.setTitleFont(new Font("Verdana", Font.PLAIN, 30));
         tb.setTitleColor(Color.DARK_GRAY);
         setBorder(BorderFactory.createCompoundBorder(emptyBorder, tb));
@@ -50,6 +50,7 @@ public class MedicinePanel extends JPanel {
         criteria.add(searchLabel);
         criteria.add(Box.createRigidArea(new Dimension(30, 0)));
         criteria.add(columnsList);
+        container.add(Box.createRigidArea(new Dimension(0, 30)));
         container.add(criteria);
 
         // Parameter Panel

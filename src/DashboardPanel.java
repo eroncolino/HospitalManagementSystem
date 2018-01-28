@@ -26,7 +26,7 @@ public class DashboardPanel extends JPanel{
 
         //Create buttons
 
-        hospitalButton = new JButton("Hospital");
+        hospitalButton = new JButton("Hospitals");
         hospitalButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         hospitalButton.setIcon(new ImageIcon("hospital.png"));
         hospitalButton.setHorizontalTextPosition(AbstractButton.CENTER);
@@ -40,7 +40,7 @@ public class DashboardPanel extends JPanel{
         c.gridy = 0;
         add(hospitalButton, c);
 
-        doctorButton = new JButton("Doctor");
+        doctorButton = new JButton("Doctors");
         doctorButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         doctorButton.setIcon(new ImageIcon("doctor.png"));
         doctorButton.setHorizontalTextPosition(AbstractButton.CENTER);
@@ -53,7 +53,7 @@ public class DashboardPanel extends JPanel{
         c.gridy = 0;
         add(doctorButton, c);
 
-        nurseButton = new JButton("Nurse");
+        nurseButton = new JButton("Nurses");
         nurseButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         nurseButton.setIcon(new ImageIcon("nurse.png"));
         nurseButton.setHorizontalTextPosition(AbstractButton.CENTER);
@@ -66,7 +66,7 @@ public class DashboardPanel extends JPanel{
         c.gridy = 0;
         add(nurseButton, c);
 
-        patientButton = new JButton("Patient");
+        patientButton = new JButton("Patients");
         patientButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         patientButton.setIcon(new ImageIcon("patient.png"));
         patientButton.setHorizontalTextPosition(AbstractButton.CENTER);
@@ -79,7 +79,7 @@ public class DashboardPanel extends JPanel{
         c.gridy = 0;
         add(patientButton, c);
 
-        prescriptionButton = new JButton("Prescription");
+        prescriptionButton = new JButton("Prescriptions");
         prescriptionButton.setFont(new Font("Verdana", Font.PLAIN, 17));
         prescriptionButton.setIcon(new ImageIcon("prescription.png"));
         prescriptionButton.setHorizontalTextPosition(AbstractButton.CENTER);
@@ -92,7 +92,7 @@ public class DashboardPanel extends JPanel{
         c.gridy = 0;
         add(prescriptionButton, c);
 
-        timetableButton = new JButton("Timetable");
+        timetableButton = new JButton("Timetables");
         timetableButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         timetableButton.setIcon(new ImageIcon("timetable.png"));
         timetableButton.setHorizontalTextPosition(AbstractButton.CENTER);
@@ -105,7 +105,7 @@ public class DashboardPanel extends JPanel{
         c.gridy = 1;
         add(timetableButton, c);
 
-        treatmentButton = new JButton("Treatment");
+        treatmentButton = new JButton("Treatments");
         treatmentButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         treatmentButton.setIcon(new ImageIcon("treatment.png"));
         treatmentButton.setHorizontalTextPosition(AbstractButton.CENTER);
@@ -118,7 +118,7 @@ public class DashboardPanel extends JPanel{
         c.gridy = 1;
         add(treatmentButton, c);
 
-        medicineButton = new JButton("Medicine");
+        medicineButton = new JButton("Medicines");
         medicineButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         medicineButton.setIcon(new ImageIcon("medicine.png"));
         medicineButton.setHorizontalTextPosition(AbstractButton.CENTER);
@@ -131,7 +131,7 @@ public class DashboardPanel extends JPanel{
         c.gridy = 1;
         add(medicineButton, c);
 
-        admissionButton = new JButton("Admission");
+        admissionButton = new JButton("Admissions");
         admissionButton.setFont(new Font("Verdana", Font.PLAIN, 18));
         admissionButton.setIcon(new ImageIcon("admission.png"));
         admissionButton.setHorizontalTextPosition(AbstractButton.CENTER);

@@ -1,4 +1,20 @@
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Properties;
 
 public class AdmissionPanel extends JPanel {
     private JLabel searchLabel, stringLabel;
@@ -9,12 +25,12 @@ public class AdmissionPanel extends JPanel {
     private JPanel container;
     private String[] boxColumns, medicineColumns;
 
-    public AdmissionPanel() {/*
+    public AdmissionPanel() {
 
         // Create border
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 20, 20, 20);
-        TitledBorder tb = BorderFactory.createTitledBorder("Hospital Admission");
+        TitledBorder tb = BorderFactory.createTitledBorder("Hospital Admissions");
         tb.setTitleFont(new Font("Verdana", Font.PLAIN, 30));
         tb.setTitleColor(Color.DARK_GRAY);
         setBorder(BorderFactory.createCompoundBorder(emptyBorder, tb));
@@ -37,6 +53,7 @@ public class AdmissionPanel extends JPanel {
         criteria.add(searchLabel);
         criteria.add(Box.createRigidArea(new Dimension(30, 0)));
         criteria.add(columnsList);
+        container.add(Box.createRigidArea(new Dimension(0, 30)));
         container.add(criteria);
 
         // Parameter Panel
@@ -163,7 +180,7 @@ public class AdmissionPanel extends JPanel {
         rowSelectionModel.addListSelectionListener(e -> {
             int[] indexes = tab.getSelectedRows();
 
-            if (indexes.length == 0) {
+            if (indexes.length == 0 || tab.getModel().getValueAt(tab.getSelectedRow(), 1) !=  null) {
                 updateButton.setEnabled(false);
             } else {
                 updateButton.setEnabled(true);
@@ -172,7 +189,6 @@ public class AdmissionPanel extends JPanel {
     }
 
     //Get all the data from the medicine table
-
     public Object[][] getAllAdmissionData() {
 
         ArrayList<Object[]> data = new ArrayList();
@@ -456,15 +472,12 @@ public class AdmissionPanel extends JPanel {
                     JOptionPane.showMessageDialog(container, "Enter the string to be found.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-
     }
 
     private class updateListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int index;
-
-            index = tab.getSelectedRow();
+            int index = tab.getSelectedRow();
 
             // Container
             JPanel addPanel = new JPanel();
@@ -480,7 +493,7 @@ public class AdmissionPanel extends JPanel {
             JTextField admissionDateField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
             admissionDateField.setEditable(false);
             firstRow.add(admissionDate);
-            firstRow.add(Box.createRigidArea(new Dimension(68, 0)));
+            firstRow.add(Box.createRigidArea(new Dimension(69, 0)));
             firstRow.add(admissionDateField);
 
             addPanel.add(firstRow);
@@ -492,38 +505,21 @@ public class AdmissionPanel extends JPanel {
             JLabel releaseDate = new JLabel("Release Date");
             releaseDate.setFont(new Font("Verdana", Font.PLAIN, 18));
 
+            JDatePanelImpl datePanel;
+            JDatePickerImpl datePicker;
+
+            UtilDateModel model = new UtilDateModel();
+            Properties p = new Properties();
+            p.put("text.today", "Today");
+            p.put("text.month", "Month");
+            p.put("text.year", "Year");
+
+            datePanel = new JDatePanelImpl(model, p);
+            datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
             secondRow.add(releaseDate);
             secondRow.add(Box.createRigidArea(new Dimension(90, 0)));
-
-            //If release date has not yet been inserted, the date can be choosen, otherwise the JTextField is disabled
-            String dateExists = tab.getModel().getValueAt(index, 1).toString();
-            boolean changed = false;
-            JDatePanelImpl datePanel;
-            JDatePickerImpl datePicker = null;
-            JTextField releaseDateField = null;
-
-
-            if (dateExists == "") {
-                UtilDateModel model = new UtilDateModel();
-                Properties p = new Properties();
-                p.put("text.today", "Today");
-                p.put("text.month", "Month");
-                p.put("text.year", "Year");
-
-                datePanel = new JDatePanelImpl(model, p);
-                datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-
-                if (datePicker.getModel().getValue() != null)
-                    changed = true;
-
-                secondRow.add(datePicker);
-            }
-
-            else {
-                releaseDateField = new JTextField(dateExists);
-                releaseDateField.setEditable(false);
-                secondRow.add(releaseDateField);
-            }
+            secondRow.add(datePicker);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(secondRow);
@@ -552,7 +548,7 @@ public class AdmissionPanel extends JPanel {
             JTextField admissionCauseField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
             admissionCauseField.setEditable(false);
             fourthRow.add(admissionCause);
-            fourthRow.add(Box.createRigidArea(new Dimension(57, 0)));
+            fourthRow.add(Box.createRigidArea(new Dimension(58, 0)));
             fourthRow.add(admissionCauseField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -567,7 +563,7 @@ public class AdmissionPanel extends JPanel {
             JTextField hospitalIdField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
             hospitalIdField.setEditable(false);
             fifthRow.add(hospitalId);
-            fifthRow.add(Box.createRigidArea(new Dimension(102, 0)));
+            fifthRow.add(Box.createRigidArea(new Dimension(103, 0)));
             fifthRow.add(hospitalIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -581,7 +577,7 @@ public class AdmissionPanel extends JPanel {
             wardId.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField wardIdField = new JTextField(tab.getModel().getValueAt(index, 7).toString());
             sixthRow.add(wardId);
-            sixthRow.add(Box.createRigidArea(new Dimension(127, 0)));
+            sixthRow.add(Box.createRigidArea(new Dimension(128, 0)));
             sixthRow.add(wardIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -595,12 +591,11 @@ public class AdmissionPanel extends JPanel {
             room.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField roomField = new JTextField(tab.getModel().getValueAt(index, 8).toString());
             seventhRow.add(room);
-            seventhRow.add(Box.createRigidArea(new Dimension(117, 0)));
+            seventhRow.add(Box.createRigidArea(new Dimension(120, 0)));
             seventhRow.add(roomField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(seventhRow);
-
 
             // add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
@@ -610,22 +605,381 @@ public class AdmissionPanel extends JPanel {
 
             if (result == JOptionPane.YES_OPTION) {
                 java.util.Date admission = (java.util.Date) tab.getModel().getValueAt(index, 0);
-                java.sql.Date sqlAdmission  = new java.sql.Date(admission.getTime());
+                java.sql.Date sqlAdmission = new java.sql.Date(admission.getTime());
+                java.util.Date selectedDate = (java.util.Date) datePicker.getModel().getValue();
+                java.sql.Date sqlRelease = null;
+                
+                if (selectedDate != null){
+                    sqlRelease = new java.sql.Date(selectedDate.getTime());
+                    
+                    if (sqlRelease.after(Calendar.getInstance().getTime())) {
+                        JOptionPane.showMessageDialog(container, "The release date cannot be later than today's date.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    if (sqlAdmission.after(sqlRelease)) {
+                        JOptionPane.showMessageDialog(container, "The release date cannot be before the admission date.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+
+                if (wardIdField.getText().length() == 0) {
+                    JOptionPane.showMessageDialog(container, "Ward ID cannot be empty.\n " +
+                            "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (wardIdField.getText().length() == 0) {
+                    JOptionPane.showMessageDialog(container, "Ward ID cannot be empty.\n " +
+                            "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                Connection conn;
+                int checkWardId = 0;
+                try {
+                    checkWardId = Integer.parseInt(wardIdField.getText());
+
+                    String checkDoctorExists = "SELECT * FROM ward WHERE wardid = " + checkWardId + " AND hospitalid = " + tab.getModel().getValueAt(index, 6);
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    Statement s = conn.createStatement();
+
+                    ResultSet res = s.executeQuery(checkDoctorExists);
+
+                    if (!res.next()) {
+                        JOptionPane.showMessageDialog(container, "No ward found for the given ID in that hospital. Please check that\n" +
+                                "the ward ID is correct.", "No ward found!", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+
+                } catch (NumberFormatException n) {
+                    JOptionPane.showMessageDialog(container, "Ward ID must be an integer.\n " +
+                            "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
+                int checkRoom = 0;
+                try {
+                    checkRoom = Integer.parseInt(roomField.getText());
+
+                    String checkDoctorExists = "SELECT * FROM bedroom WHERE bedroomnumber = " + checkRoom + " AND wardid = " + checkWardId
+                            + " AND hospitalid = " + tab.getModel().getValueAt(index, 6);
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    Statement s = conn.createStatement();
+
+                    ResultSet res = s.executeQuery(checkDoctorExists);
+
+                    if (!res.next()) {
+                        JOptionPane.showMessageDialog(container, "No room found for the given ID in that hospital and ward. Please check that\n" +
+                                "the ward ID and the room No. are correct.", "No room found", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+
+                    if (res.getInt("noavailablebeds") == 0) {
+                        JOptionPane.showMessageDialog(container, "This room is full and it cannot host another patient.", "Full room", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+
+                } catch (NumberFormatException n) {
+                    JOptionPane.showMessageDialog(container, "Ward ID must be an integer.\n " +
+                            "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
+                //We update the ward and/or the room number only if the release date is still null, otherwise we just set the release date and ignore the
+                //updated ward and id since it makes no sense to release a patient and update the room in which he/she stays at the same time.
+                int oldRoomNo = (int) tab.getModel().getValueAt(index, 7);
+                int oldWardId = (int) tab.getModel().getValueAt(index, 8);
+
+                if (sqlRelease == null) {   //i.e. the patient is just changed room or ward
+                    String updateWardAndRoom = "UPDATE hospital_admission SET wardid = ?, roomnumber = ? " +
+                            "WHERE admissiondate = ? AND patientfiscalcode = ?";
+                    try {
+                        conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+
+                        PreparedStatement stat = conn.prepareStatement(updateWardAndRoom);
+                        stat.setInt(1, checkWardId);
+                        stat.setInt(2, checkRoom);
+                        stat.setDate(3, sqlAdmission);
+                        stat.setString(4, patientFiscalCodeField.getText());
+
+                        int res = stat.executeUpdate();
+
+                        //Confirm that hospital record has been added successfully
+                        if (res > 0) {
+                            JOptionPane.showMessageDialog(container, "Ward and room updated successfully.");
+
+                            //If room or ward have changed, we update the number of available beds
+                            if (Integer.parseInt(wardIdField.getText()) != oldWardId || Integer.parseInt(roomField.getText()) != oldRoomNo) {
+
+                                //The old room has one new free bed
+                                String updateOldRoom = "UPDATE bedroom SET noavailablebeds = noavailablebeds + 1 WHERE hospitalid = ? AND wardid = ? AND bedroomnumber = ?";
+                                PreparedStatement s = conn.prepareStatement(updateOldRoom);
+                                s.setInt(1, (Integer) tab.getModel().getValueAt(index, 6));
+                                s.setInt(2, (Integer) tab.getModel().getValueAt(index, 7));
+                                s.setInt(3, (Integer) tab.getModel().getValueAt(index, 8));
+
+                                s.executeUpdate();
+                                System.out.println("old room");
+
+                                //The new room has one less available bed
+                                String updateNewRoom = "UPDATE bedroom SET noavailablebeds = noavailablebeds - 1 WHERE hospitalid = ? AND wardid = ? AND bedroomnumber = ?";
+                                PreparedStatement s2 = conn.prepareStatement(updateNewRoom);
+                                s2.setInt(1, Integer.parseInt(hospitalIdField.getText()));
+                                s2.setInt(2, Integer.parseInt(wardIdField.getText()));
+                                s2.setInt(3, Integer.parseInt(roomField.getText()));
+
+                                s2.executeUpdate();
+                                System.out.println("new room");
+                            }
+                        }
+                    } catch (SQLException s) {
+                        s.printStackTrace();
+                    }
+                }
+                else {  //i.e. patient has been released
+                    String updateReleaseDate = "UPDATE hospital_admission SET releasedate = ? " +
+                        "WHERE admissiondate = ? AND patientfiscalcode = ?";
+                    try {
+                        conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+
+                        PreparedStatement stat = conn.prepareStatement(updateReleaseDate);
+                        stat.setDate(1, sqlRelease);
+                        stat.setDate(2, sqlAdmission);
+                        stat.setString(3, patientFiscalCodeField.getText());
+
+                        int res = stat.executeUpdate();
+
+                        //Confirm that hospital record has been added successfully
+                        if (res > 0) {
+                            JOptionPane.showMessageDialog(container, "Patient released from admission.\n" +
+                                    "Note: if you changed the ward and/or room number \n" +
+                                    "they will not be updated.");
+
+                            //Update the number of available beds in the rooom where the patient was hosted
+                            String updateRoom = "UPDATE bedroom SET noavailablebeds = noavailablebeds + 1 WHERE hospitalid = ? AND wardid = ? AND bedroomnumber = ?";
+                            PreparedStatement s = conn.prepareStatement(updateRoom);
+                            s.setInt(1, (Integer) tab.getModel().getValueAt(index, 6));
+                            s.setInt(2, oldWardId);
+                            s.setInt(3, oldRoomNo);
+
+                            s.executeUpdate();
+                            System.out.println("bed freed");
+                        }
+                    } catch (SQLException s) {
+                        s.printStackTrace();
+                    }
+                }
+
+                //Repaint the table
+
+                AppFrame.frame.getContentPane().setVisible(false);
+                AppFrame.frame.setContentPane(new AdmissionPanel());
+                AppFrame.frame.getContentPane().setVisible(true);
+            }
+        }
+        private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+
+            private String datePattern = "yyyy-MM-dd";
+            private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
+            @Override
+            public Object stringToValue(String text) throws ParseException {
+                return dateFormatter.parseObject(text);
+            }
+
+            @Override
+            public String valueToString(Object value) throws ParseException {
+                if (value != null) {
+                    Calendar cal = (Calendar) value;
+                    return dateFormatter.format(cal.getTime());
+                }
+
+                return "";
+            }
+
+        }
+    }
+
+    private class insertListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int index = tab.getSelectedRow();
+            boolean isReleased = true; //this boolean is need to update the number of available beds in the room
+
+            // Container
+            JPanel addPanel = new JPanel();
+            addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
+            addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
+
+            // First row: Admission Date
+            JPanel firstRow = new JPanel();
+            firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
+
+            JLabel admissionDate = new JLabel("Admission Date");
+            admissionDate.setFont(new Font("Verdana", Font.PLAIN, 18));
+
+            JDatePanelImpl datePanel;
+            JDatePickerImpl datePicker;
+
+            UtilDateModel model = new UtilDateModel();
+            Properties p = new Properties();
+            p.put("text.today", "Today");
+            p.put("text.month", "Month");
+            p.put("text.year", "Year");
+
+            datePanel = new JDatePanelImpl(model, p);
+            datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
+            firstRow.add(admissionDate);
+            firstRow.add(Box.createRigidArea(new Dimension(69, 0)));
+            firstRow.add(datePicker);
+
+            addPanel.add(firstRow);
+
+            // Second row: Release Date
+            JPanel secondRow = new JPanel();
+            secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
+
+            JLabel releaseDate = new JLabel("Release Date");
+            releaseDate.setFont(new Font("Verdana", Font.PLAIN, 18));
+
+            JDatePanelImpl datePanel2;
+            JDatePickerImpl datePicker2;
+
+            UtilDateModel model2 = new UtilDateModel();
+            Properties p2 = new Properties();
+            p2.put("text.today", "Today");
+            p2.put("text.month", "Month");
+            p2.put("text.year", "Year");
+
+            datePanel2 = new JDatePanelImpl(model2, p2);
+            datePicker2 = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
+
+            secondRow.add(releaseDate);
+            secondRow.add(Box.createRigidArea(new Dimension(90, 0)));
+            secondRow.add(datePicker2);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(secondRow);
+
+            // Third row: Patient Fiscal Code
+            JPanel thirdRow = new JPanel();
+            thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
+
+            JLabel patientFiscalCode = new JLabel("Patient Fiscal Code");
+            patientFiscalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField patientFiscalCodeField = new JTextField();
+            thirdRow.add(patientFiscalCode);
+            thirdRow.add(Box.createRigidArea(new Dimension(40, 0)));
+            thirdRow.add(patientFiscalCodeField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(thirdRow);
+
+            // Fourth row: Admission Cause
+            JPanel fourthRow = new JPanel();
+            fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
+
+            JLabel admissionCause = new JLabel("Admission Cause");
+            admissionCause.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField admissionCauseField = new JTextField();
+            fourthRow.add(admissionCause);
+            fourthRow.add(Box.createRigidArea(new Dimension(58, 0)));
+            fourthRow.add(admissionCauseField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(fourthRow);
+
+            // Fifth row: Hospital ID
+            JPanel fifthRow = new JPanel();
+            fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
+
+            JLabel hospitalId = new JLabel("Hospital ID ");
+            hospitalId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField hospitalIdField = new JTextField();
+            fifthRow.add(hospitalId);
+            fifthRow.add(Box.createRigidArea(new Dimension(103, 0)));
+            fifthRow.add(hospitalIdField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(fifthRow);
+
+            // Sixth row: Ward ID
+            JPanel sixthRow = new JPanel();
+            sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
+
+            JLabel wardId = new JLabel("Ward ID ");
+            wardId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField wardIdField = new JTextField();
+            sixthRow.add(wardId);
+            sixthRow.add(Box.createRigidArea(new Dimension(128, 0)));
+            sixthRow.add(wardIdField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(sixthRow);
+
+            // Sixth row: Room No.
+            JPanel seventhRow = new JPanel();
+            seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
+
+            JLabel room = new JLabel("Room No.");
+            room.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField roomField = new JTextField();
+            seventhRow.add(room);
+            seventhRow.add(Box.createRigidArea(new Dimension(119, 0)));
+            seventhRow.add(roomField);
+
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addPanel.add(seventhRow);
+
+            // add all to JOptionPane
+            int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
+                    addPanel, "Insert hospital admission", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            //now we check the result
+
+            if (result == JOptionPane.YES_OPTION) {
+
+                java.util.Date selectedAdmission = (java.util.Date) datePicker.getModel().getValue();
+
+                if (selectedAdmission == null) {
+                    JOptionPane.showMessageDialog(container, "You must select an admission date.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                java.sql.Date sqlAdmissionDate = new java.sql.Date(selectedAdmission.getTime());
+
+                if (sqlAdmissionDate.after(Calendar.getInstance().getTime())) {
+                    JOptionPane.showMessageDialog(container, "The admission date cannot be later than today's date.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                isReleased = false;
+
+                java.util.Date selectedRelease = (java.util.Date) datePicker2.getModel().getValue();
                 java.sql.Date sqlReleaseDate = null;
 
-                if (changed) {
-                    java.util.Date selectedDate = (java.util.Date) datePicker.getModel().getValue();
-                    sqlReleaseDate = new java.sql.Date(selectedDate.getTime());
+                if (selectedRelease != null) {
+                    sqlReleaseDate = new java.sql.Date(selectedRelease.getTime());
 
                     if (sqlReleaseDate.after(Calendar.getInstance().getTime())) {
                         JOptionPane.showMessageDialog(container, "The release date cannot be later than today's date.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    if (sqlAdmission.after(sqlReleaseDate)){
+                    if (sqlAdmissionDate.after(sqlReleaseDate)) {
                         JOptionPane.showMessageDialog(container, "The release date cannot be before the admission date.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
+                    isReleased = true;
                 }
 
                 if (hospitalIdField.getText().length() == 0) {
@@ -661,8 +1015,8 @@ public class AdmissionPanel extends JPanel {
                     e1.printStackTrace();
                 }
 
-                if (wardIdField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Ward ID cannot be empty.\n " +
+                if (hospitalIdField.getText().length() == 0) {
+                    JOptionPane.showMessageDialog(container, "Hospital ID cannot be empty.\n " +
                             "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -680,7 +1034,7 @@ public class AdmissionPanel extends JPanel {
 
                     if (!res.next()) {
                         JOptionPane.showMessageDialog(container, "No ward found for the given ID in that hospital. Please check that  \n" +
-                                "both the hospital ID and the Ward ID are correct.", "No ward found!", JOptionPane.INFORMATION_MESSAGE);
+                                "both the hospital ID and the ward ID are correct.", "No ward found!", JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
 
@@ -692,7 +1046,7 @@ public class AdmissionPanel extends JPanel {
                     e1.printStackTrace();
                 }
 
-                int checkRoom = 0;
+                int checkRoom;
                 try {
                     checkRoom = Integer.parseInt(roomField.getText());
 
@@ -705,7 +1059,7 @@ public class AdmissionPanel extends JPanel {
 
                     if (!res.next()) {
                         JOptionPane.showMessageDialog(container, "No room found for the given ID in that hospital and ward. Please check that  \n" +
-                                "the hospital ID, the Ward ID and the room No. are correct.", "No room found", JOptionPane.INFORMATION_MESSAGE);
+                                "the hospital ID, the ward ID and the room No. are correct.", "No room found", JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
 
@@ -714,35 +1068,46 @@ public class AdmissionPanel extends JPanel {
                         return;
                     }
                 } catch (NumberFormatException n){
-                    JOptionPane.showMessageDialog(container, "Ward ID must be an integer.\n " +
+                    JOptionPane.showMessageDialog(container, "Room ID must be an integer.\n " +
                             "No admission will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
 
-                String updateAdmission = "UPDATE hospital_admission SET releasedate = ?, wardid = ?, roomnumber = ? " +
-                        "WHERE admissiondate = ? AND patientfiscalcode = ?";
+                String insertAdmission = "INSERT INTO hospital_admission (admissiondate, patientfiscalcode, cause, releasedate, hospitalid, " +
+                        "wardid, roomnumber) VALUES (?,?,?,?,?,?,?)";
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
-                    PreparedStatement stat = conn.prepareStatement(updateAdmission);
-                    if (sqlReleaseDate != null)
-                        stat.setDate(1, sqlReleaseDate);
-                    else
-                        stat.setDate(1, Date.valueOf(releaseDateField.getText()));
-                    stat.setInt(2, checkWardId);
-                    stat.setInt(3, checkRoom);
-                    stat.setDate(4, sqlAdmission);
-                    stat.setString(5, patientFiscalCodeField.getText());
-
-                    System.out.println(stat);
+                    PreparedStatement stat = conn.prepareStatement(insertAdmission);
+                    stat.setDate(1, sqlAdmissionDate);
+                    stat.setString(2, patientFiscalCodeField.getText().toUpperCase());
+                    stat.setString(3, admissionCauseField.getText());
+                    stat.setDate(4, sqlReleaseDate);
+                    stat.setInt(5, Integer.parseInt(hospitalIdField.getText()));
+                    stat.setInt(6, Integer.parseInt(wardIdField.getText()));
+                    stat.setInt(7, Integer.parseInt(roomField.getText()));
 
                     int res = stat.executeUpdate();
 
                     //Confirm that hospital record has been added successfully
                     if (res > 0) {
                         JOptionPane.showMessageDialog(container, "Hospital admission updated successfully.");
+
+                        //If the insertion has been completed successfully, we update the number of beds in the room
+                        if(isReleased == false) {
+                            String updateRoomNumber = "UPDATE bedroom SET noavailablebeds = noavailablebeds - 1 WHERE bedroomnumber = " + roomField.getText() +
+                                    " AND wardid = " + wardIdField.getText() + " AND hospitalid = " + hospitalIdField.getText();
+
+                            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                            Statement stmt = conn.createStatement();
+
+                            int res2 = stmt.executeUpdate(updateRoomNumber);
+
+                            if (res2 > 0)
+                                JOptionPane.showMessageDialog(container, "The number of available beds in that room has also been updated.");
+                        }
                     }
 
                     //Repaint the table
@@ -775,253 +1140,6 @@ public class AdmissionPanel extends JPanel {
 
                 return "";
             }
-
-        }
-    }
-
-    private class insertListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {/*
-
-            // Container
-            JPanel addPanel = new JPanel();
-            addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
-            addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
-
-            // First row: Admission Date
-            JPanel firstRow = new JPanel();
-            firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
-
-            JLabel admissionDate = new JLabel("Admission Date");
-            admissionDate.setFont(new Font("Verdana", Font.PLAIN, 18));
-
-            UtilDateModel model = new UtilDateModel();
-            Properties p = new Properties();
-            p.put("text.today", "Today");
-            p.put("text.month", "Month");
-            p.put("text.year", "Year");
-
-            JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
-            JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-
-            firstRow.add(admissionDate);
-            firstRow.add(Box.createRigidArea(new Dimension(68, 0)));
-            firstRow.add(datePicker);
-
-            addPanel.add(firstRow);
-
-            // Second row: Release Date
-            JPanel secondRow = new JPanel();
-            secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
-
-            JLabel releaseDate = new JLabel("Release Date");
-            releaseDate.setFont(new Font("Verdana", Font.PLAIN, 18));
-
-            UtilDateModel model2 = new UtilDateModel();
-            Properties p2 = new Properties();
-            p.put("text.today", "Today");
-            p.put("text.month", "Month");
-            p.put("text.year", "Year");
-
-            JDatePanelImpl datePanel2 = new JDatePanelImpl(model2, p2);
-            JDatePickerImpl datePicker2 = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
-
-            firstRow.add(admissionDate);
-            firstRow.add(Box.createRigidArea(new Dimension(68, 0)));
-            firstRow.add(datePicker2);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(secondRow);
-
-            // Third row: Patient Fiscal Code
-            JPanel thirdRow = new JPanel();
-            thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
-
-            JLabel patientFiscalCode = new JLabel("Patient Fiscal Code");
-            patientFiscalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField patientFiscalCodeField = new JTextField();
-            patientFiscalCodeField.setEditable(false);
-            thirdRow.add(patientFiscalCode);
-            thirdRow.add(Box.createRigidArea(new Dimension(40, 0)));
-            thirdRow.add(patientFiscalCodeField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(thirdRow);
-
-            // Fourth row: Admission Cause
-            JPanel fourthRow = new JPanel();
-            fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
-
-            JLabel admissionCause = new JLabel("Admission Cause");
-            admissionCause.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField admissionCauseField = new JTextField();
-            admissionCauseField.setEditable(false);
-            fourthRow.add(admissionCause);
-            fourthRow.add(Box.createRigidArea(new Dimension(57, 0)));
-            fourthRow.add(admissionCauseField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(fourthRow);
-
-            // Fifth row: Hospital ID
-            JPanel fifthRow = new JPanel();
-            fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
-
-            JLabel hospitalId = new JLabel("Hospital ID ");
-            hospitalId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField hospitalIdField = new JTextField();
-            hospitalIdField.setEditable(false);
-            fifthRow.add(hospitalId);
-            fifthRow.add(Box.createRigidArea(new Dimension(102, 0)));
-            fifthRow.add(hospitalIdField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(fifthRow);
-
-            // Sixth row: Ward ID
-            JPanel sixthRow = new JPanel();
-            sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
-
-            JLabel wardId = new JLabel("Ward ID ");
-            wardId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField wardIdField = new JTextField();
-            sixthRow.add(wardId);
-            sixthRow.add(Box.createRigidArea(new Dimension(127, 0)));
-            sixthRow.add(wardIdField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(sixthRow);
-
-            // Sixth row: Room No.
-            JPanel seventhRow = new JPanel();
-            seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
-
-            JLabel room = new JLabel("Room No.");
-            room.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField roomField = new JTextField();
-            seventhRow.add(room);
-            seventhRow.add(Box.createRigidArea(new Dimension(117, 0)));
-            seventhRow.add(roomField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(seventhRow);
-
-            // add all to JOptionPane
-            int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Update medicine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-            //now we check the result
-/*
-            if (result == JOptionPane.YES_OPTION) {
-
-                try {
-                    Integer.parseInt(codeField.getText());
-
-                } catch (NumberFormatException n){
-                    JOptionPane.showMessageDialog(container, "Medicine code must be an integer. \n" +
-                            "No medicine will be updated.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (nameField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Medicine name field cannot be empty. \n" +
-                            "No medicine will be updated.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (nameField.getText().length() > 80) {
-                    JOptionPane.showMessageDialog(container, "Medicine name should be less than 80 characters. \n" +
-                            "No medicine will be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (producerField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Producer field cannot be empty.\n" +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (producerField.getText().length() > 80) {
-                    JOptionPane.showMessageDialog(container, "Producer should be less than 80 characters. \n" +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (activeSubstanceField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Active substance field cannot be empty.\n " +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (activeSubstanceField.getText().length() > 150) {
-                    JOptionPane.showMessageDialog(container, "Active substance field must be less than 150 characters.\n " +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (Double.parseDouble(costField.getText()) == 0) {
-                    JOptionPane.showMessageDialog(container, "The cost of the medicine cannot be zero.\n " +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (Double.parseDouble(costField.getText()) > 999.99) {
-                    JOptionPane.showMessageDialog(container, "The cost of the medicine cannot be greater than 999.99.\n " +
-                            "The medicine will not be updated.","Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                String updateMedicine = "INSERT INTO medicine (medicinecode, medicinename, producer, activesubstance, cost) VALUES (?,?,?,?,?)";
-                Connection conn;
-                try {
-                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-
-                    PreparedStatement stat = conn.prepareStatement(updateMedicine);
-                    stat.setInt(1, Integer.parseInt(codeField.getText()));
-                    stat.setString(2, nameField.getText());
-                    stat.setString(3, producerField.getText().toUpperCase());
-                    stat.setString(4, activeSubstanceField.getText());
-                    stat.setDouble(5, Double.parseDouble(costField.getText()));
-
-                    int res = stat.executeUpdate();
-
-                    //Confirm that hospital record has been added successfully
-                    if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Medicine added successfully.");
-                    }
-
-                    //Repaint the table
-
-                    AppFrame.frame.getContentPane().setVisible(false);
-                    AppFrame.frame.setContentPane(new MedicinePanel());
-                    AppFrame.frame.getContentPane().setVisible(true);
-
-                } catch (SQLException s) {
-                    s.printStackTrace();
-                }
-            }*/
-        }
-        private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
-
-            private String datePattern = "yyyy-MM-dd";
-            private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
-
-            @Override
-            public Object stringToValue(String text) throws ParseException {
-                return dateFormatter.parseObject(text);
-            }
-
-            @Override
-            public String valueToString(Object value) throws ParseException {
-                if (value != null) {
-                    Calendar cal = (Calendar) value;
-                    return dateFormatter.format(cal.getTime());
-                }
-
-                return "";
-            }
-
         }
     }
 
@@ -1049,8 +1167,7 @@ public class AdmissionPanel extends JPanel {
         columnModel.getColumn(6).setPreferredWidth(20);
         columnModel.getColumn(7).setPreferredWidth(10);
         columnModel.getColumn(8).setPreferredWidth(10);
-    }*/
-
     }
 }
+
 

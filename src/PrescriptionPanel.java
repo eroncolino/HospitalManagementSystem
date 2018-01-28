@@ -24,7 +24,7 @@ public class PrescriptionPanel extends JPanel {
         // Create border
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 20, 20, 20);
-        TitledBorder tb = BorderFactory.createTitledBorder("Prescription");
+        TitledBorder tb = BorderFactory.createTitledBorder("Prescriptions");
         tb.setTitleFont(new Font("Verdana", Font.PLAIN, 30));
         tb.setTitleColor(Color.DARK_GRAY);
         setBorder(BorderFactory.createCompoundBorder(emptyBorder, tb));
@@ -47,6 +47,7 @@ public class PrescriptionPanel extends JPanel {
         criteria.add(searchLabel);
         criteria.add(Box.createRigidArea(new Dimension(30, 0)));
         criteria.add(columnsList);
+        container.add(Box.createRigidArea(new Dimension(0, 30)));
         container.add(criteria);
 
         // Parameter Panel
@@ -121,7 +122,6 @@ public class PrescriptionPanel extends JPanel {
         updateButton.setMaximumSize(d);
         updateButton.setIcon(new ImageIcon("update.png"));
         updateButton.setHorizontalTextPosition(AbstractButton.RIGHT);
-        updateButton.addActionListener(new updateListener());
 
         insertButton = new JButton("Insert");
         insertButton.setFont(new Font("Verdana", Font.PLAIN, 18));
@@ -464,7 +464,6 @@ public class PrescriptionPanel extends JPanel {
                         return;
                     }
                 }
-
                 textField.setText("");
             } else {
                 if (selectedColumn == "Show all") {
@@ -477,17 +476,11 @@ public class PrescriptionPanel extends JPanel {
 
     }
 
-    private class updateListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-        }
-    }
-
     private class insertListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            int index = 0;
+
             // Container
             JPanel addPanel = new JPanel();
             addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
@@ -501,7 +494,7 @@ public class PrescriptionPanel extends JPanel {
             prescriptionNo.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField prescriptionNoField = new JTextField();
             firstRow.add(prescriptionNo);
-            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
+            firstRow.add(Box.createRigidArea(new Dimension(64, 0)));
             firstRow.add(prescriptionNoField);
 
             addPanel.add(firstRow);
@@ -514,7 +507,7 @@ public class PrescriptionPanel extends JPanel {
             docId.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField docIdField = new JTextField();
             secondRow.add(docId);
-            secondRow.add(Box.createRigidArea(new Dimension(96, 0)));
+            secondRow.add(Box.createRigidArea(new Dimension(119, 0)));
             secondRow.add(docIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -542,7 +535,7 @@ public class PrescriptionPanel extends JPanel {
             medCode.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField medCodeField = new JTextField();
             fourthRow.add(medCode);
-            fourthRow.add(Box.createRigidArea(new Dimension(38, 0)));
+            fourthRow.add(Box.createRigidArea(new Dimension(78, 0)));
             fourthRow.add(medCodeField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -552,25 +545,50 @@ public class PrescriptionPanel extends JPanel {
             JPanel fifthRow = new JPanel();
             fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
 
-            JLabel medQuan = new JLabel("Medicine Quantity");
-            medQuan.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField medQuanField = new JTextField();
-            fifthRow.add(medQuan);
-            fifthRow.add(Box.createRigidArea(new Dimension(110, 0)));
-            fifthRow.add(medQuanField);
+            JLabel quantity = new JLabel("Medicine Quantity");
+            quantity.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField quantityField = new JTextField();
+            fifthRow.add(quantity);
+            fifthRow.add(Box.createRigidArea(new Dimension(48, 0)));
+            fifthRow.add(quantityField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(fifthRow);
 
             // add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Insert Prescription", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    addPanel, "Insert prescription", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             //now we check the result
 
             if (result == JOptionPane.YES_OPTION) {
-                //doctor check
+
+                //prescription no. check
+                if (prescriptionNoField.getText().length() != 17) {
+                    JOptionPane.showMessageDialog(container, "Prescription number must be 17 characters. \n" +
+                            "Prescription will not be inserted.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 Connection conn;
+                try {
+                    String findPrescription = "SELECT * FROM prescription WHERE prescriptionno = ?";
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    PreparedStatement stmt = conn.prepareStatement(findPrescription);
+                    stmt.setString(1, prescriptionNoField.getText());
+
+                    ResultSet rs = stmt.executeQuery();
+
+                    if (rs.next()) {
+                        JOptionPane.showMessageDialog(container, "This prescription number already exists.\n" +
+                                "Prescription will not be inserted.", "Prescription no. error", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
                 try {
                     int id = Integer.parseInt(docIdField.getText());
 
@@ -604,11 +622,12 @@ public class PrescriptionPanel extends JPanel {
                 try {
                     String fisCode = (patFisCodeField.getText().toUpperCase());
 
-                    String findPatient = "SELECT * FROM patient WHERE patientfiscalcode = " + fisCode;
+                    String findPatient = "SELECT * FROM patient WHERE UPPER(patientfiscalcode) = UPPER(?)";
 
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-                    Statement stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery(findPatient);
+                    PreparedStatement stmt = conn.prepareStatement(findPatient);
+                    stmt.setString(1, fisCode);
+                    ResultSet rs = stmt.executeQuery();
 
                     if (!rs.next()) {
                         int addPatient = JOptionPane.showConfirmDialog(container, "No patient found for the given fiscal code. Please check if the fiscal code is correct or" +
@@ -628,7 +647,7 @@ public class PrescriptionPanel extends JPanel {
 
                 //medicine check
                 try {
-                    String medicine = (medCodeField.getText());
+                    int medicine = Integer.parseInt(medCodeField.getText());
 
                     String findMedicine = "SELECT * FROM medicine WHERE medicinecode = " + medicine;
 
@@ -637,7 +656,7 @@ public class PrescriptionPanel extends JPanel {
                     ResultSet rs = stmt.executeQuery(findMedicine);
 
                     if (!rs.next()) {
-                        int addPatient = JOptionPane.showConfirmDialog(container, "No medicine found for the given medicine code. Please check if the medicine code is correct or" +
+                        int addPatient = JOptionPane.showConfirmDialog(container, "No medicine found for the given medicine code. Please check if the medicine code \nis correct or" +
                                 "add a new medicine in the medicine section.\n" +
                                 "Do you want to add a new medicine now?", "No medicine found!", JOptionPane.INFORMATION_MESSAGE);
 
@@ -650,11 +669,9 @@ public class PrescriptionPanel extends JPanel {
                     }
                 } catch (SQLException e1) {
                     e1.printStackTrace();
-                }
-
-                if (prescriptionNoField.getText().length() != 17) {
-                    JOptionPane.showMessageDialog(container, "Prescription No must be 17 characters. \n" +
-                            "Prescription will not be inserted.", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (NumberFormatException e3) {
+                    JOptionPane.showMessageDialog(container, "Medicine code must be an integer.\n" +
+                            "Prescription will not be inserted", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -665,22 +682,22 @@ public class PrescriptionPanel extends JPanel {
                 }
 
                 try {
-                    int medCodeInt = Integer.parseInt(medCodeField.getText());
+                    Integer.parseInt(medCodeField.getText());
 
                 } catch (NumberFormatException n) {
-                    JOptionPane.showMessageDialog(container, "Medicine Code must be an integer.\n" +
+                    JOptionPane.showMessageDialog(container, "Medicine code must be an integer.\n" +
                             "Prescription will not be inserted.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 if (medCodeField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Medicine Code field cannot be empty.\n " +
+                    JOptionPane.showMessageDialog(container, "Medicine code field cannot be empty.\n " +
                             "Prescription will not be inserted.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 try {
-                    int medQuant = Integer.parseInt(medQuanField.getText());
+                    Integer.parseInt(quantityField.getText());
 
                 } catch (NumberFormatException n) {
                     JOptionPane.showMessageDialog(container, "Medicine quantity must be an integer.\n" +
@@ -688,7 +705,7 @@ public class PrescriptionPanel extends JPanel {
                     return;
                 }
 
-                if (medQuanField.getText().length() == 0) {
+                if (quantityField.getText().length() == 0) {
                     JOptionPane.showMessageDialog(container, "Medicine quantity field cannot be empty.\n " +
                             "Prescription will not be inserted.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -700,11 +717,11 @@ public class PrescriptionPanel extends JPanel {
                     con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = con.prepareStatement(insertPrescription);
-                    stat.setString(1, prescriptionNoField.getText());
+                    stat.setString(1, prescriptionNoField.getText().toUpperCase());
                     stat.setInt(2, Integer.parseInt(docIdField.getText()));
                     stat.setString(3, patFisCodeField.getText().toUpperCase());
                     stat.setInt(4, Integer.parseInt(medCodeField.getText()));
-                    stat.setInt(5, Integer.parseInt(medQuanField.getText()));
+                    stat.setInt(5, Integer.parseInt(quantityField.getText()));
 
                     int res = stat.executeUpdate();
 
@@ -732,7 +749,8 @@ public class PrescriptionPanel extends JPanel {
             int index = tab.getSelectedRow();
             String prescriptionNo = allPrescriptionNoList.get(index);
 
-            int result = JOptionPane.showConfirmDialog(container, "Are you sure you want to permanently delete the selected prescription?", "Warning", JOptionPane.WARNING_MESSAGE);
+            int result = JOptionPane.showConfirmDialog(container, "Are you sure you want to permanently delete the selected prescription?",
+                    "Warning", JOptionPane.YES_NO_CANCEL_OPTION);
 
             if (result == JOptionPane.YES_OPTION) {
                 String deletePrescription = "DELETE FROM prescription WHERE prescriptionno = ?";

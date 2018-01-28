@@ -17,22 +17,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class HospitalPanel extends JPanel {
-
+public class WardPanel extends JPanel{
     private JLabel searchLabel, stringLabel;
     private JComboBox columnsList;
     private JTextField textField;
     private JTable tab;
     private JButton findButton, insertButton, deleteButton, updateButton, goBackButton;
     private JPanel container;
-    private String[] boxColumns, hospitalColumns;
+    private String[] boxColumns, wardColumns;
+    private int hospitalId;
 
-    public HospitalPanel() {
+    public WardPanel(int hId, String hName) {
+        hospitalId = hId;
 
         // Create border
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 20, 20, 20);
-        TitledBorder tb = BorderFactory.createTitledBorder("Hospitals");
+        TitledBorder tb = BorderFactory.createTitledBorder(hName + "'s Wards (Hospital ID: " + hospitalId + ")");
         tb.setTitleFont(new Font("Verdana", Font.PLAIN, 30));
         tb.setTitleColor(Color.DARK_GRAY);
         setBorder(BorderFactory.createCompoundBorder(emptyBorder, tb));
@@ -47,8 +48,8 @@ public class HospitalPanel extends JPanel {
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.X_AXIS));
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        boxColumns = new String[]{"Show all", "ID", "Name", "Street", "ZIP Code", "City", "Province", "State"};
-        hospitalColumns = new String[]{"ID", "Name", "Street", "ZIP Code", "City", "Province", "State"};
+        boxColumns = new String[]{"Show all", "ID", "Name"};
+        wardColumns = new String[]{"Ward ID", "Ward Name", "No. of Rooms", "No. of Outpatient's Departments"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -84,7 +85,7 @@ public class HospitalPanel extends JPanel {
 
         // we need to read data in order to fill in the table
 
-        Object[][] myData = getAllHospitalsData();
+        Object[][] myData = getAllWardsData();
         tab = new JTable() {
             public void changeSelection(int rowIndex, int columnIndex,
                                         boolean toggle, boolean extend) {
@@ -92,22 +93,14 @@ public class HospitalPanel extends JPanel {
             }
         };
 
-        tab.setModel(new CustomTableModel(myData, hospitalColumns));
+        tab.setModel(new CustomTableModel(myData, wardColumns));
         tab.setDefaultRenderer(Object.class, new StripedRowTableCellRenderer());
         JScrollPane pane = new JScrollPane(tab);
         pane.setPreferredSize(new Dimension(900, 500));
         tablePanel.add(pane);
         mainRow.add(tablePanel);
 
-        TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(150);
-        columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(15);
-        columnModel.getColumn(5).setPreferredWidth(15);
-        columnModel.getColumn(6).setPreferredWidth(20);
-
-        tab.setToolTipText("One click to select the row, two to open the wards panel relative.");
+        tab.setToolTipText("One click to select the row, two to open rooms and departments panel.");
 
         tab.addMouseListener(new MouseAdapter() {
             @Override
@@ -116,10 +109,8 @@ public class HospitalPanel extends JPanel {
                 Point point = e.getPoint();
                 int row = table.rowAtPoint(point);
                 if (e.getClickCount() == 2) {
-                    int hospitalId = (int) tab.getModel().getValueAt(row, 0);
-                    String hospitalName = (String) tab.getModel().getValueAt(row, 1);
                     AppFrame.frame.getContentPane().setVisible(false);
-                    AppFrame.frame.setContentPane(new WardPanel(hospitalId, hospitalName));
+                    AppFrame.frame.setContentPane(new RoomDepartmentPanel());
                     AppFrame.frame.getContentPane().setVisible(true);
                 }
             }
@@ -205,23 +196,34 @@ public class HospitalPanel extends JPanel {
         });
     }
 
-    //Get all the data from the hospital table
-
-    public Object[][] getAllHospitalsData() {
+    //Get all the data from the ward table of the selected hospital
+    public Object[][] getAllWardsData() {
 
         ArrayList<Object[]> data = new ArrayList();
-        String query = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid";
+        String wardQuery = "SELECT * FROM ward WHERE hospitalid = " + hospitalId;
         Connection conn;
+        int noOfRooms = 0, noOfDeparments = 0;
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
             Statement s = conn.createStatement();
-            ResultSet rs = s.executeQuery(query);
+            ResultSet rs = s.executeQuery(wardQuery);
 
             while (rs.next()) {
-                Object[] row = {rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
-                        rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
-                        rs.getString("state")};
+
+                String countRoomsQuery = "SELECT count(*) FROM bedroom WHERE hospitalid = " + hospitalId + " AND wardid = " + rs.getInt("wardid");
+                Statement s1 = conn.createStatement();
+                ResultSet rs1 = s1.executeQuery(countRoomsQuery);
+                if(rs1.next())
+                     noOfRooms = rs1.getInt("count");
+
+                String countDepartmentsQuery = "SELECT count(*) FROM outpatients_department WHERE hospitalid = " + hospitalId + " AND wardid = " + rs.getInt("wardid");
+                Statement s2 = conn.createStatement();
+                ResultSet rs2 = s2.executeQuery(countDepartmentsQuery);
+                if(rs2.next())
+                    noOfDeparments = rs2.getInt("count");
+
+                Object[] row = {rs.getInt("wardid"), rs.getString("wardname"), noOfRooms, noOfDeparments};
 
                 data.add(row);
             }
@@ -230,16 +232,13 @@ public class HospitalPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][7];
+        Object[][] dataReturn = new Object[data.size()][4];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
             dataReturn[i][1] = data.get(i)[1];
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
-            dataReturn[i][4] = data.get(i)[4];
-            dataReturn[i][5] = data.get(i)[5];
-            dataReturn[i][6] = data.get(i)[6];
         }
         return dataReturn;
     }
@@ -353,7 +352,7 @@ public class HospitalPanel extends JPanel {
                             repaintTable(myData);
 
                         else {
-                            allData = getAllHospitalsData();
+                            allData = getAllWardsData();
                             repaintTable(allData);
                         }
 
@@ -370,7 +369,7 @@ public class HospitalPanel extends JPanel {
                             repaintTable(myData);
 
                         else {
-                            allData = getAllHospitalsData();
+                            allData = getAllWardsData();
                             repaintTable(allData);
                         }
                     } else {
@@ -386,7 +385,7 @@ public class HospitalPanel extends JPanel {
                             repaintTable(myData);
 
                         else {
-                            allData = getAllHospitalsData();
+                            allData = getAllWardsData();
                             repaintTable(allData);
                         }
                     } else {
@@ -402,7 +401,7 @@ public class HospitalPanel extends JPanel {
                             repaintTable(myData);
 
                         else {
-                            allData = getAllHospitalsData();
+                            allData = getAllWardsData();
                             repaintTable(allData);
                         }
                     } else {
@@ -418,7 +417,7 @@ public class HospitalPanel extends JPanel {
                             repaintTable(myData);
 
                         else {
-                            allData = getAllHospitalsData();
+                            allData = getAllWardsData();
                             repaintTable(allData);
                         }
                     } else {
@@ -434,7 +433,7 @@ public class HospitalPanel extends JPanel {
                             repaintTable(myData);
 
                         else {
-                            allData = getAllHospitalsData();
+                            allData = getAllWardsData();
                             repaintTable(allData);
                         }
                     } else {
@@ -450,7 +449,7 @@ public class HospitalPanel extends JPanel {
                             repaintTable(myData);
 
                         else {
-                            allData = getAllHospitalsData();
+                            allData = getAllWardsData();
                             repaintTable(allData);
                         }
                     } else {
@@ -464,7 +463,7 @@ public class HospitalPanel extends JPanel {
             } else {
 
                 if (selectedColumn == "Show all") {
-                    repaintTable(getAllHospitalsData());
+                    repaintTable(getAllWardsData());
                     textField.setText("");
                 } else
                     JOptionPane.showMessageDialog(container, "Enter the string to be found.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -1016,16 +1015,7 @@ public class HospitalPanel extends JPanel {
 
     private void repaintTable(Object[][] dataToBeInserted) {
         //Show the found rows
-        tab.setModel(new CustomTableModel(dataToBeInserted, hospitalColumns));
-
-        //Set columns width
-        TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(150);
-        columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(15);
-        columnModel.getColumn(5).setPreferredWidth(15);
-        columnModel.getColumn(6).setPreferredWidth(20);
+        tab.setModel(new CustomTableModel(dataToBeInserted, wardColumns));
     }
 
     private boolean checkHospitalExists (int id) {
