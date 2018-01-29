@@ -404,7 +404,7 @@ public class WardPanel extends JPanel{
 
     private class updateListener implements ActionListener {
         @Override
-        public void actionPerformed(ActionEvent e) {/*
+        public void actionPerformed(ActionEvent e) {
             int index;
 
             index = tab.getSelectedRow();
@@ -413,28 +413,27 @@ public class WardPanel extends JPanel{
             JPanel addPanel = new JPanel();
             addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.Y_AXIS));
             addPanel.add(Box.createRigidArea(new Dimension(500, 50)));
-
-            // First row: Hospital Id
+            // First row: Ward Id
             JPanel firstRow = new JPanel();
             firstRow.setLayout(new BoxLayout(firstRow, BoxLayout.X_AXIS));
 
-            JLabel id = new JLabel("Hospital ID");
+            JLabel id = new JLabel("Ward ID");
             id.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField idField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
-            idField.setEditable(false);
+            JTextField idField = new JTextField(tab.getModel().getValueAt(index, 0).toString());
             firstRow.add(id);
             firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
             firstRow.add(idField);
 
+            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(firstRow);
 
-            // Second row: Hospital Name
+            // Second row: Ward Name
             JPanel secondRow = new JPanel();
             secondRow.setLayout(new BoxLayout(secondRow, BoxLayout.X_AXIS));
 
-            JLabel name = new JLabel("Hospital Name");
+            JLabel name = new JLabel("Ward Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
+            JTextField nameField = new JTextField();
             secondRow.add(name);
             secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
             secondRow.add(nameField);
@@ -442,228 +441,85 @@ public class WardPanel extends JPanel{
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(secondRow);
 
-            // Third row: Street
+            //Third Row: Hospital ID
             JPanel thirdRow = new JPanel();
             thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
 
-            JLabel street = new JLabel("Street");
-            street.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField streetField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
-            thirdRow.add(street);
-            thirdRow.add(Box.createRigidArea(new Dimension(107, 0)));
-            thirdRow.add(streetField);
+            JLabel hospId = new JLabel("Hospital ID");
+            hospId.setFont(new Font("Verdana", Font.PLAIN, 18));
+            JTextField hospitalIdField = new JTextField(String.valueOf(hospitalId));
+            hospitalIdField.setEditable(false);
+            thirdRow.add(hospId);
+            thirdRow.add(Box.createRigidArea(new Dimension(30, 0)));
+            thirdRow.add(hospitalIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(thirdRow);
 
-            // Fourth row: PostalCode
-            JPanel fourthRow = new JPanel();
-            fourthRow.setLayout(new BoxLayout(fourthRow, BoxLayout.X_AXIS));
-
-            JLabel postalCode = new JLabel("Postal code");
-            postalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField postalCodeField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
-            fourthRow.add(postalCode);
-            fourthRow.add(Box.createRigidArea(new Dimension(60, 0)));
-            fourthRow.add(postalCodeField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(fourthRow);
-
-            // Fifth row: City
-            JPanel fifthRow = new JPanel();
-            fifthRow.setLayout(new BoxLayout(fifthRow, BoxLayout.X_AXIS));
-
-            JLabel city = new JLabel("City");
-            city.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField cityField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
-            fifthRow.add(city);
-            fifthRow.add(Box.createRigidArea(new Dimension(125, 0)));
-            fifthRow.add(cityField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(fifthRow);
-
-            // Sixth row: Province
-            JPanel sixthRow = new JPanel();
-            sixthRow.setLayout(new BoxLayout(sixthRow, BoxLayout.X_AXIS));
-
-            JLabel province = new JLabel("Province");
-            province.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField provinceField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
-            sixthRow.add(province);
-            sixthRow.add(Box.createRigidArea(new Dimension(85, 0)));
-            sixthRow.add(provinceField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(sixthRow);
-
-            // Seventh row: State
-            JPanel seventhRow = new JPanel();
-            seventhRow.setLayout(new BoxLayout(seventhRow, BoxLayout.X_AXIS));
-
-            JLabel state = new JLabel("State");
-            state.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField stateField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
-            seventhRow.add(state);
-            seventhRow.add(Box.createRigidArea(new Dimension(115, 0)));
-            seventhRow.add(stateField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(seventhRow);
-            addPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
             // add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Update hospital", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    addPanel, "Update ward", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             //now we check the result
 
             if (result == JOptionPane.YES_OPTION) {
                 //it is a yes so we want to add it
-                //first we need to check if the address already exists, if not we have to add it
-                //before we add the hospital
+                Connection conn;
+                 try {
+                    String findWard = "SELECT * FROM ward WHERE wardname = ?";
 
-                //Hospital checks
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    PreparedStatement stmt = conn.prepareStatement(findWard);
+                    stmt.setString(1, nameField.getText());
+
+                    ResultSet rs = stmt.executeQuery();
+
+                    if (rs.next()) {
+                        JOptionPane.showMessageDialog(container, "This ward name already exists.\n" +
+                                "Ward will not be inserted.", "Ward name error", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
 
                 if (nameField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Hospital name field cannot be empty. \n" +
-                            "No hospital will be updated.");
+                    JOptionPane.showMessageDialog(container, "Ward name field cannot be empty.\n" +
+                            "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                if (nameField.getText().length() > 60) {
-                    JOptionPane.showMessageDialog(container, "Hospital name should be less than 60 characters. \n" +
-                            "No hospital will be updated.");
+                if (nameField.getText().length() > 30) {
+                    JOptionPane.showMessageDialog(container, "Ward name should be less than 30 characters.\n" +
+                            "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                //Address checks
-
-                if (streetField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "Street field cannot be empty.\n" +
-                            "The hospital will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                if (streetField.getText().length() > 50) {
-                    JOptionPane.showMessageDialog(container, "Street should be less than 50 characters. \n" +
-                            "The hospital will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                if (postalCodeField.getText().length() != 5) {
-                    JOptionPane.showMessageDialog(container, "Postal code should have 5 characters.\n " +
-                            "The hospital will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                if (cityField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "City field cannot be empty.\n " +
-                            "The hospital will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                if (cityField.getText().length() > 30 ) {
-                    JOptionPane.showMessageDialog(container, "City field should be less than 30 characters.\n " +
-                            "The hospital will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                if (provinceField.getText().length() != 2) {
-                    JOptionPane.showMessageDialog(container, "Province should be 2 characters.\n " +
-                            "The hospital will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                if (stateField.getText().length() == 0) {
-                    JOptionPane.showMessageDialog(container, "State field cannot be empty.\n " +
-                            "The hospital will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                if (stateField.getText().length() > 30) {
-                    JOptionPane.showMessageDialog(container, "State field should be less than 30 characters.\n " +
-                            "The hospital will not be updated.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                String findAddress = "SELECT * FROM address WHERE UPPER(street) = UPPER(?) and UPPER(postalcode) = UPPER(?) and UPPER(city) = UPPER(?) and UPPER(province) = UPPER(?) and UPPER(state) = UPPER(?) ";
-                Connection conn;
+                String updateMedicine = "UPDATE ward SET wardname = ? WHERE wardid = " + tab.getModel().getValueAt(index, 0)+ " AND hospitalid =  " + hospitalId;
+                Connection con;
                 try {
-                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
-                    PreparedStatement stat = conn.prepareStatement(findAddress);
-                    stat.setString(1, tab.getModel().getValueAt(index, 2).toString());
-                    stat.setString(2, tab.getModel().getValueAt(index, 3).toString());
-                    stat.setString(3, tab.getModel().getValueAt(index, 4).toString());
-                    stat.setString(4, tab.getModel().getValueAt(index, 5).toString());
-                    stat.setString(5, tab.getModel().getValueAt(index, 6).toString());
+                    PreparedStatement stat = con.prepareStatement(updateMedicine);
+                    stat.setString(1, nameField.getText());
 
-                    ResultSet rs = stat.executeQuery();
-ciao
-                    int addressId = 0;
-
-                    //Either we already have the address and we update it immediately
-                    if (rs.next()) {
-                        addressId = rs.getInt("addressid");
-                        String updateAddress = "UPDATE address SET street = ?, postalcode = ?, city = ?, province = ?, state = ? WHERE addressid = " + addressId;
-
-                        PreparedStatement updateAddressStmt = conn.prepareStatement(updateAddress);
-
-                        updateAddressStmt.setString(1, streetField.getText());
-                        updateAddressStmt.setString(2, postalCodeField.getText());
-                        updateAddressStmt.setString(3, cityField.getText());
-                        updateAddressStmt.setString(4, provinceField.getText());
-                        updateAddressStmt.setString(5, provinceField.getText());
-
-                        updateAddressStmt.executeUpdate();
-
-                    } else {
-
-                        String addAddress = "INSERT INTO address (street, postalcode, city, province, state) VALUES(?,?,?,?,?)";
-
-                        PreparedStatement insertAddressStmt = conn.prepareStatement(addAddress, Statement.RETURN_GENERATED_KEYS);
-
-                        insertAddressStmt.setString(1, streetField.getText());
-                        insertAddressStmt.setString(2, postalCodeField.getText());
-                        insertAddressStmt.setString(3, cityField.getText());
-                        insertAddressStmt.setString(4, provinceField.getText());
-                        insertAddressStmt.setString(5, stateField.getText());
-
-                        insertAddressStmt.executeUpdate();
-                        ResultSet key = insertAddressStmt.getGeneratedKeys();
-
-                        if (key.next())
-                            addressId = key.getInt(1);
-                    }
-
-                    //Now we have the address, so we add the hospital
-
-                    String updateHospital = " UPDATE hospital SET hospitalname = ?, hospitaladdress = ? WHERE hospitalid = " + tab.getModel().getValueAt(index, 0);
-
-                    PreparedStatement updateHospitalStat = conn.prepareStatement(updateHospital);
-
-                    updateHospitalStat.setString(1, nameField.getText());
-                    updateHospitalStat.setInt(2, addressId);
-
-                    int res = updateHospitalStat.executeUpdate();
+                    int res = stat.executeUpdate();
 
                     //Confirm that hospital record has been added successfully
                     if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Hospital updated successfully.");
+                        JOptionPane.showMessageDialog(container, "Ward updated successfully.");
                     }
 
                     //Repaint the table
-
                     AppFrame.frame.getContentPane().setVisible(false);
-                    AppFrame.frame.setContentPane(new HospitalPanel());
+                    AppFrame.frame.setContentPane(new WardPanel(hospitalId, hospitalName));
                     AppFrame.frame.getContentPane().setVisible(true);
 
-                } catch (SQLException s) {
-                    s.printStackTrace();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
                 }
-            }*/
+            }
         }
     }
 
@@ -728,8 +584,25 @@ ciao
 
             if (result == JOptionPane.YES_OPTION) {
                 //it is a yes so we want to add it
-                //first we need to check if the address already exists, if not we have to add it
-                //before we add the hospital
+
+                Connection conn;
+                try {
+                    String findWard = "SELECT * FROM ward WHERE wardname = ?";
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    PreparedStatement stmt = conn.prepareStatement(findWard);
+                    stmt.setString(1, nameField.getText());
+
+                    ResultSet rs = stmt.executeQuery();
+
+                    if (rs.next()) {
+                        JOptionPane.showMessageDialog(container, "This ward name already exists.\n" +
+                                "Ward will not be inserted.", "Ward name error", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
 
                 boolean wardAlreadyExists = checkWardExists(Integer.parseInt(idField.getText()));
 
