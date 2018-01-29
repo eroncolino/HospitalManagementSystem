@@ -601,7 +601,7 @@ public class WardPanel extends JPanel{
                     stat.setString(5, tab.getModel().getValueAt(index, 6).toString());
 
                     ResultSet rs = stat.executeQuery();
-
+ciao
                     int addressId = 0;
 
                     //Either we already have the address and we update it immediately
