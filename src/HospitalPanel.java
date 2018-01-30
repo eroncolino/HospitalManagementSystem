@@ -126,7 +126,6 @@ public class HospitalPanel extends JPanel {
         });
 
         // Buttons
-
         JPanel buttonPanel = new JPanel();
 
         Dimension d = new Dimension(150, 40);
@@ -206,8 +205,7 @@ public class HospitalPanel extends JPanel {
     }
 
     //Get all the data from the hospital table
-
-    public Object[][] getAllHospitalsData() {
+    private Object[][] getAllHospitalsData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid";
@@ -245,7 +243,7 @@ public class HospitalPanel extends JPanel {
     }
 
     //Get all data when an integer is inserted as query string
-    public Object[][] getHospitalDataFromInteger(int number) {
+    private Object[][] getHospitalDataFromInteger(int number) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE hospitalid = ?";
         Connection conn;
@@ -289,7 +287,7 @@ public class HospitalPanel extends JPanel {
     }
 
     //Get all data when a string is inserted as query string
-    public Object[][] getHospitalDataFromString(String column, String stringToBeMatched) {
+    private Object[][] getHospitalDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM hospital INNER JOIN address ON hospital.hospitaladdress = address.addressid WHERE UPPER(" + column + ") = UPPER(?)";
         Connection conn;
