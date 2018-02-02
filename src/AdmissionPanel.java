@@ -189,7 +189,7 @@ public class AdmissionPanel extends JPanel {
     }
 
     //Get all the data from the medicine table
-    public Object[][] getAllAdmissionData() {
+    private Object[][] getAllAdmissionData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * FROM hospital_admission a INNER JOIN hospital h ON h.hospitalid = a.hospitalid " +
@@ -234,7 +234,7 @@ public class AdmissionPanel extends JPanel {
     }
 
     //Get all data when an integer is inserted as query string
-    public Object[][] getAdmissionDataFromInteger(String column, int number) {
+    private Object[][] getAdmissionDataFromInteger(String column, int number) {
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * FROM hospital_admission a INNER JOIN hospital h ON h.hospitalid = a.hospitalid " +
                 "INNER JOIN patient p ON p.patientfiscalcode = a.patientfiscalcode WHERE " + column + " = " + number;
@@ -277,7 +277,7 @@ public class AdmissionPanel extends JPanel {
     }
 
     //Get all data when a string is inserted as query string
-    public Object[][] getAdmissionDataFromString(String column, String stringToBeMatched) {
+    private Object[][] getAdmissionDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * FROM hospital_admission a INNER JOIN hospital h ON h.hospitalid = a.hospitalid " +
                 "INNER JOIN patient p ON p.patientfiscalcode = a.patientfiscalcode WHERE UPPER(" + column + ") = UPPER('" + stringToBeMatched + "')";
@@ -320,7 +320,7 @@ public class AdmissionPanel extends JPanel {
     }
 
     //Get all data when date is inserted as query string
-    public Object[][] getAdmissionDataFromDate(String column, Date dateToBeMatched) {
+    private Object[][] getAdmissionDataFromDate(String column, Date dateToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String findDateQuery = "SELECT * FROM hospital_admission a INNER JOIN hospital h ON h.hospitalid = a.hospitalid " +
                 "INNER JOIN patient p ON p.patientfiscalcode = a.patientfiscalcode WHERE " + column + " = ?";

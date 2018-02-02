@@ -205,7 +205,7 @@ public class WardPanel extends JPanel {
     }
 
     //Get all the data from the ward table of the selected hospital
-    public Object[][] getAllWardsData() {
+    private Object[][] getAllWardsData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String wardQuery = "SELECT * FROM ward WHERE hospitalid = " + hospitalId;
@@ -255,7 +255,7 @@ public class WardPanel extends JPanel {
     }
 
     //Get all data when an integer is inserted as query string
-    public Object[][] getWardDataFromInteger(String column, int number) {
+    private Object[][] getWardDataFromInteger(String column, int number) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM ward WHERE hospitalid = " + hospitalId + " AND " + column + " = ?";
         Connection conn;
@@ -311,7 +311,7 @@ public class WardPanel extends JPanel {
     }
 
     //Get all data when a string is inserted as query string
-    public Object[][] getWardDataFromString(String column, String stringToBeMatched) {
+    private Object[][] getWardDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM ward WHERE hospitalid = " + hospitalId + " AND  UPPER(" + column + ") = UPPER(?)";
         Connection conn;
@@ -366,7 +366,7 @@ public class WardPanel extends JPanel {
         return dataReturn;
     }
 
-    class findListener implements ActionListener {
+    private class findListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             String selectedColumn = (String) columnsList.getSelectedItem();
