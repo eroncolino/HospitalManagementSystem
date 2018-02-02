@@ -47,7 +47,7 @@ public class TimetablePanel extends JPanel {
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "Doctor ID", "Doctor Name", "Doctor Surname", "Office Street", "ZIP Code", "City", "Province", "State", "Day", "Begin Time", "End Time"};
-        timetableColumns = new String[]{"Doctor ID", "Doctor Name", "Doctor Surname", "Office Street", "ZIP Code", "City", "Province", "State", "Day", "Begin Time", "End Time"};
+        timetableColumns = new String[]{"#", "Doctor ID", "Doctor Name", "Doctor Surname", "Office Street", "ZIP Code", "City", "Province", "State", "Day", "Begin Time", "End Time"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -98,17 +98,18 @@ public class TimetablePanel extends JPanel {
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(90);
-        columnModel.getColumn(2).setPreferredWidth(90);
-        columnModel.getColumn(3).setPreferredWidth(140);
-        columnModel.getColumn(4).setPreferredWidth(20);
-        columnModel.getColumn(5).setPreferredWidth(50);
-        columnModel.getColumn(6).setPreferredWidth(20);
-        columnModel.getColumn(7).setPreferredWidth(5);
-        columnModel.getColumn(8).setPreferredWidth(20);
-        columnModel.getColumn(9).setPreferredWidth(35);
-        columnModel.getColumn(10).setPreferredWidth(30);
+        columnModel.getColumn(0).setPreferredWidth(15);
+        columnModel.getColumn(1).setPreferredWidth(25);
+        columnModel.getColumn(2).setPreferredWidth(85);
+        columnModel.getColumn(3).setPreferredWidth(85);
+        columnModel.getColumn(4).setPreferredWidth(130);
+        columnModel.getColumn(5).setPreferredWidth(25);
+        columnModel.getColumn(6).setPreferredWidth(50);
+        columnModel.getColumn(7).setPreferredWidth(20);
+        columnModel.getColumn(8).setPreferredWidth(5);
+        columnModel.getColumn(9).setPreferredWidth(20);
+        columnModel.getColumn(10).setPreferredWidth(35);
+        columnModel.getColumn(11).setPreferredWidth(30);
 
         // Buttons
 
@@ -155,7 +156,7 @@ public class TimetablePanel extends JPanel {
         goBackButton.addActionListener(new goBackListener());
 
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(Box.createRigidArea(new Dimension(200, 0)));
+        buttonPanel.add(Box.createRigidArea(new Dimension(150, 0)));
         buttonPanel.add(findButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(insertButton);
@@ -215,8 +216,10 @@ public class TimetablePanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
             while (rs.next()) {
-                Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"), rs.getString("officestreet"),
+                count++;
+                Object[] row = {count, rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"), rs.getString("officestreet"),
                         rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
                         rs.getString("state"), rs.getString("dayoftheweek"),
                         simpleDateFormat.format(rs.getTime("beginningtime")), simpleDateFormat.format(rs.getTime("endtime"))};
@@ -232,7 +235,7 @@ public class TimetablePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][11];
+        Object[][] dataReturn = new Object[data.size()][12];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -246,6 +249,7 @@ public class TimetablePanel extends JPanel {
             dataReturn[i][8] = data.get(i)[8];
             dataReturn[i][9] = data.get(i)[9];
             dataReturn[i][10] = data.get(i)[10];
+            dataReturn[i][11] = data.get(i)[11];
         }
         return dataReturn;
     }
@@ -273,8 +277,10 @@ public class TimetablePanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
+                    count++;
+                    Object[] row = {count, rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                             rs.getString("officestreet"), rs.getString("postalcode"), rs.getString("city"),
                             rs.getString("province"), rs.getString("state"), rs.getString("dayoftheweek"),
                             simpleDateFormat.format(rs.getTime("beginningtime")), simpleDateFormat.format(rs.getTime("endtime"))};
@@ -290,7 +296,7 @@ public class TimetablePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][11];
+        Object[][] dataReturn = new Object[data.size()][12];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -304,6 +310,7 @@ public class TimetablePanel extends JPanel {
             dataReturn[i][8] = data.get(i)[8];
             dataReturn[i][9] = data.get(i)[9];
             dataReturn[i][10] = data.get(i)[10];
+            dataReturn[i][11] = data.get(i)[11];
         }
 
         return dataReturn;
@@ -332,8 +339,10 @@ public class TimetablePanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
+                    count++;
+                    Object[] row = {count, rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                             rs.getString("officestreet"), rs.getString("postalcode"), rs.getString("city"),
                             rs.getString("province"), rs.getString("state"), rs.getString("dayoftheweek"),
                             simpleDateFormat.format(rs.getTime("beginningtime")), simpleDateFormat.format(rs.getTime("endtime"))};
@@ -348,7 +357,7 @@ public class TimetablePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][11];
+        Object[][] dataReturn = new Object[data.size()][12];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -362,6 +371,7 @@ public class TimetablePanel extends JPanel {
             dataReturn[i][8] = data.get(i)[8];
             dataReturn[i][9] = data.get(i)[9];
             dataReturn[i][10] = data.get(i)[10];
+            dataReturn[i][11] = data.get(i)[11];
         }
         return dataReturn;
     }
@@ -393,8 +403,10 @@ public class TimetablePanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
+                    count++;
+                    Object[] row = {count, rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                             rs.getString("officestreet"), rs.getString("postalcode"), rs.getString("city"),
                             rs.getString("province"), rs.getString("state"), rs.getString("dayoftheweek"),
                             simpleDateFormat.format(rs.getTime("beginningtime")), simpleDateFormat.format(rs.getTime("endtime"))};
@@ -412,7 +424,7 @@ public class TimetablePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][11];
+        Object[][] dataReturn = new Object[data.size()][12];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -426,6 +438,7 @@ public class TimetablePanel extends JPanel {
             dataReturn[i][8] = data.get(i)[8];
             dataReturn[i][9] = data.get(i)[9];
             dataReturn[i][10] = data.get(i)[10];
+            dataReturn[i][11] = data.get(i)[11];
         }
         return dataReturn;
     }
@@ -1483,17 +1496,18 @@ public class TimetablePanel extends JPanel {
 
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(90);
-        columnModel.getColumn(2).setPreferredWidth(90);
-        columnModel.getColumn(3).setPreferredWidth(140);
-        columnModel.getColumn(4).setPreferredWidth(20);
-        columnModel.getColumn(5).setPreferredWidth(50);
-        columnModel.getColumn(6).setPreferredWidth(20);
-        columnModel.getColumn(7).setPreferredWidth(5);
-        columnModel.getColumn(8).setPreferredWidth(20);
-        columnModel.getColumn(9).setPreferredWidth(35);
-        columnModel.getColumn(10).setPreferredWidth(30);
+        columnModel.getColumn(0).setPreferredWidth(15);
+        columnModel.getColumn(1).setPreferredWidth(25);
+        columnModel.getColumn(2).setPreferredWidth(85);
+        columnModel.getColumn(3).setPreferredWidth(85);
+        columnModel.getColumn(4).setPreferredWidth(130);
+        columnModel.getColumn(5).setPreferredWidth(25);
+        columnModel.getColumn(6).setPreferredWidth(50);
+        columnModel.getColumn(7).setPreferredWidth(20);
+        columnModel.getColumn(8).setPreferredWidth(5);
+        columnModel.getColumn(9).setPreferredWidth(20);
+        columnModel.getColumn(10).setPreferredWidth(35);
+        columnModel.getColumn(11).setPreferredWidth(30);
     }
 
     private boolean checkTimetableAlreadyExists(int id, String day, String begin, String end) {

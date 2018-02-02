@@ -48,7 +48,7 @@ public class HospitalPanel extends JPanel {
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "ID", "Name", "Street", "ZIP Code", "City", "Province", "State"};
-        hospitalColumns = new String[]{"ID", "Name", "Street", "ZIP Code", "City", "Province", "State"};
+        hospitalColumns = new String[]{"#", "ID", "Name", "Street", "ZIP Code", "City", "Province", "State"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -101,9 +101,10 @@ public class HospitalPanel extends JPanel {
 
         TableColumnModel columnModel = tab.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(150);
+        columnModel.getColumn(1).setPreferredWidth(20);
         columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(15);
+        columnModel.getColumn(3).setPreferredWidth(150);
+        columnModel.getColumn(4).setPreferredWidth(15);
         columnModel.getColumn(5).setPreferredWidth(15);
         columnModel.getColumn(6).setPreferredWidth(20);
 
@@ -216,8 +217,12 @@ public class HospitalPanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
+
             while (rs.next()) {
-                Object[] row = {rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
+                count++;
+
+                Object[] row = {count, rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
                         rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
                         rs.getString("state")};
 
@@ -228,7 +233,7 @@ public class HospitalPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][7];
+        Object[][] dataReturn = new Object[data.size()][8];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -238,6 +243,7 @@ public class HospitalPanel extends JPanel {
             dataReturn[i][4] = data.get(i)[4];
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
+            dataReturn[i][7] = data.get(i)[7];
         }
         return dataReturn;
     }
@@ -259,7 +265,9 @@ public class HospitalPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
+                    count++;
                     Object[] row = {rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
                             rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
                             rs.getString("state")};
@@ -271,7 +279,7 @@ public class HospitalPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][7];
+        Object[][] dataReturn = new Object[data.size()][8];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -281,7 +289,7 @@ public class HospitalPanel extends JPanel {
             dataReturn[i][4] = data.get(i)[4];
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
-            System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
+            dataReturn[i][7] = data.get(i)[8];
         }
         return dataReturn;
     }
@@ -303,7 +311,9 @@ public class HospitalPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
+                    count++;
                     Object[] row = {rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
                             rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
                             rs.getString("state")};
@@ -315,7 +325,7 @@ public class HospitalPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][7];
+        Object[][] dataReturn = new Object[data.size()][8];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -325,7 +335,7 @@ public class HospitalPanel extends JPanel {
             dataReturn[i][4] = data.get(i)[4];
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
-            System.out.print(dataReturn[i][0] + "\n " + dataReturn[i][1] + " " + dataReturn[i][2] + "\n");
+            dataReturn[i][7] = data.get(i)[7];
         }
         return dataReturn;
     }
@@ -1019,9 +1029,10 @@ public class HospitalPanel extends JPanel {
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(150);
+        columnModel.getColumn(1).setPreferredWidth(20);
         columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(15);
+        columnModel.getColumn(3).setPreferredWidth(150);
+        columnModel.getColumn(4).setPreferredWidth(15);
         columnModel.getColumn(5).setPreferredWidth(15);
         columnModel.getColumn(6).setPreferredWidth(20);
     }

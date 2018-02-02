@@ -49,7 +49,7 @@ public class PatientPanel extends JPanel {
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family Doctor ID"};
-        patientColumns = new String[]{"Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family Doctor ID", "Family Doctor Name", "Family Doctor Surname"};
+        patientColumns = new String[]{"#", "Fiscal Code", "Name", "Surname", "Birth Date", "Gender", "Family Doctor ID", "Family Doctor Name", "Family Doctor Surname"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -100,14 +100,15 @@ public class PatientPanel extends JPanel {
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(75);
-        columnModel.getColumn(1).setPreferredWidth(70);
-        columnModel.getColumn(2).setPreferredWidth(70);
-        columnModel.getColumn(3).setPreferredWidth(20);
-        columnModel.getColumn(4).setPreferredWidth(10);
-        columnModel.getColumn(5).setPreferredWidth(40);
-        columnModel.getColumn(6).setPreferredWidth(70);
-        columnModel.getColumn(7).setPreferredWidth(80);
+        columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(1).setPreferredWidth(85);
+        columnModel.getColumn(2).setPreferredWidth(60);
+        columnModel.getColumn(3).setPreferredWidth(60);
+        columnModel.getColumn(4).setPreferredWidth(30);
+        columnModel.getColumn(5).setPreferredWidth(20);
+        columnModel.getColumn(6).setPreferredWidth(60);
+        columnModel.getColumn(7).setPreferredWidth(70);
+        columnModel.getColumn(8).setPreferredWidth(90);
 
         // Buttons
 
@@ -202,8 +203,10 @@ public class PatientPanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
             while (rs.next()) {
-                Object[] row = {rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
+                count++;
+                Object[] row = {count, rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
                         rs.getString("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"),
                         rs.getString("doctorname"), rs.getString("doctorsurname")};
 
@@ -213,7 +216,7 @@ public class PatientPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][8];
+        Object[][] dataReturn = new Object[data.size()][9];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -224,6 +227,7 @@ public class PatientPanel extends JPanel {
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
 
         }
         return dataReturn;
@@ -246,8 +250,10 @@ public class PatientPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given doctor ID.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("patientfisclacode"), rs.getString("patientname"), rs.getString("patientsurname"),
+                    count++;
+                    Object[] row = {count, rs.getInt("patientfisclacode"), rs.getString("patientname"), rs.getString("patientsurname"),
                             rs.getString("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
                     data.add(row);
                 } while (rs.next());
@@ -257,7 +263,7 @@ public class PatientPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][8];
+        Object[][] dataReturn = new Object[data.size()][9];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -268,6 +274,7 @@ public class PatientPanel extends JPanel {
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
         }
         return dataReturn;
     }
@@ -289,8 +296,10 @@ public class PatientPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
+                    count++;
+                    Object[] row = {count, rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
                             rs.getDate("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
                     data.add(row);
                 } while (rs.next());
@@ -300,7 +309,7 @@ public class PatientPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][8];
+        Object[][] dataReturn = new Object[data.size()][9];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -311,6 +320,7 @@ public class PatientPanel extends JPanel {
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
         }
         return dataReturn;
     }
@@ -332,8 +342,10 @@ public class PatientPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given date.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
+                    count++;
+                    Object[] row = {count, rs.getString("patientfiscalcode"), rs.getString("patientname"), rs.getString("patientsurname"),
                             rs.getDate("birthdate"), rs.getString("gender"), rs.getInt("familydoctorid"),
                             rs.getString("doctorname"), rs.getString("doctorsurname")};
 
@@ -345,7 +357,7 @@ public class PatientPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][8];
+        Object[][] dataReturn = new Object[data.size()][9];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -356,6 +368,7 @@ public class PatientPanel extends JPanel {
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
+            dataReturn[i][8] = data.get(i)[8];
         }
         return dataReturn;
     }
@@ -832,7 +845,7 @@ public class PatientPanel extends JPanel {
                         return;
                     }
                 } catch (NumberFormatException n) {
-                    JOptionPane.showMessageDialog(container, "Doctor ID must be an integer", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(container, "Doctor ID must be an integer.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 } catch (SQLException e1) {
                     e1.printStackTrace();
@@ -906,14 +919,15 @@ public class PatientPanel extends JPanel {
 
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(75);
-        columnModel.getColumn(1).setPreferredWidth(70);
-        columnModel.getColumn(2).setPreferredWidth(70);
-        columnModel.getColumn(3).setPreferredWidth(20);
-        columnModel.getColumn(4).setPreferredWidth(10);
-        columnModel.getColumn(5).setPreferredWidth(40);
-        columnModel.getColumn(6).setPreferredWidth(70);
-        columnModel.getColumn(7).setPreferredWidth(80);
+        columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(1).setPreferredWidth(85);
+        columnModel.getColumn(2).setPreferredWidth(60);
+        columnModel.getColumn(3).setPreferredWidth(60);
+        columnModel.getColumn(4).setPreferredWidth(30);
+        columnModel.getColumn(5).setPreferredWidth(20);
+        columnModel.getColumn(6).setPreferredWidth(60);
+        columnModel.getColumn(7).setPreferredWidth(70);
+        columnModel.getColumn(8).setPreferredWidth(90);
     }
 }
 

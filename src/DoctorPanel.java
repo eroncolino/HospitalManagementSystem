@@ -44,7 +44,7 @@ public class DoctorPanel extends JPanel {
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "ID", "Name", "Surname", "Specialization", "Practising"};
-        doctorColumns = new String[]{"ID", "Name", "Surname", "Specialization", "Practising"};
+        doctorColumns = new String[]{"#", "ID", "Name", "Surname", "Specialization", "Practising"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -92,15 +92,16 @@ public class DoctorPanel extends JPanel {
         JScrollPane pane = new JScrollPane(tab);
         pane.setPreferredSize(new Dimension(900, 500));
         tablePanel.add(pane);
+        mainRow.add(Box.createRigidArea(new Dimension(50, 0)));
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(80);
-        columnModel.getColumn(2).setPreferredWidth(80);
-        columnModel.getColumn(3).setPreferredWidth(90);
-        columnModel.getColumn(4).setPreferredWidth(15);
-
+        columnModel.getColumn(1).setPreferredWidth(20);
+        columnModel.getColumn(2).setPreferredWidth(150);
+        columnModel.getColumn(3).setPreferredWidth(150);
+        columnModel.getColumn(4).setPreferredWidth(130);
+        columnModel.getColumn(5).setPreferredWidth(15);
 
         // Buttons
 
@@ -183,8 +184,7 @@ public class DoctorPanel extends JPanel {
     }
 
     //Get all the data from the doctor table
-
-    public Object[][] getAllDoctorsData() {
+    private Object[][] getAllDoctorsData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * FROM doctor";
@@ -195,8 +195,11 @@ public class DoctorPanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
+
             while (rs.next()) {
-                Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
+                count++;
+                Object[] row = {count, rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                         rs.getString("specialization"), rs.getBoolean("practising")};
 
                 data.add(row);
@@ -206,7 +209,7 @@ public class DoctorPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][6];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -214,12 +217,13 @@ public class DoctorPanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
         }
         return dataReturn;
     }
 
     //Get all data when an integer is inserted as query string
-    public Object[][] getDoctorDataFromInteger(int number) {
+    private Object[][] getDoctorDataFromInteger(int number) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM doctor WHERE doctorid = ?";
         Connection conn;
@@ -235,8 +239,10 @@ public class DoctorPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
+                    count++;
+                    Object[] row = {count, rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                             rs.getString("specialization"), rs.getBoolean("practising")};
                     data.add(row);
                 } while (rs.next());
@@ -246,7 +252,7 @@ public class DoctorPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][6];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -254,12 +260,13 @@ public class DoctorPanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
         }
         return dataReturn;
     }
 
     //Get all data when a string is inserted as query string
-    public Object[][] getDoctorDataFromString(String column, String stringToBeMatched) {
+    private Object[][] getDoctorDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM doctor WHERE UPPER(" + column + ") = UPPER(?)";
         Connection conn;
@@ -275,8 +282,10 @@ public class DoctorPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
+                    count++;
+                    Object[] row = {count, rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                             rs.getString("specialization"), rs.getBoolean("practising")};
                     data.add(row);
                 } while (rs.next());
@@ -286,7 +295,7 @@ public class DoctorPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][6];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -294,12 +303,13 @@ public class DoctorPanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
         }
         return dataReturn;
     }
 
     //Get all data when a boolean is inserted as query string
-    public Object[][] getDoctorDataFromBoolean(String column, boolean bool) {
+    private Object[][] getDoctorDataFromBoolean(String column, boolean bool) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM doctor WHERE (" + column + ") = ?";
         Connection conn;
@@ -315,8 +325,10 @@ public class DoctorPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
+                    count++;
+                    Object[] row = {count, rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname"),
                             rs.getString("specialization"), rs.getBoolean("practising")};
                     data.add(row);
                 } while (rs.next());
@@ -326,7 +338,7 @@ public class DoctorPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][6];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -334,6 +346,7 @@ public class DoctorPanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
         }
         return dataReturn;
     }
@@ -823,10 +836,11 @@ public class DoctorPanel extends JPanel {
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(80);
-        columnModel.getColumn(2).setPreferredWidth(80);
-        columnModel.getColumn(3).setPreferredWidth(90);
-        columnModel.getColumn(4).setPreferredWidth(15);
+        columnModel.getColumn(1).setPreferredWidth(20);
+        columnModel.getColumn(2).setPreferredWidth(150);
+        columnModel.getColumn(3).setPreferredWidth(150);
+        columnModel.getColumn(4).setPreferredWidth(130);
+        columnModel.getColumn(5).setPreferredWidth(15);
     }
 
     private boolean checkDoctorExists (int id) {

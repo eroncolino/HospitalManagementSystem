@@ -1,8 +1,11 @@
+import jdk.nashorn.internal.scripts.JO;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,7 +14,7 @@ import java.awt.event.MouseEvent;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class WardPanel extends JPanel{
+public class WardPanel extends JPanel {
     private JLabel searchLabel, stringLabel;
     private JComboBox columnsList;
     private JTextField textField;
@@ -45,7 +48,7 @@ public class WardPanel extends JPanel{
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "ID", "Name"};
-        wardColumns = new String[]{"Ward ID", "Ward Name", "No. of Rooms", "No. of Outpatient's Departments"};
+        wardColumns = new String[]{"#", "Ward ID", "Ward Name", "No. of Rooms", "No. of Outpatient's Departments"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -96,6 +99,13 @@ public class WardPanel extends JPanel{
         tablePanel.add(pane);
         mainRow.add(tablePanel);
 
+        TableColumnModel columnModel = tab.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(30);
+        columnModel.getColumn(1).setPreferredWidth(250);
+        columnModel.getColumn(2).setPreferredWidth(250);
+        columnModel.getColumn(3).setPreferredWidth(250);
+        columnModel.getColumn(4).setPreferredWidth(250);
+
         tab.setToolTipText("One click to select the row, two to open rooms and departments panel.");
 
         tab.addMouseListener(new MouseAdapter() {
@@ -104,9 +114,11 @@ public class WardPanel extends JPanel{
                 JTable table = (JTable) e.getSource();
                 Point point = e.getPoint();
                 int row = table.rowAtPoint(point);
+
                 if (e.getClickCount() == 2) {
                     AppFrame.frame.getContentPane().setVisible(false);
-                    AppFrame.frame.setContentPane(new RoomDepartmentPanel());
+                    AppFrame.frame.setContentPane(new RoomDepartmentPanel(hospitalId, (Integer) table.getModel().getValueAt(row, 0),
+                            hospitalName, (String) table.getModel().getValueAt(row, 1)));
                     AppFrame.frame.getContentPane().setVisible(true);
                 }
             }
@@ -205,21 +217,23 @@ public class WardPanel extends JPanel{
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(wardQuery);
 
+            int count = 0;
             while (rs.next()) {
+                count++;
 
                 String countRoomsQuery = "SELECT count(*) FROM bedroom WHERE hospitalid = " + hospitalId + " AND wardid = " + rs.getInt("wardid");
                 Statement s1 = conn.createStatement();
                 ResultSet rs1 = s1.executeQuery(countRoomsQuery);
-                if(rs1.next())
-                     noOfRooms = rs1.getInt("count");
+                if (rs1.next())
+                    noOfRooms = rs1.getInt("count");
 
                 String countDepartmentsQuery = "SELECT count(*) FROM outpatients_department WHERE hospitalid = " + hospitalId + " AND wardid = " + rs.getInt("wardid");
                 Statement s2 = conn.createStatement();
                 ResultSet rs2 = s2.executeQuery(countDepartmentsQuery);
-                if(rs2.next())
+                if (rs2.next())
                     noOfDeparments = rs2.getInt("count");
 
-                Object[] row = {rs.getInt("wardid"), rs.getString("wardname"), noOfRooms, noOfDeparments};
+                Object[] row = {count, rs.getInt("wardid"), rs.getString("wardname"), noOfRooms, noOfDeparments};
 
                 data.add(row);
             }
@@ -228,13 +242,14 @@ public class WardPanel extends JPanel{
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][4];
+        Object[][] dataReturn = new Object[data.size()][5];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
             dataReturn[i][1] = data.get(i)[1];
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
+            dataReturn[i][4] = data.get(i)[4];
         }
         return dataReturn;
     }
@@ -242,7 +257,7 @@ public class WardPanel extends JPanel{
     //Get all data when an integer is inserted as query string
     public Object[][] getWardDataFromInteger(String column, int number) {
         ArrayList<Object[]> data = new ArrayList();
-        String findIdQuery = "SELECT * FROM ward WHERE hospitalid = " + hospitalId + " AND (" + column + ") = (?)";
+        String findIdQuery = "SELECT * FROM ward WHERE hospitalid = " + hospitalId + " AND " + column + " = ?";
         Connection conn;
         int noOfRooms = 0, noOfDeparments = 0;
 
@@ -257,22 +272,24 @@ public class WardPanel extends JPanel{
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
-                do {
+                int count = 0;
 
+                do {
+                    count++;
                     String countRoomsQuery = "SELECT count(*) FROM bedroom WHERE hospitalid = " + hospitalId + " AND wardid = " + rs.getInt("wardid");
                     Statement s1 = conn.createStatement();
                     ResultSet rs1 = s1.executeQuery(countRoomsQuery);
-                    if(rs1.next())
+                    if (rs1.next())
                         noOfRooms = rs1.getInt("count");
 
                     String countDepartmentsQuery = "SELECT count(*) FROM outpatients_department WHERE hospitalid = " + hospitalId + " AND wardid = " + rs.getInt("wardid");
                     Statement s2 = conn.createStatement();
                     ResultSet rs2 = s2.executeQuery(countDepartmentsQuery);
-                    if(rs2.next())
+                    if (rs2.next())
                         noOfDeparments = rs2.getInt("count");
 
 
-                    Object[] row = {rs.getInt("wardid"), rs.getString("wardname"), noOfRooms, noOfDeparments};
+                    Object[] row = {count, rs.getInt("wardid"), rs.getString("wardname"), noOfRooms, noOfDeparments};
                     data.add(row);
                 } while (rs.next());
             }
@@ -281,13 +298,14 @@ public class WardPanel extends JPanel{
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][4];
+        Object[][] dataReturn = new Object[data.size()][5];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
             dataReturn[i][1] = data.get(i)[1];
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
+            dataReturn[i][4] = data.get(i)[4];
         }
         return dataReturn;
     }
@@ -295,9 +313,9 @@ public class WardPanel extends JPanel{
     //Get all data when a string is inserted as query string
     public Object[][] getWardDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
-        String findIdQuery = "SELECT * FROM ward WHERE hospitalid = " + hospitalId + " AND  (" + column + ") = (?)";
+        String findIdQuery = "SELECT * FROM ward WHERE hospitalid = " + hospitalId + " AND  UPPER(" + column + ") = UPPER(?)";
         Connection conn;
-        int noOfRooms = 0, noOfDeparments = 0;
+        int noOfRooms = 0, noOfDepartments = 0;
 
         try {
             conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
@@ -310,21 +328,24 @@ public class WardPanel extends JPanel{
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
+
                 do {
+                    count++;
                     String countRoomsQuery = "SELECT count(*) FROM bedroom WHERE hospitalid = " + hospitalId + " AND wardid = " + rs.getInt("wardid");
                     Statement s1 = conn.createStatement();
                     ResultSet rs1 = s1.executeQuery(countRoomsQuery);
-                    if(rs1.next())
+                    if (rs1.next())
                         noOfRooms = rs1.getInt("count");
 
                     String countDepartmentsQuery = "SELECT count(*) FROM outpatients_department WHERE hospitalid = " + hospitalId + " AND wardid = " + rs.getInt("wardid");
                     Statement s2 = conn.createStatement();
                     ResultSet rs2 = s2.executeQuery(countDepartmentsQuery);
-                    if(rs2.next())
-                        noOfDeparments = rs2.getInt("count");
+                    if (rs2.next())
+                        noOfDepartments = rs2.getInt("count");
 
 
-                    Object[] row = {rs.getInt("wardid"), rs.getString("wardname"), noOfRooms, noOfDeparments};
+                    Object[] row = {count, rs.getInt("wardid"), rs.getString("wardname"), noOfRooms, noOfDepartments};
                     data.add(row);
                 } while (rs.next());
             }
@@ -333,18 +354,19 @@ public class WardPanel extends JPanel{
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][4];
+        Object[][] dataReturn = new Object[data.size()][5];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
             dataReturn[i][1] = data.get(i)[1];
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
+            dataReturn[i][4] = data.get(i)[4];
         }
         return dataReturn;
     }
 
-    private class findListener implements ActionListener {
+    class findListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             String selectedColumn = (String) columnsList.getSelectedItem();
@@ -370,7 +392,7 @@ public class WardPanel extends JPanel{
                         }
 
                     } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Ward id must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(container, "Ward ID must be an integer.", "Warning", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                 }
@@ -421,7 +443,7 @@ public class WardPanel extends JPanel{
             id.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField idField = new JTextField(tab.getModel().getValueAt(index, 0).toString());
             firstRow.add(id);
-            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
+            firstRow.add(Box.createRigidArea(new Dimension(81, 0)));
             firstRow.add(idField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -433,29 +455,13 @@ public class WardPanel extends JPanel{
 
             JLabel name = new JLabel("Ward Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField();
+            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
             secondRow.add(name);
-            secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
+            secondRow.add(Box.createRigidArea(new Dimension(50, 0)));
             secondRow.add(nameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             addPanel.add(secondRow);
-
-            //Third Row: Hospital ID
-            JPanel thirdRow = new JPanel();
-            thirdRow.setLayout(new BoxLayout(thirdRow, BoxLayout.X_AXIS));
-
-            JLabel hospId = new JLabel("Hospital ID");
-            hospId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField hospitalIdField = new JTextField(String.valueOf(hospitalId));
-            hospitalIdField.setEditable(false);
-            thirdRow.add(hospId);
-            thirdRow.add(Box.createRigidArea(new Dimension(30, 0)));
-            thirdRow.add(hospitalIdField);
-
-            addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            addPanel.add(thirdRow);
-
 
             // add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
@@ -466,22 +472,13 @@ public class WardPanel extends JPanel{
             if (result == JOptionPane.YES_OPTION) {
                 //it is a yes so we want to add it
                 Connection conn;
-                 try {
-                    String findWard = "SELECT * FROM ward WHERE wardname = ?";
 
-                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-                    PreparedStatement stmt = conn.prepareStatement(findWard);
-                    stmt.setString(1, nameField.getText());
+                try {
+                    Integer.parseInt(idField.getText());
 
-                    ResultSet rs = stmt.executeQuery();
-
-                    if (rs.next()) {
-                        JOptionPane.showMessageDialog(container, "This ward name already exists.\n" +
-                                "Ward will not be inserted.", "Ward name error", JOptionPane.INFORMATION_MESSAGE);
-                        return;
-                    }
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+                }catch (NumberFormatException n) {
+                    JOptionPane.showMessageDialog(container, "Ward ID must be an integer.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 if (nameField.getText().length() == 0) {
@@ -496,13 +493,48 @@ public class WardPanel extends JPanel{
                     return;
                 }
 
-                String updateMedicine = "UPDATE ward SET wardname = ? WHERE wardid = " + tab.getModel().getValueAt(index, 0)+ " AND hospitalid =  " + hospitalId;
+                try {
+                    String findWardId = "SELECT * FROM ward WHERE wardid = ? AND hospitalid = ?";
+                    String findWardName = "SELECT * FROM ward WHERE UPPER(wardname) = UPPER (?) AND hospitalid = ?";
+
+                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
+                    PreparedStatement stmt1 = conn.prepareStatement(findWardId);
+                    stmt1.setInt(1, Integer.parseInt(idField.getText()));
+                    stmt1.setInt(2, hospitalId);
+
+                    ResultSet rs1 = stmt1.executeQuery();
+
+                    if (rs1.next() && !tab.getModel().getValueAt(index, 0).toString().equals(idField.getText().toString())) {
+                        JOptionPane.showMessageDialog(container, "This ward ID already exists.\n" +
+                                "Ward will not be inserted.", "Ward ID error", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+
+                    PreparedStatement stmt2 = conn.prepareStatement(findWardName);
+                    stmt2.setString(1, nameField.getText());
+                    stmt2.setInt(2, hospitalId);
+
+                    ResultSet rs2 = stmt2.executeQuery();
+
+                    if (rs2.next()) {
+                        JOptionPane.showMessageDialog(container, "This ward name already exists.\n" +
+                                "Ward will not be inserted.", "Ward name error", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
+                String updateMedicine = "UPDATE ward SET wardid = ?, wardname = ? WHERE wardid = ? AND hospitalid = ?";
                 Connection con;
                 try {
                     con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = con.prepareStatement(updateMedicine);
-                    stat.setString(1, nameField.getText());
+                    stat.setInt(1, Integer.parseInt(idField.getText()));
+                    stat.setString(2, nameField.getText());
+                    stat.setInt(3, Integer.parseInt(tab.getModel().getValueAt(index, 0).toString()));
+                    stat.setInt(4, hospitalId);
 
                     int res = stat.executeUpdate();
 
@@ -541,7 +573,7 @@ public class WardPanel extends JPanel{
             id.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField idField = new JTextField();
             firstRow.add(id);
-            firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
+            firstRow.add(Box.createRigidArea(new Dimension(81, 0)));
             firstRow.add(idField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -555,7 +587,7 @@ public class WardPanel extends JPanel{
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField nameField = new JTextField();
             secondRow.add(name);
-            secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
+            secondRow.add(Box.createRigidArea(new Dimension(50, 0)));
             secondRow.add(nameField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -570,7 +602,7 @@ public class WardPanel extends JPanel{
             JTextField hospitalIdField = new JTextField(String.valueOf(hospitalId));
             hospitalIdField.setEditable(false);
             thirdRow.add(hospId);
-            thirdRow.add(Box.createRigidArea(new Dimension(30, 0)));
+            thirdRow.add(Box.createRigidArea(new Dimension(56, 0)));
             thirdRow.add(hospitalIdField);
 
             addPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -578,24 +610,60 @@ public class WardPanel extends JPanel{
 
             //add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Add Ward", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    addPanel, "Add ward", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             //now we check the result
 
             if (result == JOptionPane.YES_OPTION) {
-                //it is a yes so we want to add it
+
+                //ward checks
+                try {
+                    Integer.parseInt(idField.getText());
+
+                } catch (NumberFormatException n) {
+                    JOptionPane.showMessageDialog(container, "Ward ID must be an integer.\n" +
+                            "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (nameField.getText().length() == 0) {
+                    JOptionPane.showMessageDialog(container, "Ward name field cannot be empty.\n" +
+                            "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (nameField.getText().length() > 30) {
+                    JOptionPane.showMessageDialog(container, "Ward name should be less than 30 characters.\n" +
+                            "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
                 Connection conn;
                 try {
-                    String findWard = "SELECT * FROM ward WHERE wardname = ?";
+                    String findWardId = "SELECT * FROM ward WHERE wardid = ? AND hospitalid = ?";
+                    String findWardName = "SELECT * FROM ward WHERE UPPER(wardname) = UPPER(?) AND hospitalid = ?";
 
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-                    PreparedStatement stmt = conn.prepareStatement(findWard);
-                    stmt.setString(1, nameField.getText());
 
-                    ResultSet rs = stmt.executeQuery();
+                    PreparedStatement stmt1 = conn.prepareStatement(findWardId);
+                    stmt1.setInt(1, Integer.parseInt(idField.getText()));
+                    stmt1.setInt(2, hospitalId);
 
-                    if (rs.next()) {
+                    ResultSet rs1 = stmt1.executeQuery();
+
+                    if (rs1.next()) {
+                        JOptionPane.showMessageDialog(container, "This ward ID already exists.\n" +
+                                "Ward will not be inserted.", "Ward name error", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+
+                    PreparedStatement stmt2 = conn.prepareStatement(findWardName);
+                    stmt2.setString(1, nameField.getText());
+                    stmt2.setInt(2, hospitalId);
+
+                    ResultSet rs2 = stmt2.executeQuery();
+
+                    if (rs2.next()) {
                         JOptionPane.showMessageDialog(container, "This ward name already exists.\n" +
                                 "Ward will not be inserted.", "Ward name error", JOptionPane.INFORMATION_MESSAGE);
                         return;
@@ -604,53 +672,15 @@ public class WardPanel extends JPanel{
                     e1.printStackTrace();
                 }
 
-                boolean wardAlreadyExists = checkWardExists(Integer.parseInt(idField.getText()));
-
-                if (wardAlreadyExists) {
-                    JOptionPane.showMessageDialog(container, "This ward ID already exists. Insert another ward ID or modify the existing one.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                    int wardId = 0;
-
-                    //ward checks
-                    try {
-                        wardId = Integer.parseInt(idField.getText());
-
-                    } catch (NumberFormatException n) {
-                        JOptionPane.showMessageDialog(container, "Ward ID must be an integer.\n" +
-                                "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (Integer.parseInt(idField.getText()) == 0) {
-                        JOptionPane.showMessageDialog(container, "Ward Id field cannot be empty.\n" +
-                            "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (nameField.getText().length() == 0) {
-                        JOptionPane.showMessageDialog(container, "Ward name field cannot be empty.\n" +
-                                "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (nameField.getText().length() > 30) {
-                        JOptionPane.showMessageDialog(container, "Ward name should be less than 30 characters.\n" +
-                                "No ward will be added.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                String insertWard = "INSERT INTO ward (wardid, wardname, hospitalid) VALUES (?,?,?)";
+                String insertWard = "INSERT INTO ward (wardid, hospitalid, wardname) VALUES (?,?,?)";
                 Connection con;
                 try {
                     con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = con.prepareStatement(insertWard);
                     stat.setInt(1, Integer.parseInt(idField.getText()));
-                    stat.setString(2, nameField.getText());
-                    stat.setInt(3, Integer.parseInt(hospitalIdField.getText()));
+                    stat.setInt(2, hospitalId);
+                    stat.setString(3, nameField.getText());
 
                     int res = stat.executeUpdate();
 
@@ -676,7 +706,7 @@ public class WardPanel extends JPanel{
         @Override
         public void actionPerformed(ActionEvent e) {
             AppFrame.frame.getContentPane().setVisible(false);
-            AppFrame.frame.setContentPane(new DashboardPanel());
+            AppFrame.frame.setContentPane(new HospitalPanel());
             AppFrame.frame.getContentPane().setVisible(true);
         }
     }
@@ -684,29 +714,13 @@ public class WardPanel extends JPanel{
     private void repaintTable(Object[][] dataToBeInserted) {
         //Show the found rows
         tab.setModel(new CustomTableModel(dataToBeInserted, wardColumns));
-    }
 
-    private boolean checkWardExists (int id) {
-        boolean hospitalExists = false;
+        TableColumnModel columnModel = tab.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(30);
+        columnModel.getColumn(1).setPreferredWidth(250);
+        columnModel.getColumn(2).setPreferredWidth(250);
+        columnModel.getColumn(3).setPreferredWidth(250);
+        columnModel.getColumn(4).setPreferredWidth(250);
 
-        String query = "SELECT * FROM ward WHERE hospitalid = " + hospitalId + " AND wardid = ?";
-
-        try {
-            Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
-            PreparedStatement s = conn.prepareStatement(query);
-
-            s.setInt(1, id);
-
-            ResultSet res = s.executeQuery();
-
-            if (res.next())
-                hospitalExists = true;
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return hospitalExists;
     }
 }

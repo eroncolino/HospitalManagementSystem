@@ -43,7 +43,7 @@ public class MedicinePanel extends JPanel {
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "Medicine Code", "Medicine Name", "Producer", "Active Substance", "Cost"};
-        medicineColumns = new String[]{"Medicine Code", "Medicine Name", "Producer", "Active Substance", "Cost (in €)"};
+        medicineColumns = new String[]{"#", "Medicine Code", "Medicine Name", "Producer", "Active Substance", "Cost (in €)"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -96,11 +96,12 @@ public class MedicinePanel extends JPanel {
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(30);
-        columnModel.getColumn(1).setPreferredWidth(150);
+        columnModel.getColumn(0).setPreferredWidth(15);
+        columnModel.getColumn(1).setPreferredWidth(60);
         columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(250);
-        columnModel.getColumn(4).setPreferredWidth(20);
+        columnModel.getColumn(3).setPreferredWidth(160);
+        columnModel.getColumn(4).setPreferredWidth(260);
+        columnModel.getColumn(5).setPreferredWidth(25);
 
         // Buttons
 
@@ -181,7 +182,6 @@ public class MedicinePanel extends JPanel {
     }
 
     //Get all the data from the medicine table
-
     public Object[][] getAllMedicinesData() {
 
         ArrayList<Object[]> data = new ArrayList();
@@ -193,8 +193,11 @@ public class MedicinePanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
+
             while (rs.next()) {
-                Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
+                count++;
+                Object[] row = {count, rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
                         rs.getString("activesubstance"), rs.getString("cost")};
 
                 data.add(row);
@@ -203,7 +206,7 @@ public class MedicinePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][6];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -211,6 +214,7 @@ public class MedicinePanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
         }
         return dataReturn;
     }
@@ -232,8 +236,10 @@ public class MedicinePanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
+                    count++;
+                    Object[] row = {count, rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
                             rs.getString("activesubstance"), rs.getString("cost")};
 
                     data.add(row);
@@ -244,7 +250,7 @@ public class MedicinePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][6];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -252,6 +258,7 @@ public class MedicinePanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
         }
         return dataReturn;
     }
@@ -273,8 +280,10 @@ public class MedicinePanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
+                    count++;
+                    Object[] row = {count, rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
                             rs.getString("activesubstance"), rs.getString("cost")};
 
                     data.add(row);
@@ -285,7 +294,7 @@ public class MedicinePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][6];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -293,6 +302,7 @@ public class MedicinePanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
         }
         return dataReturn;
     }
@@ -313,8 +323,10 @@ public class MedicinePanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
+                    count++;
+                    Object[] row = {count, rs.getInt("medicinecode"), rs.getString("medicinename"), rs.getString("producer"),
                             rs.getString("activesubstance"), rs.getString("cost")};
 
                     data.add(row);
@@ -325,7 +337,7 @@ public class MedicinePanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][5];
+        Object[][] dataReturn = new Object[data.size()][6];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -333,6 +345,7 @@ public class MedicinePanel extends JPanel {
             dataReturn[i][2] = data.get(i)[2];
             dataReturn[i][3] = data.get(i)[3];
             dataReturn[i][4] = data.get(i)[4];
+            dataReturn[i][5] = data.get(i)[5];
         }
         return dataReturn;
     }
@@ -817,10 +830,11 @@ public class MedicinePanel extends JPanel {
 
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(30);
-        columnModel.getColumn(1).setPreferredWidth(150);
+        columnModel.getColumn(0).setPreferredWidth(15);
+        columnModel.getColumn(1).setPreferredWidth(60);
         columnModel.getColumn(2).setPreferredWidth(150);
-        columnModel.getColumn(3).setPreferredWidth(250);
-        columnModel.getColumn(4).setPreferredWidth(20);
+        columnModel.getColumn(3).setPreferredWidth(160);
+        columnModel.getColumn(4).setPreferredWidth(260);
+        columnModel.getColumn(5).setPreferredWidth(25);
     }
 }

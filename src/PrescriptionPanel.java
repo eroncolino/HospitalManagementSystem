@@ -40,7 +40,7 @@ public class PrescriptionPanel extends JPanel {
         searchLabel = new JLabel("Search by: ");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "Prescription No.", "Medicine Name", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
-        prescriptionColumns = new String[]{"Prescription No.", "Medicine Name", "Qty", "Patient Fiscal Code", "Patient Name", "Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
+        prescriptionColumns = new String[]{"#", "Prescription No.", "Medicine Name", "Qty", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Doctor ID", "Doctor Name", "Doctor Surname"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -93,14 +93,16 @@ public class PrescriptionPanel extends JPanel {
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(125);
-        columnModel.getColumn(1).setPreferredWidth(100);
-        columnModel.getColumn(2).setPreferredWidth(5);
-        columnModel.getColumn(3).setPreferredWidth(130);
-        columnModel.getColumn(4).setPreferredWidth(50);
-        columnModel.getColumn(5).setPreferredWidth(47);
-        columnModel.getColumn(6).setPreferredWidth(50);
-        columnModel.getColumn(7).setPreferredWidth(70);
+        columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(1).setPreferredWidth(110);
+        columnModel.getColumn(2).setPreferredWidth(85);
+        columnModel.getColumn(3).setPreferredWidth(5);
+        columnModel.getColumn(4).setPreferredWidth(120);
+        columnModel.getColumn(5).setPreferredWidth(70);
+        columnModel.getColumn(6).setPreferredWidth(75);
+        columnModel.getColumn(7).setPreferredWidth(35);
+        columnModel.getColumn(8).setPreferredWidth(70);
+        columnModel.getColumn(9).setPreferredWidth(70);
 
         // Buttons
 
@@ -146,7 +148,7 @@ public class PrescriptionPanel extends JPanel {
         goBackButton.addActionListener(new goBackListener());
 
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        buttonPanel.add(Box.createRigidArea(new Dimension(200, 0)));
+        buttonPanel.add(Box.createRigidArea(new Dimension(100, 0)));
         buttonPanel.add(findButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         buttonPanel.add(insertButton);
@@ -195,8 +197,10 @@ public class PrescriptionPanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
             while (rs.next()) {
-                Object[] row = {rs.getString("prescriptionno"), rs.getString("medicinename"), rs.getInt("medicinequantity"), rs.getString("patientfiscalcode"), rs.getString("patientname"),
+                count++;
+                Object[] row = {count, rs.getString("prescriptionno"), rs.getString("medicinename"), rs.getInt("medicinequantity"), rs.getString("patientfiscalcode"), rs.getString("patientname"),
                         rs.getString("patientsurname"), rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
 
                 data.add(row);
@@ -206,7 +210,7 @@ public class PrescriptionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][9];
+        Object[][] dataReturn = new Object[data.size()][10];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -218,6 +222,7 @@ public class PrescriptionPanel extends JPanel {
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
             dataReturn[i][8] = data.get(i)[8];
+            dataReturn[i][9] = data.get(i)[9];
         }
         return dataReturn;
     }
@@ -242,8 +247,10 @@ public class PrescriptionPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given string.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getString("prescriptionno"), rs.getString("medicinename"), rs.getInt("medicinequantity"), rs.getString("patientfiscalcode"), rs.getString("patientname"),
+                    count++;
+                    Object[] row = {count, rs.getString("prescriptionno"), rs.getString("medicinename"), rs.getInt("medicinequantity"), rs.getString("patientfiscalcode"), rs.getString("patientname"),
                             rs.getString("patientsurname"), rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
 
                     data.add(row);
@@ -254,7 +261,7 @@ public class PrescriptionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][9];
+        Object[][] dataReturn = new Object[data.size()][10];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -266,6 +273,7 @@ public class PrescriptionPanel extends JPanel {
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
             dataReturn[i][8] = data.get(i)[8];
+            dataReturn[i][9] = data.get(i)[9];
         }
         return dataReturn;
     }
@@ -289,8 +297,10 @@ public class PrescriptionPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given Integer.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getString("prescriptionno"), rs.getString("medicinename"), rs.getInt("medicinequantity"), rs.getString("patientfiscalcode"), rs.getString("patientname"),
+                    count++;
+                    Object[] row = {count, rs.getString("prescriptionno"), rs.getString("medicinename"), rs.getInt("medicinequantity"), rs.getString("patientfiscalcode"), rs.getString("patientname"),
                             rs.getString("patientsurname"), rs.getInt("doctorid"), rs.getString("doctorname"), rs.getString("doctorsurname")};
 
                     data.add(row);
@@ -301,7 +311,7 @@ public class PrescriptionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][9];
+        Object[][] dataReturn = new Object[data.size()][10];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -313,6 +323,7 @@ public class PrescriptionPanel extends JPanel {
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
             dataReturn[i][8] = data.get(i)[8];
+            dataReturn[i][9] = data.get(i)[9];
         }
         return dataReturn;
     }
@@ -793,14 +804,16 @@ public class PrescriptionPanel extends JPanel {
 
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(125);
-        columnModel.getColumn(1).setPreferredWidth(100);
-        columnModel.getColumn(2).setPreferredWidth(5);
-        columnModel.getColumn(3).setPreferredWidth(130);
-        columnModel.getColumn(4).setPreferredWidth(50);
-        columnModel.getColumn(5).setPreferredWidth(47);
-        columnModel.getColumn(6).setPreferredWidth(50);
-        columnModel.getColumn(7).setPreferredWidth(70);
+        columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(1).setPreferredWidth(110);
+        columnModel.getColumn(2).setPreferredWidth(85);
+        columnModel.getColumn(3).setPreferredWidth(5);
+        columnModel.getColumn(4).setPreferredWidth(120);
+        columnModel.getColumn(5).setPreferredWidth(70);
+        columnModel.getColumn(6).setPreferredWidth(75);
+        columnModel.getColumn(7).setPreferredWidth(35);
+        columnModel.getColumn(8).setPreferredWidth(70);
+        columnModel.getColumn(9).setPreferredWidth(70);
     }
 }
 

@@ -46,7 +46,7 @@ public class AdmissionPanel extends JPanel {
         searchLabel = new JLabel("Search by:");
         searchLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         boxColumns = new String[]{"Show all", "Admission Date", "Release Date", "Patient Fiscal Code", "Admission Cause", "Hospital ID"};
-        medicineColumns = new String[]{"Admission", "Release", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Admission Cause", "Hospital ID", "Ward ID", "Room No"};
+        medicineColumns = new String[]{"#", "Admission", "Release", "Patient Fiscal Code", "Patient Name", "Patient Surname", "Admission Cause", "Hospital ID", "Ward ID", "Room No"};
         columnsList = new JComboBox(boxColumns);
         columnsList.setPreferredSize(new Dimension(200, 20));
         columnsList.setMaximumSize(new Dimension(200, 20));
@@ -99,16 +99,16 @@ public class AdmissionPanel extends JPanel {
         mainRow.add(tablePanel);
 
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(25);
-        columnModel.getColumn(1).setPreferredWidth(25);
-        columnModel.getColumn(2).setPreferredWidth(95);
-        columnModel.getColumn(3).setPreferredWidth(60);
+        columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(1).setPreferredWidth(30);
+        columnModel.getColumn(2).setPreferredWidth(30);
+        columnModel.getColumn(3).setPreferredWidth(95);
         columnModel.getColumn(4).setPreferredWidth(60);
-        columnModel.getColumn(5).setPreferredWidth(110);
-        columnModel.getColumn(6).setPreferredWidth(20);
-        columnModel.getColumn(7).setPreferredWidth(10);
+        columnModel.getColumn(5).setPreferredWidth(60);
+        columnModel.getColumn(6).setPreferredWidth(110);
+        columnModel.getColumn(7).setPreferredWidth(20);
         columnModel.getColumn(8).setPreferredWidth(10);
-
+        columnModel.getColumn(9).setPreferredWidth(10);
 
         // Buttons
 
@@ -201,8 +201,12 @@ public class AdmissionPanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
+
             while (rs.next()) {
-                Object[] row = {rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
+                count++;
+
+                Object[] row = {count, rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
                         rs.getString("patientname"), rs.getString("patientsurname"), rs.getString("cause"),
                         rs.getInt("hospitalid"), rs.getInt("wardid"), rs.getInt("roomnumber")};
 
@@ -212,7 +216,7 @@ public class AdmissionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][9];
+        Object[][] dataReturn = new Object[data.size()][10];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -224,6 +228,7 @@ public class AdmissionPanel extends JPanel {
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
             dataReturn[i][8] = data.get(i)[8];
+            dataReturn[i][9] = data.get(i)[9];
         }
         return dataReturn;
     }
@@ -240,8 +245,11 @@ public class AdmissionPanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
+
             while (rs.next()) {
-                Object[] row = {rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
+                count++;
+                Object[] row = {count, rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
                         rs.getString("patientname"), rs.getString("patientsurname"), rs.getString("cause"),
                         rs.getInt("hospitalid"), rs.getInt("wardid"), rs.getInt("roomnumber")};
 
@@ -251,7 +259,7 @@ public class AdmissionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][9];
+        Object[][] dataReturn = new Object[data.size()][10];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -263,6 +271,7 @@ public class AdmissionPanel extends JPanel {
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
             dataReturn[i][8] = data.get(i)[8];
+            dataReturn[i][9] = data.get(i)[9];
         }
         return dataReturn;
     }
@@ -279,8 +288,11 @@ public class AdmissionPanel extends JPanel {
             Statement s = conn.createStatement();
             ResultSet rs = s.executeQuery(query);
 
+            int count = 0;
+
             while (rs.next()) {
-                Object[] row = {rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
+                count++;
+                Object[] row = {count, rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
                         rs.getString("patientname"), rs.getString("patientsurname"), rs.getString("cause"),
                         rs.getInt("hospitalid"), rs.getInt("wardid"), rs.getInt("roomnumber")};
 
@@ -290,7 +302,7 @@ public class AdmissionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][9];
+        Object[][] dataReturn = new Object[data.size()][10];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -302,6 +314,7 @@ public class AdmissionPanel extends JPanel {
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
             dataReturn[i][8] = data.get(i)[8];
+            dataReturn[i][9] = data.get(i)[9];
         }
         return dataReturn;
     }
@@ -325,8 +338,10 @@ public class AdmissionPanel extends JPanel {
                 JOptionPane.showMessageDialog(container, "No match was found for the given date.");
 
             else {
+                int count = 0;
                 do {
-                    Object[] row = {rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
+                    count++;
+                    Object[] row = {count, rs.getDate("admissiondate"), rs.getDate("releasedate"), rs.getString("patientfiscalcode"),
                             rs.getString("patientname"), rs.getString("patientsurname"), rs.getString("cause"),
                             rs.getInt("hospitalid"), rs.getInt("wardid"), rs.getInt("roomnumber")};
 
@@ -338,7 +353,7 @@ public class AdmissionPanel extends JPanel {
             e.printStackTrace();
         }
 
-        Object[][] dataReturn = new Object[data.size()][9];
+        Object[][] dataReturn = new Object[data.size()][10];
 
         for (int i = 0; i < data.size(); i++) {
             dataReturn[i][0] = data.get(i)[0];
@@ -350,6 +365,7 @@ public class AdmissionPanel extends JPanel {
             dataReturn[i][6] = data.get(i)[6];
             dataReturn[i][7] = data.get(i)[7];
             dataReturn[i][8] = data.get(i)[8];
+            dataReturn[i][9] = data.get(i)[9];
         }
         return dataReturn;
     }
@@ -1158,15 +1174,16 @@ public class AdmissionPanel extends JPanel {
 
         //Set columns width
         TableColumnModel columnModel = tab.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(25);
-        columnModel.getColumn(1).setPreferredWidth(25);
-        columnModel.getColumn(2).setPreferredWidth(95);
-        columnModel.getColumn(3).setPreferredWidth(60);
+        columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(1).setPreferredWidth(30);
+        columnModel.getColumn(2).setPreferredWidth(30);
+        columnModel.getColumn(3).setPreferredWidth(95);
         columnModel.getColumn(4).setPreferredWidth(60);
-        columnModel.getColumn(5).setPreferredWidth(110);
-        columnModel.getColumn(6).setPreferredWidth(20);
-        columnModel.getColumn(7).setPreferredWidth(10);
+        columnModel.getColumn(5).setPreferredWidth(60);
+        columnModel.getColumn(6).setPreferredWidth(110);
+        columnModel.getColumn(7).setPreferredWidth(20);
         columnModel.getColumn(8).setPreferredWidth(10);
+        columnModel.getColumn(9).setPreferredWidth(10);
     }
 }
 
