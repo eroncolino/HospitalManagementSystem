@@ -101,7 +101,7 @@ public class DoctorPanel extends JPanel {
         columnModel.getColumn(2).setPreferredWidth(150);
         columnModel.getColumn(3).setPreferredWidth(150);
         columnModel.getColumn(4).setPreferredWidth(130);
-        columnModel.getColumn(5).setPreferredWidth(15);
+        columnModel.getColumn(5).setPreferredWidth(50);
 
         // Buttons
 
@@ -840,7 +840,7 @@ public class DoctorPanel extends JPanel {
         columnModel.getColumn(2).setPreferredWidth(150);
         columnModel.getColumn(3).setPreferredWidth(150);
         columnModel.getColumn(4).setPreferredWidth(130);
-        columnModel.getColumn(5).setPreferredWidth(15);
+        columnModel.getColumn(5).setPreferredWidth(50);
     }
 
     private boolean checkDoctorExists (int id) {

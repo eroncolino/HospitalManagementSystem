@@ -97,9 +97,9 @@ public class NursePanel extends JPanel {
         columnModel.getColumn(2).setPreferredWidth(70);
         columnModel.getColumn(3).setPreferredWidth(70);
         columnModel.getColumn(4).setPreferredWidth(110);
-        columnModel.getColumn(5).setPreferredWidth(25);
+        columnModel.getColumn(5).setPreferredWidth(40);
         columnModel.getColumn(6).setPreferredWidth(170);
-        columnModel.getColumn(7).setPreferredWidth(5);
+        columnModel.getColumn(7).setPreferredWidth(20);
         columnModel.getColumn(8).setPreferredWidth(125);
 
         // Buttons
@@ -932,9 +932,9 @@ public class NursePanel extends JPanel {
         columnModel.getColumn(2).setPreferredWidth(70);
         columnModel.getColumn(3).setPreferredWidth(70);
         columnModel.getColumn(4).setPreferredWidth(110);
-        columnModel.getColumn(5).setPreferredWidth(25);
+        columnModel.getColumn(5).setPreferredWidth(40);
         columnModel.getColumn(6).setPreferredWidth(170);
-        columnModel.getColumn(7).setPreferredWidth(5);
+        columnModel.getColumn(7).setPreferredWidth(20);
         columnModel.getColumn(8).setPreferredWidth(125);
 
     }

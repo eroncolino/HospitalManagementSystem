@@ -268,7 +268,7 @@ public class HospitalPanel extends JPanel {
                 int count = 0;
                 do {
                     count++;
-                    Object[] row = {rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
+                    Object[] row = {count, rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
                             rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
                             rs.getString("state")};
                     data.add(row);
@@ -289,7 +289,7 @@ public class HospitalPanel extends JPanel {
             dataReturn[i][4] = data.get(i)[4];
             dataReturn[i][5] = data.get(i)[5];
             dataReturn[i][6] = data.get(i)[6];
-            dataReturn[i][7] = data.get(i)[8];
+            dataReturn[i][7] = data.get(i)[7];
         }
         return dataReturn;
     }
@@ -314,7 +314,7 @@ public class HospitalPanel extends JPanel {
                 int count = 0;
                 do {
                     count++;
-                    Object[] row = {rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
+                    Object[] row = {count, rs.getInt("hospitalid"), rs.getString("hospitalname"), rs.getString("street"),
                             rs.getString("postalcode"), rs.getString("city"), rs.getString("province"),
                             rs.getString("state")};
                     data.add(row);
