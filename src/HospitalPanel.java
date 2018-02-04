@@ -117,8 +117,8 @@ public class HospitalPanel extends JPanel {
                 Point point = e.getPoint();
                 int row = table.rowAtPoint(point);
                 if (e.getClickCount() == 2) {
-                    int hospitalId = (int) tab.getModel().getValueAt(row, 0);
-                    String hospitalName = (String) tab.getModel().getValueAt(row, 1);
+                    int hospitalId = (int) tab.getModel().getValueAt(row, 1);
+                    String hospitalName = (String) tab.getModel().getValueAt(row, 2);
                     AppFrame.frame.getContentPane().setVisible(false);
                     AppFrame.frame.setContentPane(new WardPanel(hospitalId, hospitalName));
                     AppFrame.frame.getContentPane().setVisible(true);

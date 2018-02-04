@@ -117,8 +117,8 @@ public class WardPanel extends JPanel {
 
                 if (e.getClickCount() == 2) {
                     AppFrame.frame.getContentPane().setVisible(false);
-                    AppFrame.frame.setContentPane(new RoomDepartmentPanel(hospitalId, (Integer) table.getModel().getValueAt(row, 0),
-                            hospitalName, (String) table.getModel().getValueAt(row, 1)));
+                    AppFrame.frame.setContentPane(new RoomDepartmentPanel(hospitalId, (Integer) table.getModel().getValueAt(row, 1),
+                            hospitalName, (String) table.getModel().getValueAt(row, 2)));
                     AppFrame.frame.getContentPane().setVisible(true);
                 }
             }
