@@ -481,7 +481,7 @@ public class DoctorPanel extends JPanel {
             JLabel id = new JLabel("Doctor ID");
             id.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField idField = new JTextField();
-            idField.setText(String.valueOf(tab.getValueAt(index, 0)));
+            idField.setText(String.valueOf(tab.getValueAt(index, 1)));
             idField.setEditable(false);
             firstRow.add(id);
             firstRow.add(Box.createRigidArea(new Dimension(90, 0)));
@@ -496,7 +496,7 @@ public class DoctorPanel extends JPanel {
             JLabel name = new JLabel("Doctor Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField nameField = new JTextField();
-            nameField.setText(String.valueOf(tab.getValueAt(index, 1)));
+            nameField.setText(String.valueOf(tab.getValueAt(index, 2)));
             nameField.setEditable(false);
             secondRow.add(name);
             secondRow.add(Box.createRigidArea(new Dimension(60, 0)));
@@ -512,7 +512,7 @@ public class DoctorPanel extends JPanel {
             JLabel surname = new JLabel("Doctor Surname");
             surname.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField surnameField = new JTextField();
-            surnameField.setText(String.valueOf(tab.getValueAt(index, 2)));
+            surnameField.setText(String.valueOf(tab.getValueAt(index, 3)));
             surnameField.setEditable(false);
             thirdRow.add(surname);
             thirdRow.add(Box.createRigidArea(new Dimension(30, 0)));
@@ -528,7 +528,7 @@ public class DoctorPanel extends JPanel {
             JLabel specialization = new JLabel("Specialization");
             specialization.setFont(new Font("Verdana", Font.PLAIN, 18));
             JTextField specializationField = new JTextField();
-            specializationField.setText(String.valueOf(tab.getValueAt(index, 3)));
+            specializationField.setText(String.valueOf(tab.getValueAt(index, 4)));
             fourthRow.add(specialization);
             fourthRow.add(Box.createRigidArea(new Dimension(55, 0)));
             fourthRow.add(specializationField);

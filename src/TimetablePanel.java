@@ -676,7 +676,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel doctorId = new JLabel("Doctor ID");
             doctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField doctorIdField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
+            JTextField doctorIdField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 1)));
             doctorIdField.setEditable(false);
             firstRow.add(doctorId);
             firstRow.add(Box.createRigidArea(new Dimension(90, 0)));
@@ -691,7 +691,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel doctorName = new JLabel("Doctor Name");
             doctorName.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField doctorNameField = new JTextField((tab.getModel().getValueAt(index, 1).toString()));
+            JTextField doctorNameField = new JTextField((tab.getModel().getValueAt(index, 2).toString()));
             doctorNameField.setEditable(false);
             secondRow.add(doctorName);
             secondRow.add(Box.createRigidArea(new Dimension(60, 0)));
@@ -706,7 +706,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel doctorSurname = new JLabel("Doctor Surname");
             doctorSurname.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField doctorSurnameField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
+            JTextField doctorSurnameField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
             doctorSurnameField.setEditable(false);
             thirdRow.add(doctorSurname);
             thirdRow.add(Box.createRigidArea(new Dimension(30, 0)));
@@ -721,7 +721,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel street = new JLabel("Office Street");
             street.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField streetField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
+            JTextField streetField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
             fourthRow.add(street);
             fourthRow.add(Box.createRigidArea(new Dimension(65, 0)));
             fourthRow.add(streetField);
@@ -735,7 +735,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel postalCode = new JLabel("Postal code");
             postalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField postalCodeField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
+            JTextField postalCodeField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
             fifthRow.add(postalCode);
             fifthRow.add(Box.createRigidArea(new Dimension(75, 0)));
             fifthRow.add(postalCodeField);
@@ -749,7 +749,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel city = new JLabel("City");
             city.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField cityField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
+            JTextField cityField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
             sixthRow.add(city);
             sixthRow.add(Box.createRigidArea(new Dimension(140, 0)));
             sixthRow.add(cityField);
@@ -763,7 +763,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel province = new JLabel("Province");
             province.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField provinceField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
+            JTextField provinceField = new JTextField(tab.getModel().getValueAt(index, 7).toString());
             seventhRow.add(province);
             seventhRow.add(Box.createRigidArea(new Dimension(100, 0)));
             seventhRow.add(provinceField);
@@ -777,7 +777,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel state = new JLabel("State");
             state.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField stateField = new JTextField(tab.getModel().getValueAt(index, 7).toString());
+            JTextField stateField = new JTextField(tab.getModel().getValueAt(index, 8).toString());
             eighthRow.add(state);
             eighthRow.add(Box.createRigidArea(new Dimension(130, 0)));
             eighthRow.add(stateField);
@@ -792,7 +792,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel day = new JLabel("Day of the week");
             day.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField dayField = new JTextField(tab.getModel().getValueAt(index, 8).toString());
+            JTextField dayField = new JTextField(tab.getModel().getValueAt(index, 9).toString());
             ninthRow.add(day);
             ninthRow.add(Box.createRigidArea(new Dimension(30, 0)));
             ninthRow.add(dayField);
@@ -807,7 +807,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel beginTime = new JLabel("Begin Time");
             beginTime.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField beginTimeField = new JTextField(tab.getModel().getValueAt(index, 9).toString());
+            JTextField beginTimeField = new JTextField(tab.getModel().getValueAt(index, 10).toString());
             tenthRow.add(beginTime);
             tenthRow.add(Box.createRigidArea(new Dimension(75, 0)));
             tenthRow.add(beginTimeField);
@@ -822,7 +822,7 @@ public class TimetablePanel extends JPanel {
 
             JLabel endTime = new JLabel("End Time");
             endTime.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField endTimeField = new JTextField(tab.getModel().getValueAt(index, 10).toString());
+            JTextField endTimeField = new JTextField(tab.getModel().getValueAt(index, 11).toString());
             eleventhRow.add(endTime);
             eleventhRow.add(Box.createRigidArea(new Dimension(95, 0)));
             eleventhRow.add(endTimeField);
@@ -909,11 +909,11 @@ public class TimetablePanel extends JPanel {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = conn.prepareStatement(findAddress);
-                    stat.setString(1, tab.getModel().getValueAt(index, 3).toString());
-                    stat.setString(2, tab.getModel().getValueAt(index, 4).toString());
-                    stat.setString(3, tab.getModel().getValueAt(index, 5).toString());
-                    stat.setString(4, tab.getModel().getValueAt(index, 6).toString());
-                    stat.setString(5, tab.getModel().getValueAt(index, 7).toString());
+                    stat.setString(1, tab.getModel().getValueAt(index, 4).toString());
+                    stat.setString(2, tab.getModel().getValueAt(index, 5).toString());
+                    stat.setString(3, tab.getModel().getValueAt(index, 6).toString());
+                    stat.setString(4, tab.getModel().getValueAt(index, 7).toString());
+                    stat.setString(5, tab.getModel().getValueAt(index, 8).toString());
 
                     ResultSet rs = stat.executeQuery();
 

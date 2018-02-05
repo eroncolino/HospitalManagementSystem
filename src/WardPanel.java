@@ -441,7 +441,7 @@ public class WardPanel extends JPanel {
 
             JLabel id = new JLabel("Ward ID");
             id.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField idField = new JTextField(tab.getModel().getValueAt(index, 0).toString());
+            JTextField idField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
             firstRow.add(id);
             firstRow.add(Box.createRigidArea(new Dimension(81, 0)));
             firstRow.add(idField);
@@ -455,7 +455,7 @@ public class WardPanel extends JPanel {
 
             JLabel name = new JLabel("Ward Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
+            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
             secondRow.add(name);
             secondRow.add(Box.createRigidArea(new Dimension(50, 0)));
             secondRow.add(nameField);
@@ -504,7 +504,7 @@ public class WardPanel extends JPanel {
 
                     ResultSet rs1 = stmt1.executeQuery();
 
-                    if (rs1.next() && !tab.getModel().getValueAt(index, 0).toString().equals(idField.getText().toString())) {
+                    if (rs1.next() && !tab.getModel().getValueAt(index, 1).toString().equals(idField.getText().toString())) {
                         JOptionPane.showMessageDialog(container, "This ward ID already exists.\n" +
                                 "Ward will not be inserted.", "Ward ID error", JOptionPane.INFORMATION_MESSAGE);
                         return;
@@ -533,7 +533,7 @@ public class WardPanel extends JPanel {
                     PreparedStatement stat = con.prepareStatement(updateMedicine);
                     stat.setInt(1, Integer.parseInt(idField.getText()));
                     stat.setString(2, nameField.getText());
-                    stat.setInt(3, Integer.parseInt(tab.getModel().getValueAt(index, 0).toString()));
+                    stat.setInt(3, Integer.parseInt(tab.getModel().getValueAt(index, 1).toString()));
                     stat.setInt(4, hospitalId);
 
                     int res = stat.executeUpdate();

@@ -467,11 +467,11 @@ public class NursePanel extends JPanel {
 
             JLabel nurseId = new JLabel("Nurse ID");
             nurseId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nurseIDField = new JTextField((tab.getModel().getValueAt(index, 0).toString()));
-            nurseIDField.setEditable(false);
+            JTextField nurseIdField = new JTextField((tab.getModel().getValueAt(index, 1).toString()));
+            nurseIdField.setEditable(false);
             firstRow.add(nurseId);
             firstRow.add(Box.createRigidArea(new Dimension(111, 0)));
-            firstRow.add(nurseIDField);
+            firstRow.add(nurseIdField);
 
             addPanel.add(firstRow);
 
@@ -481,7 +481,7 @@ public class NursePanel extends JPanel {
 
             JLabel name = new JLabel("Nurse Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField((tab.getModel().getValueAt(index, 1).toString()));
+            JTextField nameField = new JTextField((tab.getModel().getValueAt(index, 2).toString()));
             nameField.setEditable(false);
             secondRow.add(name);
             secondRow.add(Box.createRigidArea(new Dimension(80, 0)));
@@ -496,7 +496,7 @@ public class NursePanel extends JPanel {
 
             JLabel surname = new JLabel("Nurse Surname");
             surname.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField surnameField = new JTextField((tab.getModel().getValueAt(index, 2).toString()));
+            JTextField surnameField = new JTextField((tab.getModel().getValueAt(index, 3).toString()));
             surnameField.setEditable(false);
             thirdRow.add(surname);
             thirdRow.add(Box.createRigidArea(new Dimension(51, 0)));
@@ -511,7 +511,7 @@ public class NursePanel extends JPanel {
 
             JLabel specialization = new JLabel("Specialization");
             specialization.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField specializationField = new JTextField((tab.getModel().getValueAt(index, 3).toString()));
+            JTextField specializationField = new JTextField((tab.getModel().getValueAt(index, 4).toString()));
             fourthRow.add(specialization);
             fourthRow.add(Box.createRigidArea(new Dimension(68, 0)));
             fourthRow.add(specializationField);
@@ -525,7 +525,7 @@ public class NursePanel extends JPanel {
 
             JLabel hospId = new JLabel("Hospital ID");
             hospId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField hospIdField = new JTextField((tab.getModel().getValueAt(index, 4).toString()));
+            JTextField hospIdField = new JTextField((tab.getModel().getValueAt(index, 5).toString()));
             fifthRow.add(hospId);
             fifthRow.add(Box.createRigidArea(new Dimension(91, 0)));
             fifthRow.add(hospIdField);
@@ -539,7 +539,7 @@ public class NursePanel extends JPanel {
 
             JLabel wardId = new JLabel("Ward ID");
             wardId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField wardIdField = new JTextField((tab.getModel().getValueAt(index, 6).toString()));
+            JTextField wardIdField = new JTextField((tab.getModel().getValueAt(index, 7).toString()));
             sixthRow.add(wardId);
             sixthRow.add(Box.createRigidArea(new Dimension(116, 0)));
             sixthRow.add(wardIdField);
@@ -613,7 +613,7 @@ public class NursePanel extends JPanel {
                     return;
                 }
 
-                String updateMedicine = "UPDATE nurse SET specialization = ?, hospitalid = ?, wardid = ? WHERE nurseid = " + tab.getModel().getValueAt(index, 0);
+                String updateMedicine = "UPDATE nurse SET specialization = ?, hospitalid = ?, wardid = ? WHERE nurseid = " + tab.getModel().getValueAt(index, 1);
                 Connection con;
                 try {
                     con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
@@ -881,7 +881,7 @@ public class NursePanel extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             int index = tab.getSelectedRow();
-            int nurseID = (int) tab.getModel().getValueAt(index, 0);
+            int nurseID = (int) tab.getModel().getValueAt(index, 1);
 
             int result = JOptionPane.showConfirmDialog(container, "Are you sure you want to permanently delete the selected nurse?", "Warning", JOptionPane.WARNING_MESSAGE);
 

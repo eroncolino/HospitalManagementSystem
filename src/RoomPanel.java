@@ -321,7 +321,7 @@ public class RoomPanel extends JPanel {
 
             JLabel roomNumber = new JLabel("Room number");
             roomNumber.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField roomNumberField = new JTextField(tab.getModel().getValueAt(index, 0).toString());
+            JTextField roomNumberField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
             firstRow.add(roomNumber);
             firstRow.add(Box.createRigidArea(new Dimension(110, 0)));
             firstRow.add(roomNumberField);
@@ -335,7 +335,7 @@ public class RoomPanel extends JPanel {
 
             JLabel bedNumber = new JLabel("Total number of beds");
             bedNumber.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField bedNumberField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
+            JTextField bedNumberField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
             secondRow.add(bedNumber);
             secondRow.add(Box.createRigidArea(new Dimension(48, 0)));
             secondRow.add(bedNumberField);
@@ -380,7 +380,7 @@ public class RoomPanel extends JPanel {
 
                     ResultSet rs1 = stmt1.executeQuery();
 
-                    if (rs1.next() && !tab.getModel().getValueAt(index, 0).toString().equals(roomNumber.getText().toString())) {
+                    if (rs1.next() && !tab.getModel().getValueAt(index, 1).toString().equals(roomNumber.getText().toString())) {
                         JOptionPane.showMessageDialog(container, "This room number already exists.\n" +
                                 "Room will not be updated.", "Room number error", JOptionPane.ERROR_MESSAGE);
                         return;
@@ -389,7 +389,7 @@ public class RoomPanel extends JPanel {
                     e1.printStackTrace();
                 }
 
-                if (Integer.parseInt(bedNumberField.getText()) < Integer.parseInt(tab.getModel().getValueAt(index, 2).toString())) {
+                if (Integer.parseInt(bedNumberField.getText()) < Integer.parseInt(tab.getModel().getValueAt(index, 3).toString())) {
                     JOptionPane.showMessageDialog(container, "Problem with the number of beds. You have to free the room\n" +
                             "before making the total number of beds smaller.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -402,15 +402,15 @@ public class RoomPanel extends JPanel {
 
                     PreparedStatement stat = con.prepareStatement(updateRoom);
 
-                    int oldAvailable = (int) tab.getModel().getValueAt(index, 2);
-                    int oldTotal = (int) tab.getModel().getValueAt(index, 1);
+                    int oldAvailable = (int) tab.getModel().getValueAt(index, 3);
+                    int oldTotal = (int) tab.getModel().getValueAt(index, 2);
                     int newTotal = Integer.parseInt(bedNumberField.getText());
                     int newAvailable = oldAvailable + newTotal - oldTotal;
 
                     stat.setInt(1, Integer.parseInt(roomNumberField.getText()));
                     stat.setInt(2, Integer.parseInt(bedNumberField.getText()));
                     stat.setInt(3, newAvailable);
-                    stat.setInt(4, Integer.parseInt(tab.getModel().getValueAt(index, 0).toString()));
+                    stat.setInt(4, Integer.parseInt(tab.getModel().getValueAt(index, 1).toString()));
                     stat.setInt(5, wardId);
                     stat.setInt(6, hospitalId);
 

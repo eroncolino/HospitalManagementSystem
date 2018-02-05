@@ -187,7 +187,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
     }
 
     //Get all the data from the department table of the selected hospital
-    public Object[][] getAllDepartmentsData() {
+    private Object[][] getAllDepartmentsData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String departmentQuery = "SELECT * FROM outpatients_department o LEFT JOIN doctor d ON d.doctorid = o.doctorid WHERE hospitalid = ? AND wardid = ?";
@@ -230,7 +230,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
     }
 
     //Get all data when an integer is inserted as query string
-    public Object[][] getDepartmentDataFromInteger(String column, int number) {
+    private Object[][] getDepartmentDataFromInteger(String column, int number) {
         ArrayList<Object[]> data = new ArrayList();
         String departmentQuery = "SELECT * FROM outpatients_department o LEFT JOIN doctor d ON d.doctorid = o.doctorid WHERE hospitalid = ? AND wardid = ? AND " + column + " = ?";
         Connection conn;
@@ -351,7 +351,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
 
             JLabel departmentNumber = new JLabel("Department Number");
             departmentNumber.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField departmentNumberField = new JTextField(tab.getModel().getValueAt(index, 0).toString());
+            JTextField departmentNumberField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
             firstRow.add(departmentNumber);
             firstRow.add(Box.createRigidArea(new Dimension(61, 0)));
             firstRow.add(departmentNumberField);
@@ -365,7 +365,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
 
             JLabel doctorId = new JLabel("Doctor ID");
             doctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField doctorIdField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
+            JTextField doctorIdField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
             secondRow.add(doctorId);
             secondRow.add(Box.createRigidArea(new Dimension(160, 0)));
             secondRow.add(doctorIdField);
@@ -433,7 +433,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
 
                     ResultSet rs1 = stmt1.executeQuery();
 
-                    if (rs1.next() && !tab.getModel().getValueAt(index, 0).toString().equals(departmentNumberField.getText().toString())) {
+                    if (rs1.next() && !tab.getModel().getValueAt(index, 1).toString().equals(departmentNumberField.getText().toString())) {
                         JOptionPane.showMessageDialog(container, "This department number already exists.\n" +
                                 "Outpatient's department will not be updated.", "Ward ID error", JOptionPane.INFORMATION_MESSAGE);
                         return;
@@ -447,7 +447,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
 
                         ResultSet rs2 = stmt2.executeQuery();
 
-                        if (rs2.next() && !tab.getModel().getValueAt(index, 0).toString().equals(departmentNumberField.getText().toString())) {
+                        if (rs2.next() && !tab.getModel().getValueAt(index, 1).toString().equals(departmentNumberField.getText().toString())) {
                             int choice = JOptionPane.showConfirmDialog(container, "This doctor has already an outpatient's department in this ward.\n" +
                                     "Do you want to assign also this department to this doctor?", "Warning", JOptionPane.INFORMATION_MESSAGE);
                             if (choice != JOptionPane.YES_OPTION)
@@ -469,7 +469,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
                         stat.setInt(2, Integer.parseInt(doctorIdField.getText()));
                     else
                         stat.setNull(2, java.sql.Types.INTEGER);
-                    stat.setInt(3, Integer.parseInt(tab.getModel().getValueAt(index, 0).toString()));
+                    stat.setInt(3, Integer.parseInt(tab.getModel().getValueAt(index, 1).toString()));
                     stat.setInt(4, wardId);
                     stat.setInt(5, hospitalId);
 
@@ -592,7 +592,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
 
                     ResultSet rs1 = stmt1.executeQuery();
 
-                    if (rs1.next() && !tab.getModel().getValueAt(index, 0).toString().equals(departmentNumberField.getText().toString())) {
+                    if (rs1.next() && !tab.getModel().getValueAt(index, 1).toString().equals(departmentNumberField.getText().toString())) {
                         JOptionPane.showMessageDialog(container, "This department number already exists.\n" +
                                 "Outpatient's department will not be inserted.", "Ward ID error", JOptionPane.INFORMATION_MESSAGE);
                         return;
@@ -606,7 +606,7 @@ public class OutpatientsDepartmentPanel extends JPanel {
 
                         ResultSet rs2 = stmt2.executeQuery();
 
-                        if (rs2.next() && !tab.getModel().getValueAt(index, 0).toString().equals(departmentNumberField.getText().toString())) {
+                        if (rs2.next() && !tab.getModel().getValueAt(index, 1).toString().equals(departmentNumberField.getText().toString())) {
                             int choice = JOptionPane.showConfirmDialog(container, "This doctor has already an outpatient's department in this ward.\n" +
                                     "Do you want to assign also this department to this doctor?", "Warning", JOptionPane.INFORMATION_MESSAGE);
                             if (choice != JOptionPane.YES_OPTION)

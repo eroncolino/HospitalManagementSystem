@@ -182,7 +182,7 @@ public class MedicinePanel extends JPanel {
     }
 
     //Get all the data from the medicine table
-    public Object[][] getAllMedicinesData() {
+    private Object[][] getAllMedicinesData() {
 
         ArrayList<Object[]> data = new ArrayList();
         String query = "SELECT * FROM medicine";
@@ -220,7 +220,7 @@ public class MedicinePanel extends JPanel {
     }
 
     //Get all data when an integer is inserted as query string
-    public Object[][] getMedicineDataFromInteger(int number) {
+    private Object[][] getMedicineDataFromInteger(int number) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM medicine WHERE medicinecode = ?";
         Connection conn;
@@ -264,7 +264,7 @@ public class MedicinePanel extends JPanel {
     }
 
     //Get all data when a string is inserted as query string
-    public Object[][] getMedicineDataFromString(String column, String stringToBeMatched) {
+    private Object[][] getMedicineDataFromString(String column, String stringToBeMatched) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM medicine WHERE UPPER(" + column + ") = UPPER(?)";
         Connection conn;
@@ -308,7 +308,7 @@ public class MedicinePanel extends JPanel {
     }
 
     //Get all data when a money value is inserted as query string
-    public Object[][] getMedicineDataFromMoney (double cost) {
+    private Object[][] getMedicineDataFromMoney (double cost) {
         ArrayList<Object[]> data = new ArrayList();
         String findIdQuery = "SELECT * FROM medicine WHERE cost = " + cost;
         Connection conn;
@@ -487,7 +487,7 @@ public class MedicinePanel extends JPanel {
 
             JLabel code = new JLabel("Medicine Code");
             code.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField codeField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
+            JTextField codeField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 1)));
             codeField.setEditable(false);
             firstRow.add(code);
             firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
@@ -501,7 +501,7 @@ public class MedicinePanel extends JPanel {
 
             JLabel name = new JLabel("Medicine Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
+            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
             secondRow.add(name);
             secondRow.add(Box.createRigidArea(new Dimension(53, 0)));
             secondRow.add(nameField);
@@ -515,7 +515,7 @@ public class MedicinePanel extends JPanel {
 
             JLabel producer = new JLabel("Producer");
             producer.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField producerField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
+            JTextField producerField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
             thirdRow.add(producer);
             thirdRow.add(Box.createRigidArea(new Dimension(110, 0)));
             thirdRow.add(producerField);
@@ -529,7 +529,7 @@ public class MedicinePanel extends JPanel {
 
             JLabel activeSubstance = new JLabel("Active Substance");
             activeSubstance.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField activeSubstanceField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
+            JTextField activeSubstanceField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
             fourthRow.add(activeSubstance);
             fourthRow.add(Box.createRigidArea(new Dimension(38, 0)));
             fourthRow.add(activeSubstanceField);
@@ -543,7 +543,7 @@ public class MedicinePanel extends JPanel {
 
             JLabel cost = new JLabel("Cost (in €)");
             cost.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField costField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
+            JTextField costField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
             fifthRow.add(cost);
             fifthRow.add(Box.createRigidArea(new Dimension(96, 0)));
             fifthRow.add(costField);
@@ -608,7 +608,7 @@ public class MedicinePanel extends JPanel {
                     return;
                 }
 
-                String updateMedicine = "UPDATE medicine SET medicinename = ?, producer = ?, activesubstance = ?, cost = ? WHERE medicinecode = " + tab.getModel().getValueAt(index, 0);
+                String updateMedicine = "UPDATE medicine SET medicinename = ?, producer = ?, activesubstance = ?, cost = ? WHERE medicinecode = " + tab.getModel().getValueAt(index, 1);
                 Connection conn;
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");

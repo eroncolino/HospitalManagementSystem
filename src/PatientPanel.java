@@ -519,7 +519,7 @@ public class PatientPanel extends JPanel {
 
             JLabel fiscalCode = new JLabel("Fiscal Code");
             fiscalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField fiscalCodeField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
+            JTextField fiscalCodeField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 1)));
             fiscalCodeField.setEditable(false);
             firstRow.add(fiscalCode);
             firstRow.add(Box.createRigidArea(new Dimension(90, 0)));
@@ -533,7 +533,7 @@ public class PatientPanel extends JPanel {
 
             JLabel name = new JLabel("Patient Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
+            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
             nameField.setEditable(false);
             secondRow.add(name);
             secondRow.add(Box.createRigidArea(new Dimension(70, 0)));
@@ -548,7 +548,7 @@ public class PatientPanel extends JPanel {
 
             JLabel surname = new JLabel("Patient Surname");
             surname.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField surnameField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
+            JTextField surnameField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
             surnameField.setEditable(false);
             thirdRow.add(surname);
             thirdRow.add(Box.createRigidArea(new Dimension(41, 0)));
@@ -563,7 +563,7 @@ public class PatientPanel extends JPanel {
 
             JLabel birthDate = new JLabel("Birth Date");
             birthDate.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField birthDateField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
+            JTextField birthDateField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
             birthDateField.setEditable(false);
             fourthRow.add(birthDate);
             fourthRow.add(Box.createRigidArea(new Dimension(101, 0)));
@@ -578,7 +578,7 @@ public class PatientPanel extends JPanel {
 
             JLabel gender = new JLabel("Gender");
             gender.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField genderField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
+            JTextField genderField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
             genderField.setEditable(false);
             fifthRow.add(gender);
             fifthRow.add(Box.createRigidArea(new Dimension(127, 0)));
@@ -593,7 +593,7 @@ public class PatientPanel extends JPanel {
 
             JLabel familyDoctorId = new JLabel("Family Doctor ID");
             familyDoctorId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField familyDoctorIdField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
+            JTextField familyDoctorIdField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
             sixthRow.add(familyDoctorId);
             sixthRow.add(Box.createRigidArea(new Dimension(39, 0)));
             sixthRow.add(familyDoctorIdField);
@@ -640,7 +640,7 @@ public class PatientPanel extends JPanel {
                         String updateQuery = "UPDATE patient SET familydoctorid = ? WHERE patientfiscalcode = ?";
                         PreparedStatement st = conn.prepareStatement(updateQuery);
                         st.setInt(1, doctorId);
-                        st.setString(2, tab.getModel().getValueAt(index, 0).toString());
+                        st.setString(2, tab.getModel().getValueAt(index, 1).toString());
 
                         int res = st.executeUpdate();
 

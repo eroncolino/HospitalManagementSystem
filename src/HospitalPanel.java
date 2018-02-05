@@ -498,7 +498,7 @@ public class HospitalPanel extends JPanel {
 
             JLabel id = new JLabel("Hospital ID");
             id.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField idField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
+            JTextField idField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 1)));
             idField.setEditable(false);
             firstRow.add(id);
             firstRow.add(Box.createRigidArea(new Dimension(60, 0)));
@@ -512,7 +512,7 @@ public class HospitalPanel extends JPanel {
 
             JLabel name = new JLabel("Hospital Name");
             name.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 1).toString());
+            JTextField nameField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
             secondRow.add(name);
             secondRow.add(Box.createRigidArea(new Dimension(30, 0)));
             secondRow.add(nameField);
@@ -526,7 +526,7 @@ public class HospitalPanel extends JPanel {
 
             JLabel street = new JLabel("Street");
             street.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField streetField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
+            JTextField streetField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
             thirdRow.add(street);
             thirdRow.add(Box.createRigidArea(new Dimension(107, 0)));
             thirdRow.add(streetField);
@@ -540,7 +540,7 @@ public class HospitalPanel extends JPanel {
 
             JLabel postalCode = new JLabel("Postal code");
             postalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField postalCodeField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
+            JTextField postalCodeField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
             fourthRow.add(postalCode);
             fourthRow.add(Box.createRigidArea(new Dimension(60, 0)));
             fourthRow.add(postalCodeField);
@@ -554,7 +554,7 @@ public class HospitalPanel extends JPanel {
 
             JLabel city = new JLabel("City");
             city.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField cityField = new JTextField(tab.getModel().getValueAt(index, 4).toString());
+            JTextField cityField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
             fifthRow.add(city);
             fifthRow.add(Box.createRigidArea(new Dimension(125, 0)));
             fifthRow.add(cityField);
@@ -568,7 +568,7 @@ public class HospitalPanel extends JPanel {
 
             JLabel province = new JLabel("Province");
             province.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField provinceField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
+            JTextField provinceField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
             sixthRow.add(province);
             sixthRow.add(Box.createRigidArea(new Dimension(85, 0)));
             sixthRow.add(provinceField);
@@ -582,7 +582,7 @@ public class HospitalPanel extends JPanel {
 
             JLabel state = new JLabel("State");
             state.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField stateField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
+            JTextField stateField = new JTextField(tab.getModel().getValueAt(index, 7).toString());
             seventhRow.add(state);
             seventhRow.add(Box.createRigidArea(new Dimension(115, 0)));
             seventhRow.add(stateField);
@@ -672,11 +672,11 @@ public class HospitalPanel extends JPanel {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
                     PreparedStatement stat = conn.prepareStatement(findAddress);
-                    stat.setString(1, tab.getModel().getValueAt(index, 2).toString());
-                    stat.setString(2, tab.getModel().getValueAt(index, 3).toString());
-                    stat.setString(3, tab.getModel().getValueAt(index, 4).toString());
-                    stat.setString(4, tab.getModel().getValueAt(index, 5).toString());
-                    stat.setString(5, tab.getModel().getValueAt(index, 6).toString());
+                    stat.setString(1, tab.getModel().getValueAt(index, 3).toString());
+                    stat.setString(2, tab.getModel().getValueAt(index, 4).toString());
+                    stat.setString(3, tab.getModel().getValueAt(index, 5).toString());
+                    stat.setString(4, tab.getModel().getValueAt(index, 6).toString());
+                    stat.setString(5, tab.getModel().getValueAt(index, 7).toString());
 
                     ResultSet rs = stat.executeQuery();
 
@@ -718,7 +718,7 @@ public class HospitalPanel extends JPanel {
 
                     //Now we have the address, so we add the hospital
 
-                    String updateHospital = " UPDATE hospital SET hospitalname = ?, hospitaladdress = ? WHERE hospitalid = " + tab.getModel().getValueAt(index, 0);
+                    String updateHospital = " UPDATE hospital SET hospitalname = ?, hospitaladdress = ? WHERE hospitalid = " + tab.getModel().getValueAt(index, 1);
 
                     PreparedStatement updateHospitalStat = conn.prepareStatement(updateHospital);
 
