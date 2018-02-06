@@ -1,3 +1,6 @@
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.sun.prism.Graphics;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -7,6 +10,8 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -177,8 +182,27 @@ public class DoctorPanel extends JPanel {
 
                 if (indexes.length == 0)
                     updateButton.setEnabled(false);
-                else
-                    updateButton.setEnabled(true);
+                else {
+                    if (!(Boolean)tab.getModel().getValueAt(indexes[0], 5))
+                        updateButton.setEnabled(false);
+                    else
+                        updateButton.setEnabled(true);
+                }
+            }
+        });
+
+        tab.setToolTipText("One click on a practising doctor selects the row, two clicks show information about that doctor.");
+
+        tab.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JTable table = (JTable) e.getSource();
+                Point point = e.getPoint();
+                int row = table.rowAtPoint(point);
+                if (e.getClickCount() == 2 && (Boolean)table.getModel().getValueAt(row, 5)) {
+                    String info = DoctorInfo.DoctorInformation(Integer.parseInt(table.getModel().getValueAt(row, 1).toString()));
+                    JOptionPane.showMessageDialog(container, info, "Doctor information", JOptionPane.PLAIN_MESSAGE);
+                }
             }
         });
     }
@@ -554,6 +578,9 @@ public class DoctorPanel extends JPanel {
             practisingButton.addActionListener(listener);
             retiredButton.addActionListener(listener);
 
+            if ((Boolean)tab.getModel().getValueAt(index, 5))
+                practisingButton.setSelected(true);
+
             fifthRow.add(practising);
             fifthRow.add(Box.createRigidArea(new Dimension(150, 0)));
             fifthRow.add(practisingButton);
@@ -874,7 +901,6 @@ public class DoctorPanel extends JPanel {
 
             if (source == practisingButton)
                 isPractising = true;
-
             else
                 isPractising = false;
         }

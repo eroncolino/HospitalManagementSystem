@@ -737,7 +737,7 @@ public class NursePanel extends JPanel {
 
             //add all to JOptionPane
             int result = JOptionPane.showConfirmDialog(container, // use your JFrame here
-                    addPanel, "Add patient", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    addPanel, "Add nurse", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             //now we check the result
 
@@ -845,12 +845,12 @@ public class NursePanel extends JPanel {
                     e1.printStackTrace();
                 }
 
-                String insertPatient = "INSERT INTO nurse(nurseid, nursename, nursesurname, specialization, hospitalid, wardid) values (?,?,?,?,?,?)";
+                String insertNurse = "INSERT INTO nurse(nurseid, nursename, nursesurname, specialization, hospitalid, wardid) values (?,?,?,?,?,?)";
 
                 try {
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
 
-                    PreparedStatement stat = conn.prepareStatement(insertPatient);
+                    PreparedStatement stat = conn.prepareStatement(insertNurse);
                     stat.setInt(1, Integer.parseInt(nurseIdField.getText()));
                     stat.setString(2, nameField.getText());
                     stat.setString(3, surnameField.getText());
@@ -860,7 +860,7 @@ public class NursePanel extends JPanel {
 
                     int res = stat.executeUpdate();
 
-                    //Confirm that patient record has been added successfully
+                    //Confirm that nurse record has been added successfully
                     if (res > 0) {
                         JOptionPane.showMessageDialog(container, "Nurse added successfully.");
                     }

@@ -108,7 +108,7 @@ public class HospitalPanel extends JPanel {
         columnModel.getColumn(5).setPreferredWidth(15);
         columnModel.getColumn(6).setPreferredWidth(20);
 
-        tab.setToolTipText("One click to select the row, two to open the wards panel relative.");
+        tab.setToolTipText("One click to select the row, two to open the wards panel relative to this hospital.");
 
         tab.addMouseListener(new MouseAdapter() {
             @Override
@@ -693,7 +693,7 @@ public class HospitalPanel extends JPanel {
                         updateAddressStmt.setString(2, postalCodeField.getText());
                         updateAddressStmt.setString(3, cityField.getText());
                         updateAddressStmt.setString(4, provinceField.getText());
-                        updateAddressStmt.setString(5, provinceField.getText());
+                        updateAddressStmt.setString(5, stateField.getText());
 
                         updateAddressStmt.executeUpdate();
 
