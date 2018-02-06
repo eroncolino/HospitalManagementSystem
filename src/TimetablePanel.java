@@ -1474,6 +1474,8 @@ public class TimetablePanel extends JPanel {
                         JOptionPane.showMessageDialog(container, "Timetable deleted successfully.");
                     }
 
+                    repaintTable(getAllTimetableData());
+
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
@@ -1517,7 +1519,7 @@ public class TimetablePanel extends JPanel {
         String query = "SELECT FROM timetable t INNER JOIN doctor d ON t.doctorid = d.doctorid " +
                 "INNER JOIN private_office o ON t.officeid = o.officeid " +
                 "INNER JOIN address a ON o.officeaddress = a.addressid " +
-                "WHERE d.doctorid = ? AND t.day = ? AND t.beginningtime = ? AND t.endtime = ?";
+                "WHERE d.doctorid = ? AND t.dayoftheweek = ? AND t.beginningtime = ? AND t.endtime = ?";
 
         Connection conn;
 
@@ -1540,9 +1542,9 @@ public class TimetablePanel extends JPanel {
             s.setTime(3, t1);
             s.setTime(4, t2);
 
-            int res = s.executeUpdate();
+            ResultSet rs = s.executeQuery();
 
-            if (res > 0)
+            if (rs.next())
                 return true;
 
         } catch (SQLException e) {
