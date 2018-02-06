@@ -180,7 +180,7 @@ public class AdmissionPanel extends JPanel {
         rowSelectionModel.addListSelectionListener(e -> {
             int[] indexes = tab.getSelectedRows();
 
-            if (indexes.length == 0 || tab.getModel().getValueAt(tab.getSelectedRow(), 1) !=  null) {
+            if (indexes.length == 0 || tab.getModel().getValueAt(tab.getSelectedRow(), 2) !=  null) {
                 updateButton.setEnabled(false);
             } else {
                 updateButton.setEnabled(true);
@@ -506,7 +506,7 @@ public class AdmissionPanel extends JPanel {
 
             JLabel admissionDate = new JLabel("Admission Date");
             admissionDate.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField admissionDateField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 0)));
+            JTextField admissionDateField = new JTextField(String.valueOf(tab.getModel().getValueAt(index, 1)));
             admissionDateField.setEditable(false);
             firstRow.add(admissionDate);
             firstRow.add(Box.createRigidArea(new Dimension(69, 0)));
@@ -546,7 +546,7 @@ public class AdmissionPanel extends JPanel {
 
             JLabel patientFiscalCode = new JLabel("Patient Fiscal Code");
             patientFiscalCode.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField patientFiscalCodeField = new JTextField(tab.getModel().getValueAt(index, 2).toString());
+            JTextField patientFiscalCodeField = new JTextField(tab.getModel().getValueAt(index, 3).toString());
             patientFiscalCodeField.setEditable(false);
             thirdRow.add(patientFiscalCode);
             thirdRow.add(Box.createRigidArea(new Dimension(40, 0)));
@@ -561,7 +561,7 @@ public class AdmissionPanel extends JPanel {
 
             JLabel admissionCause = new JLabel("Admission Cause");
             admissionCause.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField admissionCauseField = new JTextField(tab.getModel().getValueAt(index, 5).toString());
+            JTextField admissionCauseField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
             admissionCauseField.setEditable(false);
             fourthRow.add(admissionCause);
             fourthRow.add(Box.createRigidArea(new Dimension(58, 0)));
@@ -576,7 +576,7 @@ public class AdmissionPanel extends JPanel {
 
             JLabel hospitalId = new JLabel("Hospital ID ");
             hospitalId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField hospitalIdField = new JTextField(tab.getModel().getValueAt(index, 6).toString());
+            JTextField hospitalIdField = new JTextField(tab.getModel().getValueAt(index, 7).toString());
             hospitalIdField.setEditable(false);
             fifthRow.add(hospitalId);
             fifthRow.add(Box.createRigidArea(new Dimension(103, 0)));
@@ -591,7 +591,7 @@ public class AdmissionPanel extends JPanel {
 
             JLabel wardId = new JLabel("Ward ID ");
             wardId.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField wardIdField = new JTextField(tab.getModel().getValueAt(index, 7).toString());
+            JTextField wardIdField = new JTextField(tab.getModel().getValueAt(index, 8).toString());
             sixthRow.add(wardId);
             sixthRow.add(Box.createRigidArea(new Dimension(128, 0)));
             sixthRow.add(wardIdField);
@@ -605,7 +605,7 @@ public class AdmissionPanel extends JPanel {
 
             JLabel room = new JLabel("Room No.");
             room.setFont(new Font("Verdana", Font.PLAIN, 18));
-            JTextField roomField = new JTextField(tab.getModel().getValueAt(index, 8).toString());
+            JTextField roomField = new JTextField(tab.getModel().getValueAt(index, 9).toString());
             seventhRow.add(room);
             seventhRow.add(Box.createRigidArea(new Dimension(120, 0)));
             seventhRow.add(roomField);
@@ -620,7 +620,7 @@ public class AdmissionPanel extends JPanel {
             //now we check the result
 
             if (result == JOptionPane.YES_OPTION) {
-                java.util.Date admission = (java.util.Date) tab.getModel().getValueAt(index, 0);
+                java.util.Date admission = (java.util.Date) tab.getModel().getValueAt(index, 1);
                 java.sql.Date sqlAdmission = new java.sql.Date(admission.getTime());
                 java.util.Date selectedDate = (java.util.Date) datePicker.getModel().getValue();
                 java.sql.Date sqlRelease = null;
@@ -656,7 +656,7 @@ public class AdmissionPanel extends JPanel {
                 try {
                     checkWardId = Integer.parseInt(wardIdField.getText());
 
-                    String checkDoctorExists = "SELECT * FROM ward WHERE wardid = " + checkWardId + " AND hospitalid = " + tab.getModel().getValueAt(index, 6);
+                    String checkDoctorExists = "SELECT * FROM ward WHERE wardid = " + checkWardId + " AND hospitalid = " + tab.getModel().getValueAt(index, 7);
 
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
                     Statement s = conn.createStatement();
@@ -682,7 +682,7 @@ public class AdmissionPanel extends JPanel {
                     checkRoom = Integer.parseInt(roomField.getText());
 
                     String checkDoctorExists = "SELECT * FROM bedroom WHERE bedroomnumber = " + checkRoom + " AND wardid = " + checkWardId
-                            + " AND hospitalid = " + tab.getModel().getValueAt(index, 6);
+                            + " AND hospitalid = " + tab.getModel().getValueAt(index, 7);
 
                     conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Hospital", "postgres", "elena");
                     Statement s = conn.createStatement();
@@ -710,7 +710,7 @@ public class AdmissionPanel extends JPanel {
 
                 //We update the ward and/or the room number only if the release date is still null, otherwise we just set the release date and ignore the
                 //updated ward and id since it makes no sense to release a patient and update the room in which he/she stays at the same time.
-                int oldRoomNo = (int) tab.getModel().getValueAt(index, 7);
+                int oldRoomNo = (int) tab.getModel().getValueAt(index, 9);
                 int oldWardId = (int) tab.getModel().getValueAt(index, 8);
 
                 if (sqlRelease == null) {   //i.e. the patient is just changed room or ward
@@ -737,12 +737,11 @@ public class AdmissionPanel extends JPanel {
                                 //The old room has one new free bed
                                 String updateOldRoom = "UPDATE bedroom SET noavailablebeds = noavailablebeds + 1 WHERE hospitalid = ? AND wardid = ? AND bedroomnumber = ?";
                                 PreparedStatement s = conn.prepareStatement(updateOldRoom);
-                                s.setInt(1, (Integer) tab.getModel().getValueAt(index, 6));
-                                s.setInt(2, (Integer) tab.getModel().getValueAt(index, 7));
-                                s.setInt(3, (Integer) tab.getModel().getValueAt(index, 8));
+                                s.setInt(1, (Integer) tab.getModel().getValueAt(index, 7));
+                                s.setInt(2, (Integer) tab.getModel().getValueAt(index, 8));
+                                s.setInt(3, (Integer) tab.getModel().getValueAt(index, 9));
 
                                 s.executeUpdate();
-                                System.out.println("old room");
 
                                 //The new room has one less available bed
                                 String updateNewRoom = "UPDATE bedroom SET noavailablebeds = noavailablebeds - 1 WHERE hospitalid = ? AND wardid = ? AND bedroomnumber = ?";
@@ -752,7 +751,6 @@ public class AdmissionPanel extends JPanel {
                                 s2.setInt(3, Integer.parseInt(roomField.getText()));
 
                                 s2.executeUpdate();
-                                System.out.println("new room");
                             }
                         }
                     } catch (SQLException s) {
@@ -781,12 +779,11 @@ public class AdmissionPanel extends JPanel {
                             //Update the number of available beds in the rooom where the patient was hosted
                             String updateRoom = "UPDATE bedroom SET noavailablebeds = noavailablebeds + 1 WHERE hospitalid = ? AND wardid = ? AND bedroomnumber = ?";
                             PreparedStatement s = conn.prepareStatement(updateRoom);
-                            s.setInt(1, (Integer) tab.getModel().getValueAt(index, 6));
+                            s.setInt(1, (Integer) tab.getModel().getValueAt(index, 7));
                             s.setInt(2, oldWardId);
                             s.setInt(3, oldRoomNo);
 
                             s.executeUpdate();
-                            System.out.println("bed freed");
                         }
                     } catch (SQLException s) {
                         s.printStackTrace();
@@ -1109,7 +1106,7 @@ public class AdmissionPanel extends JPanel {
 
                     //Confirm that hospital record has been added successfully
                     if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Hospital admission updated successfully.");
+                        JOptionPane.showMessageDialog(container, "Hospital admission inserted successfully.");
 
                         //If the insertion has been completed successfully, we update the number of beds in the room
                         if(isReleased == false) {

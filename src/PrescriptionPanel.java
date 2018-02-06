@@ -738,7 +738,7 @@ public class PrescriptionPanel extends JPanel {
 
                     //Confirm that hospital record has been added successfully
                     if (res > 0) {
-                        JOptionPane.showMessageDialog(container, "Medicine added successfully.");
+                        JOptionPane.showMessageDialog(container, "Prescription added successfully.");
                     }
 
                     //Repaint the table
